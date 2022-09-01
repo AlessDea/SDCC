@@ -3,12 +3,13 @@ SDCC project
 
 PASSWORD MANAGER
 Microservices:
- - nuova password
- - memorizza password
- - richiedi password per un certo sito
- - doppia autenticazione
- - password temporanea
+ - nuova password (senza salvataggio, solo generazione)
+ - memorizza password (salvataggio di una password generata)
+ - listing password 
+ - servizio di doppia autenticazione (fornisce il secondo stage di autenticazione)
+ - password temporanea (con timer)
  - token (piu utenti possono avere un pezzo di token ed accedere solo se li hanno tutti)
+ - controllo leaked password all'inserimento
 
 BUS TICKET MANAGER
 Microservices:
