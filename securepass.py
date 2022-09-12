@@ -10,7 +10,7 @@ import string
 import random
 import os
 import dbm
-import numpy as np
+import pickle
 
 
 alphabetUpper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -18,10 +18,7 @@ alphabetLower = 'abcdefghijklmnopqrstuvwxyz'
 alphabetDigits = '0123456789'
 alphabetPunctiuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 alphabetComplete = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
-#string.digits  string.punctuation
 
-type = 0 #(0: numerica, 1:alfanumerica, 2: letterale)
-simbols = True 
 
 def generate_from_key_word(l, kw):
 	pw = ''
@@ -36,6 +33,8 @@ def generate_from_key_word(l, kw):
 
 	print(pw)
 
+
+
 def generate_new(l):
 	pw = ''
 
@@ -45,23 +44,72 @@ def generate_new(l):
 	print(pw)
 
 
+def generate_num_code(l):
+	code = ''
+
+	for j in range(l):
+		code += random.choice(alphabetDigits)
+
+	print(code)
+
+
+def generate_lower_code(l):
+	code = ''
+
+	for j in range(l):
+		code += random.choice(alphabetLower)
+
+	print(code)
+
+
+def generate_upper_code(l):
+	code = ''
+
+	for j in range(l):
+		code += random.choice(alphabetUpper)
+
+	print(code)
+
+
+def generate_onlychars_code(l):
+	code = ''
+
+	for j in range(l):
+		code += random.choice(alphabetUpper+alphabetLower)
+
+	print(code)
+
+
+def generate_alphanumeric_code(l):
+	code = ''
+
+	for j in range(l):
+		code += random.choice(alphabetUpper+alphabetLower+alphabetDigits)
+
+	print(code)
+
 
 if __name__ == '__main__':
 
-	db = dbm.open('state.dat', 'c')
-	state = db.get('state')
-
-	if state != None:    
-	    print('state found')
-	    s = np.random.RandomState(int(state))
-	    random.setstate(s)
+	if os.path.exists('state.dat'):
+		# Restore the previously saved state
+		print('Found state.dat, initializing random module')
+		with open('state.dat', 'rb') as f:
+			state = pickle.load(f)
+		random.setstate(state)
 	else:
-	    # Use a well-known start state
-	    random.seed(12345)
-	    print('new state')
+		# Use a well-known start state
+		print('No state.dat, seeding')
+		random.seed(12345)
 
-	#generate_from_key_word(length, keyWord)
+	generate_new(10)
+	generate_from_key_word(10, 'Pierpaolo')
+	generate_num_code(4)
+	generate_lower_code(10)
+	generate_upper_code(10)
+	generate_onlychars_code(10)
+	generate_alphanumeric_code(10)
 
-	generate_new(20)
-	db['state'] = random.getstate().__str__()
-	db.close()
+	# Save state for next time
+	with open('state.dat', 'wb') as f:
+		pickle.dump(random.getstate(), f)
