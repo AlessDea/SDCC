@@ -1,13 +1,26 @@
-import random
+import secrets  # https://docs.python.org/3/library/secrets.html
+import bcrypt
 
-random.seed(42)
 
-print(random.sample(range(20),k=10))
+# con questo secrets.token_hex() si può prendere un salt
 
-st = random.getstate()  # remeber this state 
+def fun():
+    p = secrets.token_hex(10)
+    print(p)
 
-print(random.sample(range(20),k=20)) # print 20
 
-random.setstate(st)     # restore state
+if __name__ == '__main__':
+    # fun()
+    password = "porcamadonna"
 
-print(random.sample(range(20),k=10)) #print same first 10
+    bytes = password.encode('utf-8')
+
+    # generating the salt
+    salt = bcrypt.gensalt()
+    print(salt)
+
+    # Hashing the password
+    hash = bcrypt.hashpw(bytes, salt)
+
+    print(hash)
+    print(len(hash.decode()))

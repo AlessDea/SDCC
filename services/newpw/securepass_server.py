@@ -128,6 +128,29 @@ class Password(newpassword_pb2_grpc.PasswordServicer):
         npw = generate_new(request.length)
         return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
+    def GetNewPassFromWord(self, request, context):
+        npw = generate_from_key_word(request.length, request.kword)
+        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
+
+    def GetNewNumPass(self, request, context):
+        npw = generate_num_code(request.length)
+        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
+
+    def GetNewLowerPass(self, request, context):
+        npw = generate_lower_code(request.length)
+        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
+
+    def GetNewUpperPass(self, request, context):
+        npw = generate_upper_code(request.length)
+        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
+
+    def GetNewAlphaNumPass(self, request, context):
+        npw = generate_alphanumeric_code(request.length)
+        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
+
+    def GetNewCharsPass(self, request, context):
+        npw = generate_onlychars_code(request.length)
+        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -137,5 +160,6 @@ def serve():
     server.wait_for_termination()
 
 if __name__ == '__main__':
+    checkRandomStatus()
     logging.basicConfig()
     serve()

@@ -7,6 +7,9 @@ import newpassword_pb2
 import newpassword_pb2_grpc
 
 
+
+
+
 def run():
     # NOTE(gRPC Python Team): .close() is possible on a channel and should be
     # used in circumstances in which the with statement does not fit the needs
@@ -15,6 +18,16 @@ def run():
         stub = newpassword_pb2_grpc.PasswordStub(channel)
         response = stub.GetNewPass(newpassword_pb2.PwRequest(name='Alessandro', length=10))
         print("Response: " + response.message +response.pw)
+
+        print("\n")
+
+        response = stub.GetNewNumPass(newpassword_pb2.PwRequest(name='Alessandro', length=6))
+        print("Response: " + response.message + response.pw)
+
+        print("\n")
+
+        response = stub.GetNewAlphaNumPass(newpassword_pb2.PwRequest(name='Alessandro', length=10))
+        print("Response: " + response.message + response.pw)
 
 
 if __name__ == '__main__':
