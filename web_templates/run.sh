@@ -36,4 +36,8 @@ echo ${container_port}
 echo ${container_name}
 
 docker build -t ${container_name} .
-docker run -dp ${host_port}:${container_port} ${container_name}
+id=$(docker run -dp ${host_port}:${container_port} ${container_name})
+
+docker network create net1
+
+docker network connect net1 ${id} --alias gateway
