@@ -6,13 +6,10 @@ import tempfile
 import random
 import socket  # for the hostname
 
-
-
 # https://towardsdatascience.com/using-python-flask-and-ajax-to-pass-information-between-the-client-and-server-90670c64d688
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '52a645324b49268eb7335fe0d9fe5b675ab33b49053845b4'       # serve a flash
-
 
 
 
@@ -23,14 +20,29 @@ def newpassword():
         if not len:
             flash('Len is required!')
         else:
-            return render_template('pwresult.html', newpasswd='password1')
-    return render_template('newpassword.html')
+            return render_template('newPassword.html', newpasswd='p4ssW0rd!1')
+    return render_template('newPassword.html')
+
+
+@app.route('/newdoublecode/', methods=('GET', 'POST'))
+def newdoublecode():
+    if request.method == 'POST':
+        return render_template('newDoubleCode.html', newpasswd='206519')
+    return render_template('newDoubleCode.html')
+
+
+@app.route('/listpasswords/', methods=('GET', 'POST'))
+def listpasswords():
+    if request.method == 'POST':
+        pwlist = {'p1': 'n', 'p2':'n','p3': 't', 'p4': 'n', 'p5': 't'}
+        return render_template('listPasswords.html', pwlist=pwlist)
+    return render_template('listPasswords.html')
 
 
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('base.html')
 
 
 if __name__ == '__main__':
