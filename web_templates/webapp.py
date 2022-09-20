@@ -1,3 +1,4 @@
+import gateway_client
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -20,14 +21,16 @@ def newpassword():
         if not len:
             flash('Len is required!')
         else:
-            return render_template('newPassword.html', newpasswd='p4ssW0rd!1')
+            npw = gateway_client.getNewPw(int(len))
+            return render_template('newPassword.html', newpasswd=npw)
     return render_template('newPassword.html')
 
 
 @app.route('/newdoublecode/', methods=('GET', 'POST'))
 def newdoublecode():
     if request.method == 'POST':
-        return render_template('newDoubleCode.html', newpasswd='206519')
+        code = gateway_client.getNewNumPw(6)
+        return render_template('newDoubleCode.html', newpasswd=code)
     return render_template('newDoubleCode.html')
 
 
