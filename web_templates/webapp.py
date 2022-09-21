@@ -16,12 +16,30 @@ app.config['SECRET_KEY'] = '52a645324b49268eb7335fe0d9fe5b675ab33b49053845b4'   
 
 @app.route('/newpassword/', methods=('GET', 'POST'))
 def newpassword():
+    type1 = None
     if request.method == 'POST':
         len = request.form['len']
         if not len:
             flash('Len is required!')
         else:
-            npw = gateway_client.getNewPw(int(len))
+            type = request.form['r1']
+            if type != 'num':
+                type1 = request.form['r2']
+                service = request.form['service']
+                save = request.form['check']
+
+                if type == 'alphanum':
+                    if type1 == 'ulc':
+                        npw = gateway_client.getNewAlphNumPw(int(len))
+                    elif type1 == 'uc':
+                        npw = gateway_client.getNewUpperPw(int(len))
+                    else:
+                        npw = gateway_client.getNewLowerPw(int(len))
+
+            else:
+                npw = gateway_client.getNewNumPw(int(len))
+
+
             return render_template('newPassword.html', newpasswd=npw)
     return render_template('newPassword.html')
 

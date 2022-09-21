@@ -19,24 +19,12 @@ import newpassword_pb2_grpc
 alphabetUpper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 alphabetLower = 'abcdefghijklmnopqrstuvwxyz'
 alphabetDigits = '0123456789'
-alphabetPunctiuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+alphabetPunctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 alphabetComplete = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 
 
-def generate_from_key_word(l, kw):
-    pw = ''
 
-    for j in range(l):
-        pw += random.choice(alphabetLower)
-        if j <= (len(kw) - 1):
-            pw += kw[j].upper()
-
-    with open('state.dat', 'wb') as f:
-        pickle.dump(random.getstate(), f)
-
-    return pw
-
-
+# da cambiare: mettere un numero max di simboli (in percentuale)
 def generate_new(l):
     pw = ''
 
@@ -65,7 +53,7 @@ def generate_lower_code(l):
     code = ''
 
     for j in range(l):
-        code += random.choice(alphabetLower)
+        code += random.choice(alphabetLower + alphabetDigits + alphabetPunctuation)
 
     with open('state.dat', 'wb') as f:
         pickle.dump(random.getstate(), f)
@@ -77,7 +65,7 @@ def generate_upper_code(l):
     code = ''
 
     for j in range(l):
-        code += random.choice(alphabetUpper)
+        code += random.choice(alphabetUpper + alphabetDigits + alphabetPunctuation)
 
     with open('state.dat', 'wb') as f:
         pickle.dump(random.getstate(), f)
@@ -85,18 +73,7 @@ def generate_upper_code(l):
     return code
 
 
-def generate_onlychars_code(l):
-    code = ''
-
-    for j in range(l):
-        code += random.choice(alphabetUpper + alphabetLower)
-
-    with open('state.dat', 'wb') as f:
-        pickle.dump(random.getstate(), f)
-
-    return code
-
-
+# no symbols
 def generate_alphanumeric_code(l):
     code = ''
 
@@ -128,9 +105,6 @@ class Password(newpassword_pb2_grpc.PasswordServicer):
         npw = generate_new(request.length)
         return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
-    def GetNewPassFromWord(self, request, context):
-        npw = generate_from_key_word(request.length, request.kword)
-        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
     def GetNewNumPass(self, request, context):
         npw = generate_num_code(request.length)
@@ -144,13 +118,11 @@ class Password(newpassword_pb2_grpc.PasswordServicer):
         npw = generate_upper_code(request.length)
         return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
+# no symbols
     def GetNewAlphaNumPass(self, request, context):
         npw = generate_alphanumeric_code(request.length)
         return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
-    def GetNewCharsPass(self, request, context):
-        npw = generate_onlychars_code(request.length)
-        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
