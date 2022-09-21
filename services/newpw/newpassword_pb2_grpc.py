@@ -20,11 +20,6 @@ class PasswordStub(object):
                 request_serializer=newpassword__pb2.PwRequest.SerializeToString,
                 response_deserializer=newpassword__pb2.PwReply.FromString,
                 )
-        self.GetNewPassFromWord = channel.unary_unary(
-                '/newpw.Password/GetNewPassFromWord',
-                request_serializer=newpassword__pb2.PwRequestW.SerializeToString,
-                response_deserializer=newpassword__pb2.PwReply.FromString,
-                )
         self.GetNewNumPass = channel.unary_unary(
                 '/newpw.Password/GetNewNumPass',
                 request_serializer=newpassword__pb2.PwRequest.SerializeToString,
@@ -40,11 +35,6 @@ class PasswordStub(object):
                 request_serializer=newpassword__pb2.PwRequest.SerializeToString,
                 response_deserializer=newpassword__pb2.PwReply.FromString,
                 )
-        self.GetNewCharsPass = channel.unary_unary(
-                '/newpw.Password/GetNewCharsPass',
-                request_serializer=newpassword__pb2.PwRequest.SerializeToString,
-                response_deserializer=newpassword__pb2.PwReply.FromString,
-                )
         self.GetNewAlphaNumPass = channel.unary_unary(
                 '/newpw.Password/GetNewAlphaNumPass',
                 request_serializer=newpassword__pb2.PwRequest.SerializeToString,
@@ -57,13 +47,6 @@ class PasswordServicer(object):
     """
 
     def GetNewPass(self, request, context):
-        """Sends a greeting
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GetNewPassFromWord(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -87,12 +70,6 @@ class PasswordServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetNewCharsPass(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
     def GetNewAlphaNumPass(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -107,11 +84,6 @@ def add_PasswordServicer_to_server(servicer, server):
                     request_deserializer=newpassword__pb2.PwRequest.FromString,
                     response_serializer=newpassword__pb2.PwReply.SerializeToString,
             ),
-            'GetNewPassFromWord': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetNewPassFromWord,
-                    request_deserializer=newpassword__pb2.PwRequestW.FromString,
-                    response_serializer=newpassword__pb2.PwReply.SerializeToString,
-            ),
             'GetNewNumPass': grpc.unary_unary_rpc_method_handler(
                     servicer.GetNewNumPass,
                     request_deserializer=newpassword__pb2.PwRequest.FromString,
@@ -124,11 +96,6 @@ def add_PasswordServicer_to_server(servicer, server):
             ),
             'GetNewUpperPass': grpc.unary_unary_rpc_method_handler(
                     servicer.GetNewUpperPass,
-                    request_deserializer=newpassword__pb2.PwRequest.FromString,
-                    response_serializer=newpassword__pb2.PwReply.SerializeToString,
-            ),
-            'GetNewCharsPass': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetNewCharsPass,
                     request_deserializer=newpassword__pb2.PwRequest.FromString,
                     response_serializer=newpassword__pb2.PwReply.SerializeToString,
             ),
@@ -161,23 +128,6 @@ class Password(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewPass',
             newpassword__pb2.PwRequest.SerializeToString,
-            newpassword__pb2.PwReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetNewPassFromWord(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewPassFromWord',
-            newpassword__pb2.PwRequestW.SerializeToString,
             newpassword__pb2.PwReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -228,23 +178,6 @@ class Password(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewUpperPass',
-            newpassword__pb2.PwRequest.SerializeToString,
-            newpassword__pb2.PwReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetNewCharsPass(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewCharsPass',
             newpassword__pb2.PwRequest.SerializeToString,
             newpassword__pb2.PwReply.FromString,
             options, channel_credentials,

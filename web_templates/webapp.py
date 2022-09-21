@@ -22,22 +22,32 @@ def newpassword():
         if not len:
             flash('Len is required!')
         else:
+
+            if not request.form.get('symb'):
+                symbol = False
+            else:
+                symbol = True
+
+
             type = request.form['r1']
             if type != 'num':
                 type1 = request.form['r2']
+
                 service = request.form['service']
                 save = request.form['check']
 
-                if type == 'alphanum':
-                    if type1 == 'ulc':
-                        npw = gateway_client.getNewAlphNumPw(int(len))
-                    elif type1 == 'uc':
-                        npw = gateway_client.getNewUpperPw(int(len))
-                    else:
-                        npw = gateway_client.getNewLowerPw(int(len))
+
+
+                if type1 == 'ulc':
+                    npw = gateway_client.getNewAlphNumPw(int(len), symbol)
+                elif type1 == 'uc':
+                    npw = gateway_client.getNewUpperPw(int(len), symbol)
+                else:
+                    npw = gateway_client.getNewLowerPw(int(len), symbol)
 
             else:
-                npw = gateway_client.getNewNumPw(int(len))
+
+                npw = gateway_client.getNewNumPw(int(len), symbol)
 
 
             return render_template('newPassword.html', newpasswd=npw)

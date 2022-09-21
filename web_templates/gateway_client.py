@@ -8,41 +8,34 @@ import newpassword_pb2_grpc
 
 
 
-def  getNewPw(l):
+
+def getNewNumPw(l, sy):
     with grpc.insecure_channel('newpassword:50051') as channel:
         stub = newpassword_pb2_grpc.PasswordStub(channel)
-        response = stub.GetNewPass(newpassword_pb2.PwRequest(length=l))
+        response = stub.GetNewNumPass(newpassword_pb2.PwRequest(length=l, symbols=sy))
 
         return response.pw
 
 
-def getNewNumPw(l):
+def getNewAlphNumPw(l, sy):
     with grpc.insecure_channel('newpassword:50051') as channel:
         stub = newpassword_pb2_grpc.PasswordStub(channel)
-        response = stub.GetNewNumPass(newpassword_pb2.PwRequest(length=l))
+        response = stub.GetNewAlphaNumPass(newpassword_pb2.PwRequest(length=l, symbols=sy))
 
         return response.pw
 
 
-def getNewAlphNumPw(l):
+def getNewUpperPw(l, sy):
     with grpc.insecure_channel('newpassword:50051') as channel:
         stub = newpassword_pb2_grpc.PasswordStub(channel)
-        response = stub.GetNewAlphaNumPass(newpassword_pb2.PwRequest(length=l))
+        response = stub.GetNewUpperPass(newpassword_pb2.PwRequest(length=l, symbols=sy))
 
         return response.pw
 
 
-def getNewUpperPw(l):
+def getNewLowerPw(l, sy):
     with grpc.insecure_channel('newpassword:50051') as channel:
         stub = newpassword_pb2_grpc.PasswordStub(channel)
-        response = stub.GetNewUpperPass(newpassword_pb2.PwRequest(length=l))
-
-        return response.pw
-
-
-def getNewLowerPw(l):
-    with grpc.insecure_channel('newpassword:50051') as channel:
-        stub = newpassword_pb2_grpc.PasswordStub(channel)
-        response = stub.GetNewLowerPass(newpassword_pb2.PwRequest(length=l))
+        response = stub.GetNewLowerPass(newpassword_pb2.PwRequest(length=l, symbols=sy))
 
         return response.pw

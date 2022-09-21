@@ -24,24 +24,15 @@ alphabetComplete = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567
 
 
 
-# da cambiare: mettere un numero max di simboli (in percentuale)
-def generate_new(l):
-    pw = ''
 
-    for j in range(l):
-        pw += random.choice(alphabetComplete)
-
-    with open('state.dat', 'wb') as f:
-        pickle.dump(random.getstate(), f)
-
-    return pw
-
-
-def generate_num_code(l):
+def generate_num_code(l, sy):
     code = ''
 
     for j in range(l):
-        code += random.choice(alphabetDigits)
+        if sy == True:
+            code += random.choice(alphabetDigits + alphabetPunctuation)
+        else:
+            code += random.choice(alphabetDigits)
 
     with open('state.dat', 'wb') as f:
         pickle.dump(random.getstate(), f)
@@ -49,11 +40,14 @@ def generate_num_code(l):
     return code
 
 
-def generate_lower_code(l):
+def generate_lower_code(l, sy):
     code = ''
 
     for j in range(l):
-        code += random.choice(alphabetLower + alphabetDigits + alphabetPunctuation)
+        if sy == True:
+            code += random.choice(alphabetLower + alphabetDigits + alphabetPunctuation)
+        else:
+            code += random.choice(alphabetLower + alphabetDigits)
 
     with open('state.dat', 'wb') as f:
         pickle.dump(random.getstate(), f)
@@ -61,11 +55,14 @@ def generate_lower_code(l):
     return code
 
 
-def generate_upper_code(l):
+def generate_upper_code(l, sy):
     code = ''
 
     for j in range(l):
-        code += random.choice(alphabetUpper + alphabetDigits + alphabetPunctuation)
+        if sy == True:
+            code += random.choice(alphabetUpper + alphabetDigits + alphabetPunctuation)
+        else:
+            code += random.choice(alphabetUpper + alphabetDigits)
 
     with open('state.dat', 'wb') as f:
         pickle.dump(random.getstate(), f)
@@ -74,11 +71,14 @@ def generate_upper_code(l):
 
 
 # no symbols
-def generate_alphanumeric_code(l):
+def generate_alphanumeric_code(l, sy):
     code = ''
 
     for j in range(l):
-        code += random.choice(alphabetUpper + alphabetLower + alphabetDigits)
+        if sy == True:
+            code += random.choice(alphabetComplete)
+        else:
+            code += random.choice(alphabetUpper + alphabetLower + alphabetDigits)
 
     with open('state.dat', 'wb') as f:
         pickle.dump(random.getstate(), f)
@@ -101,26 +101,22 @@ def checkRandomStatus():
 
 class Password(newpassword_pb2_grpc.PasswordServicer):
 
-    def GetNewPass(self, request, context):
-        npw = generate_new(request.length)
-        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
-
 
     def GetNewNumPass(self, request, context):
-        npw = generate_num_code(request.length)
+        npw = generate_num_code(request.length, request.symbols)
         return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
     def GetNewLowerPass(self, request, context):
-        npw = generate_lower_code(request.length)
+        npw = generate_lower_code(request.length, request.symbols)
         return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
     def GetNewUpperPass(self, request, context):
-        npw = generate_upper_code(request.length)
+        npw = generate_upper_code(request.length, request.symbols)
         return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
 # no symbols
     def GetNewAlphaNumPass(self, request, context):
-        npw = generate_alphanumeric_code(request.length)
+        npw = generate_alphanumeric_code(request.length, request.symbols)
         return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
 
 
