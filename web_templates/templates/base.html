@@ -26,8 +26,9 @@
 
 <div class="w3-sidebar w3-bar-block w3-black w3-collapse w3-card w3-animate-left w3-monospace" style="width:300px; top:45px; float:left;overflow:hidden;" id="mySidebar">
     <button class="w3-bar-item w3-button w3-large w3-hide-large" onclick="w3_close()"> &times; </button>
-    <a href="#" class="w3-bar-item w3-button" title="Home"><i class="fa fa-home  w3-xlarge""></i> Home</a>
+    <a href="#" class="w3-bar-item w3-button" title="Home"><i class="fa fa-home  w3-xlarge"></i> Home</a>
     <a href="{{ url_for('newpassword') }}" class="w3-bar-item w3-button" title="New Password"><i class="fa fa-key  w3-xlarge"></i> New Password</a>
+    <a href="{{ url_for('savepassword') }}" class="w3-bar-item w3-button" title="New Password"><i class="fa fa-floppy-o  w3-xlarge"></i> Save Password</a>
     <a href="#" class="w3-bar-item w3-button" title="New temporary password"><i class="fa fa-clock-o  w3-xlarge"></i> New temporary password</a>
     <a href="#" class="w3-bar-item w3-button" title="New shared password"><i class="fa fa-users  w3-xlarge"></i> New shared password</a>
     <a href="{{ url_for('newdoublecode') }}" class="w3-bar-item w3-button" title="Double authentication"><i class="fa fa-shield  w3-xlarge"></i> Double authentication</a>

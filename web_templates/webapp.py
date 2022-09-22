@@ -53,6 +53,13 @@ def newpassword():
             return render_template('newPassword.html', newpasswd=npw)
     return render_template('newPassword.html')
 
+@app.route('/savepassword/', methods=('GET', 'POST'))
+def savepassword():
+    if request.method == 'POST':
+        code = gateway_client.getNewNumPw(6)
+        return render_template('savePassword.html', newpasswd=code)
+    return render_template('savePassword.html')
+
 
 @app.route('/newdoublecode/', methods=('GET', 'POST'))
 def newdoublecode():
