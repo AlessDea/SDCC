@@ -53,11 +53,15 @@ def newpassword():
             return render_template('newPassword.html', newpasswd=npw)
     return render_template('newPassword.html')
 
+
 @app.route('/savepassword/', methods=('GET', 'POST'))
 def savepassword():
     if request.method == 'POST':
-        code = gateway_client.getNewNumPw(6)
-        return render_template('savePassword.html', newpasswd=code)
+        ret = gateway_client.savePw(10, True)
+        if ret:
+            flash('Succesfully saved!')
+        else:
+            flash('An error occured!')
     return render_template('savePassword.html')
 
 

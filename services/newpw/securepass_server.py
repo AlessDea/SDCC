@@ -23,14 +23,18 @@ alphabetPunctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 alphabetComplete = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 
 
-
+perc = 0.3
 
 def generate_num_code(l, sy):
     code = ''
 
     for j in range(l):
         if sy == True:
-            code += random.choice(alphabetDigits + alphabetPunctuation)
+            if random.random() <= 0.3:
+                code += random.choice(alphabetPunctuation)
+            else:
+                code += random.choice(alphabetDigits)
+
         else:
             code += random.choice(alphabetDigits)
 
@@ -45,7 +49,11 @@ def generate_lower_code(l, sy):
 
     for j in range(l):
         if sy == True:
-            code += random.choice(alphabetLower + alphabetDigits + alphabetPunctuation)
+            if random.random() <= 0.3:
+                code += random.choice(alphabetPunctuation)
+            else:
+                code += random.choice(alphabetLower + alphabetDigits)
+
         else:
             code += random.choice(alphabetLower + alphabetDigits)
 
@@ -60,7 +68,11 @@ def generate_upper_code(l, sy):
 
     for j in range(l):
         if sy == True:
-            code += random.choice(alphabetUpper + alphabetDigits + alphabetPunctuation)
+            if random.random() <= 0.3:
+                code += random.choice(alphabetPunctuation)
+            else:
+                code += random.choice(alphabetUpper + alphabetDigits)
+
         else:
             code += random.choice(alphabetUpper + alphabetDigits)
 
@@ -76,9 +88,14 @@ def generate_alphanumeric_code(l, sy):
 
     for j in range(l):
         if sy == True:
-            code += random.choice(alphabetComplete)
+            if random.random() <= 0.3:
+                code += random.choice(alphabetPunctuation)
+            else:
+                code += random.choice(alphabetUpper + alphabetLower + alphabetDigits)
+
         else:
             code += random.choice(alphabetUpper + alphabetLower + alphabetDigits)
+
 
     with open('state.dat', 'wb') as f:
         pickle.dump(random.getstate(), f)
