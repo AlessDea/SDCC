@@ -84,7 +84,7 @@ def listpasswords():
 
 @app.route('/')
 def home():
-    return render_template('base.html')
+    return render_template('homepage.html')
 
 
 if __name__ == '__main__':
