@@ -1,0 +1,88 @@
+{% extends 'homepage_base.html' %}
+
+{% block title %} New Password {% endblock %}
+
+{% block content %}
+
+
+  <script>
+    document.getElementById("register").className = "active";
+  </script>
+
+  <div style="display: flex; justify-content: center; align-items: center;">
+
+    <div style="float:left; padding-right: 30px;">
+      <div style="background-color: #333333; border-radius: 5%; color: white;">
+        <div style="text-align: center; padding: 15px">
+          <h2 style="font-size: 35px; color: white;">Private User</h2>
+
+          <div>
+
+            <form action="{{ url_for('login') }}" name="form-1">
+
+              <div class="u-form-group" style="padding-bottom: 15px;">
+
+                <label style="padding: 5px;">Username *</label>
+                <input type="text" placeholder="Enter your Username" id="username" name="username" value="{{ request.form['username'] }}" class="u-input u-radius-50 u-white" style="width: 400px;" required="">
+
+              </div>
+
+              <div class="u-form-group" style="padding-bottom: 15px;">
+                <label style="padding: 5px;">Password *</label>
+                <input type="password" placeholder="Enter your Password" id="user_password" name="user_password" value="{{ request.form['user_password'] }}" class="u-input u-radius-50 u-white" style="width: 400px;" required="required">
+              </div>
+
+              <div class="u-form-group" style="padding-bottom: 15px;">
+
+                <label style="padding: 5px;">Email *</label>
+                <input type="email" placeholder="Enter your Email" id="email" name="email" value="{{ request.form['email'] }}" class="u-input u-radius-50 u-white" style="width: 400px;" required="">
+
+              </div>
+
+              <div class="u-align-center u-form-group u-form-submit">
+                <button class="u-btn u-btn-submit u-radius-50" style="background-color: #80a9b2; color: black;" type="user_submit">Register</button>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="float:left;">
+      <div style="background-color: #333333; border-radius: 5%; color: white;">
+        <div style="text-align: center; padding: 15px">
+          <h2 style="font-size: 35px; color: white;">Agency</h2>
+
+          <div>
+
+            <form action="{{ url_for('login') }}" name="form-1">
+
+              <div class="u-form-group" style="padding-bottom: 15px;">
+
+                <label style="padding: 5px;">Agency Name *</label>
+                <input type="text" placeholder="Enter your Username" id="agency_name" name="agency_name" value="{{ request.form['agency_name'] }}" class="u-input u-radius-50 u-white" style="width: 400px;" required="">
+
+              </div>
+
+              <div class="u-form-group" style="padding-bottom: 15px;">
+                <label style="padding: 5px;">Password *</label>
+                <input type="password" placeholder="Enter your Password" id="agency_password" name="agency_password" value="{{ request.form['agency_password'] }}" class="u-input u-radius-50 u-white" style="width: 400px;" required="required">
+              </div>
+
+              <div class="u-align-center u-form-group u-form-submit">
+                <button class="u-btn u-btn-submit u-radius-50" style="background-color: #80a9b2; color: black;" type="agency_submit">Register</button>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+{% endblock %}

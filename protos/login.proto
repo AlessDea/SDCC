@@ -1,0 +1,31 @@
+
+/*
+      Dopo aver modificato il .proto file:
+          python -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/login.proto
+
+      Questo genera
+          - login_pb2.py che contiene le classi di richiesta e risposta
+          - login_pb2_grpc.py che contiene le classi client e server
+
+*/
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "/SDCC/services";
+option java_outer_classname = "LoginProto";
+option objc_class_prefix = "LOG";
+package login;
+
+service Login {
+  rpc doLogin (PwRequest) returns (PwReply) {}
+}
+
+message PwRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message PwReply {
+  bool isLogged = 1;
+}

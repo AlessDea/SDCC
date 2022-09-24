@@ -4,7 +4,7 @@ from mysql.connector import Error
 
 def connect_mysql():
 	try:
-		connection = mysql.connector.connect(host='localhost', port='6666', database='mydb', user='root', password='password')
+		connection = mysql.connector.connect(host='localhost', port='3306', database='mydb', user='root', password='password')
 		if connection.is_connected():
 		    db_Info = connection.get_server_info()
 		    print("Connected to MySQL Server version ", db_Info)
@@ -48,4 +48,5 @@ if __name__ == '__main__':
 	# query2(conn)
 	# query1(conn)
 	query2(conn)
+	print('finished')
 	conn.close()

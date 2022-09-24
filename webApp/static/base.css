@@ -112,7 +112,7 @@
 
 .main-div{
     margin-top: 10%;
-    margin-left:5%;
+    margin-left:350px;
     margin-right:5%;
     margin-bottom:100px;
 }
@@ -206,5 +206,5 @@
         }
 
         .active {
-          background-color: #4CAF50;
+          background-color: #77aad9;
         }

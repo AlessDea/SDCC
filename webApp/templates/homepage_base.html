@@ -13,45 +13,36 @@
   </head>
 
 <body class="body1" data-lang="it">
-<div class="w3-top">
+<div class="w3-top w3-monospace">
     <nav class="navbar  sticky-top">
-        <header class="u-custom-color-1 u-header u-header " id="sec-be1d" >
-              <a class=" title-sec" href="{{url_for('home')}}" style="color:white">
-                  Secure PassWorld
-              </a>
+        <header class="u-custom-color-1 u-header u-header " id="sec-be1d">
+            <a class=" title-sec" href="{{url_for('home')}}" style="color:white;">
+              Secure PassWorld
+            </a>
             <ul>
-          <li><a class="active" href="#home">Home</a></li>
-          <li><a href="#news">News</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
+                <li><a id="login" style="color: white;" href="{{url_for('login')}}">Login</a></li>
+                <li><a id="register" style="color: white;" href="{{url_for('register')}}">Register</a></li>
+            </ul>
         </header>
-
     </nav>
 </div>
 
 
-
-<div class="main-div" id="main">
-
-
+<div class="main-div" style="display: flex; justify-content: center;" id="main">
 
     {% block content %} {% endblock %}
 
 </div>
 
 
-
-
-<footer class=" footer">
-        <div class="u-clearfix ">
-            <p class="u-align-center u-small-text u-text-1">
-                D'Alessandro Enrico - De Angelis Alessandro - Spaziani Pierpaolo
-            </p>
-       </div>
+<footer class="footer">
+    <div class="u-clearfix ">
+        <p class="u-align-center u-small-text u-text-1">
+            D'Alessandro Enrico - De Angelis Alessandro - Spaziani Pierpaolo
+        </p>
+   </div>
 </footer>
-
 
 
 </body>
 </html>
-

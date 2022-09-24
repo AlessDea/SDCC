@@ -1,0 +1,41 @@
+
+/*
+      Dopo aver modificato il .proto file:
+          python -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/newpassword.proto
+
+      Questo genera
+          - newpassword_pb2.py che contiene le classi di richiesta e risposta
+          - newpassword_pb2_grpc.py che contiene le classi client e server
+
+*/
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "/SDCC/services";
+option java_outer_classname = "SavePwProto";
+option objc_class_prefix = "SPW";
+package savepw;
+
+// The  service definition.
+service Saver {
+
+  rpc SavePw (SaveRequest) returns (SaveReply) {}
+
+}
+
+
+// The request message containing the user's name.
+message SaveRequest {
+  string username = 1;
+  int32 pw = 2;
+  string service = 3;
+
+}
+
+
+// The response message containing the new password
+message SaveReply {
+  string message = 1;
+}
+

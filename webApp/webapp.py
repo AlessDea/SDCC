@@ -57,12 +57,13 @@ def newpassword():
 @app.route('/savepassword/', methods=('GET', 'POST'))
 def savepassword():
     if request.method == 'POST':
-        ret = gateway_client.savePw(10, True)
-        if ret:
-            flash('Succesfully saved!')
+        ret = gateway_client.savePw('alessandro', request.form['password'], request.form['service'])
+        if ret == 'Success':
+            flash('Success!')
         else:
-            flash('An error occured!')
+            flash('Error!')
     return render_template('savePassword.html')
+
 
 
 @app.route('/newdoublecode/', methods=('GET', 'POST'))
@@ -81,6 +82,38 @@ def listpasswords():
     return render_template('listPasswords.html')
 
 
+@app.route('/login/', methods=('GET', 'POST'))
+def login():
+    if request.method == 'POST':
+        if request.form['submit'] == 'user_login':
+            username = request.form['username']
+            password = request.form['user_password']
+            isLogged = gateway_client.doLogin(username, password)
+        else:
+            username = request.form['agency_name']
+            password = request.form['agency_password']
+            return('MANCA ANCORA IL BD DELLE AGENCY COGLIONE DI UN DEA')    # <-----------------------
+
+        if isLogged:
+            return render_template('newPassword.html')                      # Bisogna passarci il coockie per vedere se è user o agency per vedere quali servizi ha
+        elif isLogged == None:
+            return "ERRORE"
+        else:
+            return "NON LOGGATO"
+    return render_template('login.html')
+
+
+@app.route('/register/', methods=('GET', 'POST'))
+def register():
+    if request.method == 'POST':
+        return render_template('register.html')
+    return render_template('register.html')
+
+@app.route('/homepage/', methods=('GET', 'POST'))
+def homepage():
+    if request.method == 'POST':
+        return render_template('homepage.html')
+    return render_template('homepage.html')
 
 @app.route('/')
 def home():
