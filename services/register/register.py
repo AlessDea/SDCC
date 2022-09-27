@@ -38,6 +38,8 @@ def register(name, pssw, email):
         if mycursor.rowcount > 0:
             return True
         return False
+    except:
+        return False
     finally:
         mycursor.close()
 

@@ -30,9 +30,13 @@
 
 <div class="main-div-homepage" style="display: flex; justify-content: center;" id="main">
 
-    {% block content %} {% endblock %}
+    {% block content %}{% endblock %}
 
 </div>
+
+{% for message in get_flashed_messages() %}
+      <div class="alert w3-monospace" style=" width: 50%; margin: auto;">{{ message }}</div>
+{% endfor %}
 
 
 <footer class="footer">

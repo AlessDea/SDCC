@@ -97,9 +97,9 @@ def login():
         if isLogged:
             return render_template('newPassword.html')      # Bisogna passarci il coockie per vedere se è user o agency per vedere quali servizi ha
         elif isLogged == None:
-            return "ERRORE"                                 # Bisogna mostrare il banner l'errore
+            flash('Invalid credentials')
         else:
-            return "NON LOGGATO"                            # Bisogna mostrare il banner l'errore
+            flash('Invalid credentials')
     return render_template('login.html')
 
 
@@ -117,11 +117,12 @@ def register():
             registered = gateway_client.registration(username, password, "")
 
         if registered:
-            return render_template('register.html')         # Bisogna mostrare il banner di avvenuta registrazione
+            flash('Successfully registered!')
+            return render_template('register.html')
         elif registered == None:
-            return "ERRORE"                                 # Bisogna mostrare il banner l'errore
+            flash('Error, please try again using an other username/agency name')
         else:
-            return "NON REGISTRATO"                         # Bisogna mostrare il banner l'errore
+            flash('Error, please try again using an other username/agency name')
     return render_template('register.html')
 
 @app.route('/homepage/', methods=('GET', 'POST'))
