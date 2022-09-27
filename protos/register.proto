@@ -1,0 +1,32 @@
+
+/*
+      Dopo aver modificato il .proto file:
+          python3 -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/register.proto
+
+      Questo genera
+          - register_pb2.py che contiene le classi di richiesta e risposta
+          - register_pb2_grpc.py che contiene le classi client e server
+
+*/
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "/SDCC/services";
+option java_outer_classname = "RegisterProto";
+option objc_class_prefix = "REG";
+package register;
+
+service Register {
+  rpc registration (PwRequest) returns (PwReply) {}
+}
+
+message PwRequest {
+  string username = 1;
+  string password = 2;
+  string email = 3;
+}
+
+message PwReply {
+  bool isRegistered = 1;
+}

@@ -6,6 +6,7 @@ import grpc
 import newpassword_pb2_grpc, newpassword_pb2
 import savepwd_pb2, savepwd_pb2_grpc
 import login_pb2_grpc, login_pb2
+import register_pb2_grpc, register_pb2
 
 
 def getNewNumPw(l, sy):
@@ -52,3 +53,9 @@ def doLogin(user, pssw, isAgency):
         stub = login_pb2_grpc.LoginStub(channel)
         response = stub.doLogin(login_pb2.PwRequest(username=user, password=pssw, type=isAgency))
         return response.isLogged
+
+def registration(user, pssw, mail):
+    with grpc.insecure_channel('register:50053') as channel:
+        stub = register_pb2_grpc.RegisterStub(channel)
+        response = stub.registration(register_pb2.PwRequest(username=user, password=pssw, email=mail))
+        return response.isRegistered

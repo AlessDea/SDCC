@@ -95,18 +95,33 @@ def login():
             isLogged = gateway_client.doLogin(username, password, True)
 
         if isLogged:
-            return render_template('newPassword.html')                      # Bisogna passarci il coockie per vedere se è user o agency per vedere quali servizi ha
+            return render_template('newPassword.html')      # Bisogna passarci il coockie per vedere se è user o agency per vedere quali servizi ha
         elif isLogged == None:
-            return "ERRORE"
+            return "ERRORE"                                 # Bisogna mostrare il banner l'errore
         else:
-            return "NON LOGGATO"
+            return "NON LOGGATO"                            # Bisogna mostrare il banner l'errore
     return render_template('login.html')
 
 
 @app.route('/register/', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
-        return render_template('register.html')
+        if request.form['submit'] == 'user_register':
+            username = request.form['username']
+            password = request.form['user_password']
+            email = request.form['email']
+            registered = gateway_client.registration(username, password, email)
+        else:
+            username = request.form['agency_name']
+            password = request.form['agency_password']
+            registered = gateway_client.registration(username, password, "")
+
+        if registered:
+            return render_template('register.html')         # Bisogna mostrare il banner di avvenuta registrazione
+        elif registered == None:
+            return "ERRORE"                                 # Bisogna mostrare il banner l'errore
+        else:
+            return "NON REGISTRATO"                         # Bisogna mostrare il banner l'errore
     return render_template('register.html')
 
 @app.route('/homepage/', methods=('GET', 'POST'))

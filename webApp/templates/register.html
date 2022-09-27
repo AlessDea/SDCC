@@ -18,7 +18,7 @@
 
           <div>
 
-            <form action="{{ url_for('login') }}" name="form-1">
+            <form name="form-1" method="post">
 
               <div class="u-form-group" style="padding-bottom: 15px;">
 
@@ -40,7 +40,7 @@
               </div>
 
               <div class="u-align-center u-form-group u-form-submit">
-                <button class="u-btn u-btn-submit u-radius-50" style="background-color: #80a9b2; color: black;" type="user_submit">Register</button>
+                <button class="u-btn u-btn-submit u-radius-50" style="background-color: #80a9b2; color: black;" name="submit" value="user_register">Register</button>
               </div>
 
             </form>
@@ -57,7 +57,7 @@
 
           <div>
 
-            <form action="{{ url_for('login') }}" name="form-1">
+            <form name="form-1" method="post">
 
               <div class="u-form-group" style="padding-bottom: 15px;">
 
@@ -72,7 +72,7 @@
               </div>
 
               <div class="u-align-center u-form-group u-form-submit">
-                <button class="u-btn u-btn-submit u-radius-50" style="background-color: #80a9b2; color: black;" type="agency_submit">Register</button>
+                <button class="u-btn u-btn-submit u-radius-50" style="background-color: #80a9b2; color: black;" name="submit" value="agency_register">Register</button>
               </div>
 
             </form>
