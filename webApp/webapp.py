@@ -88,11 +88,11 @@ def login():
         if request.form['submit'] == 'user_login':
             username = request.form['username']
             password = request.form['user_password']
-            isLogged = gateway_client.doLogin(username, password)
+            isLogged = gateway_client.doLogin(username, password, False)
         else:
             username = request.form['agency_name']
             password = request.form['agency_password']
-            return('MANCA ANCORA IL BD DELLE AGENCY COGLIONE DI UN DEA')    # <-----------------------
+            isLogged = gateway_client.doLogin(username, password, True)
 
         if isLogged:
             return render_template('newPassword.html')                      # Bisogna passarci il coockie per vedere se è user o agency per vedere quali servizi ha

@@ -15,21 +15,15 @@ CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
 USE `mydb` ;
 
 -- -----------------------------------------------------
--- Table `mydb`.`user`
+-- Table `mydb`.`groups`
 -- -----------------------------------------------------
 
 
-CREATE TABLE IF NOT EXISTS `mydb`.`user` (
+CREATE TABLE IF NOT EXISTS `mydb`.`groups` (
+  `groupid` INT NOT NULL,
+  `associated_service` VARCHAR(255) NOT NULL,
   `username` VARCHAR(16) NOT NULL,
-  `email` VARCHAR(255) NOT NULL,
-  `password` VARCHAR(60) NOT NULL,
-  PRIMARY KEY (`username`),
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE);
-  
-CREATE TABLE IF NOT EXISTS `mydb`.`agencies` (
-  `username` VARCHAR(16) NOT NULL,
-  `password` VARCHAR(60) NOT NULL,
-  PRIMARY KEY (`username`));
+  PRIMARY KEY (`groupid`, `associated_service`, `username`));
 
 SET SQL_MODE = '';
 

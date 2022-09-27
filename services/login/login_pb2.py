@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0blogin.proto\x12\x05login\"/\n\tPwRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\x1b\n\x07PwReply\x12\x10\n\x08isLogged\x18\x01 \x01(\x08\x32\x36\n\x05Login\x12-\n\x07\x64oLogin\x12\x10.login.PwRequest\x1a\x0e.login.PwReply\"\x00\x42$\n\x0e/SDCC/servicesB\nLoginProtoP\x01\xa2\x02\x03LOGb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0blogin.proto\x12\x05login\"=\n\tPwRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\x08\"\x1b\n\x07PwReply\x12\x10\n\x08isLogged\x18\x01 \x01(\x08\x32\x36\n\x05Login\x12-\n\x07\x64oLogin\x12\x10.login.PwRequest\x1a\x0e.login.PwReply\"\x00\x42$\n\x0e/SDCC/servicesB\nLoginProtoP\x01\xa2\x02\x03LOGb\x06proto3')
 
 
 
@@ -40,9 +40,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\016/SDCC/servicesB\nLoginProtoP\001\242\002\003LOG'
   _PWREQUEST._serialized_start=22
-  _PWREQUEST._serialized_end=69
-  _PWREPLY._serialized_start=71
-  _PWREPLY._serialized_end=98
-  _LOGIN._serialized_start=100
-  _LOGIN._serialized_end=154
+  _PWREQUEST._serialized_end=83
+  _PWREPLY._serialized_start=85
+  _PWREPLY._serialized_end=112
+  _LOGIN._serialized_start=114
+  _LOGIN._serialized_end=168
 # @@protoc_insertion_point(module_scope)

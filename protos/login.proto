@@ -1,7 +1,7 @@
 
 /*
       Dopo aver modificato il .proto file:
-          python -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/login.proto
+          python3 -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/login.proto
 
       Questo genera
           - login_pb2.py che contiene le classi di richiesta e risposta
@@ -24,6 +24,7 @@ service Login {
 message PwRequest {
   string username = 1;
   string password = 2;
+  bool type = 3;
 }
 
 message PwReply {

@@ -47,8 +47,8 @@ def savePw(u, p, s):
 
         return response
 
-def doLogin(user, pssw):
+def doLogin(user, pssw, isAgency):
     with grpc.insecure_channel('login:50052') as channel:
         stub = login_pb2_grpc.LoginStub(channel)
-        response = stub.doLogin(login_pb2.PwRequest(username=user, password=pssw))
+        response = stub.doLogin(login_pb2.PwRequest(username=user, password=pssw, type=isAgency))
         return response.isLogged
