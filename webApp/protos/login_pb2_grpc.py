@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import login_pb2 as login__pb2
+import protos.login_pb2 as login__pb2
 
 
 class LoginStub(object):

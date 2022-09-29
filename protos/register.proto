@@ -18,15 +18,15 @@ option objc_class_prefix = "REG";
 package register;
 
 service Register {
-  rpc registration (PwRequest) returns (PwReply) {}
+  rpc registration (RegRequest) returns (RegReply) {}
 }
 
-message PwRequest {
+message RegRequest {
   string username = 1;
   string password = 2;
   string email = 3;
 }
 
-message PwReply {
+message RegReply {
   bool isRegistered = 1;
 }

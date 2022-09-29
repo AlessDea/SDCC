@@ -18,15 +18,24 @@ option objc_class_prefix = "LOG";
 package login;
 
 service Login {
-  rpc doLogin (PwRequest) returns (PwReply) {}
+  rpc doLogin (LogRequest) returns (LogReply) {}
+  rpc getEmail (EmailRequest) returns (EmailReply) {}
 }
 
-message PwRequest {
+message LogRequest {
   string username = 1;
   string password = 2;
   bool type = 3;
 }
 
-message PwReply {
+message LogReply {
   bool isLogged = 1;
+}
+
+message EmailRequest {
+  string username = 1;
+}
+
+message EmailReply {
+  string email = 1;
 }

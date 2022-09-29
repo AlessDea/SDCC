@@ -3,6 +3,7 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import jsonify, url_for, flash, redirect
+from flask import make_response
 import tempfile
 import random
 import socket  # for the hostname
@@ -12,6 +13,11 @@ import socket  # for the hostname
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '52a645324b49268eb7335fe0d9fe5b675ab33b49053845b4'       # serve a flash
 
+
+@app.route('/home/', methods=('GET', 'POST'))
+def home():
+    # name = request.cookies.get('userID')
+    return render_template('home.html')
 
 
 @app.route('/newpassword/', methods=('GET', 'POST'))
@@ -81,6 +87,11 @@ def listpasswords():
         return render_template('listPasswords.html', pwlist=pwlist)
     return render_template('listPasswords.html')
 
+@app.route('/getcookie')
+def getcookie():
+   name = request.cookies.get('userID')
+   email = request.cookies.get('email')
+   return '<h1>UserID = '+name+', Email = '+email+'</h1>'
 
 @app.route('/login/', methods=('GET', 'POST'))
 def login():
@@ -88,19 +99,38 @@ def login():
         if request.form['submit'] == 'user_login':
             username = request.form['username']
             password = request.form['user_password']
-            isLogged = gateway_client.doLogin(username, password, False)
+            isAgency = False
+            isLogged = gateway_client.doLogin(username, password, isAgency)
         else:
             username = request.form['agency_name']
             password = request.form['agency_password']
-            isLogged = gateway_client.doLogin(username, password, True)
+            isAgency = True
+            isLogged = gateway_client.doLogin(username, password, isAgency)
 
         if isLogged:
-            return render_template('newPassword.html')      # Bisogna passarci il coockie per vedere se è user o agency per vedere quali servizi ha
+            # return render_template('newPassword.html')                        # Bisogna passarci il coockie per vedere se è user o agency per vedere quali servizi ha
+
+            resp = make_response(render_template('newPassword.html'))
+            resp.set_cookie('userID', username)
+            
+            if isAgency:
+                # return agency_template
+                return resp
+            else:
+                resp.set_cookie('email', gateway_client.getEmail(username))       # Bisogna fare una query al db per il fetch dell'email
+                # return user_template
+                return resp
+
+            return resp
         elif isLogged == None:
             flash('Invalid credentials')
         else:
             flash('Invalid credentials')
     return render_template('login.html')
+
+@app.route("/logout")
+def logout():
+    return render_template('homepage.html')
 
 
 @app.route('/register/', methods=('GET', 'POST'))
@@ -132,7 +162,7 @@ def homepage():
     return render_template('homepage.html')
 
 @app.route('/')
-def home():
+def index():
     return render_template('homepage.html')
 
 

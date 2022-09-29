@@ -48,7 +48,7 @@ class Register(register_pb2_grpc.RegisterServicer):
 
     def registration(self, request, context):
         response = register(request.username, request.password, request.email)
-        return register_pb2.PwReply(isRegistered=response)
+        return register_pb2.RegReply(isRegistered=response)
 
 
 def serve():
