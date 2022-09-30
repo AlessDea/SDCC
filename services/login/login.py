@@ -12,10 +12,10 @@ def connect_mysql():
         host="login-db",
         # host='localhost',
         user="root",
-        password="password",
-        database="mydb",
-        port="3306",
-        auth_plugin='mysql_native_password'
+        password="",
+        database="mydb"
+        # port="3306",
+        # auth_plugin='mysql_native_password'
     )
     return connection
 

@@ -29,10 +29,9 @@ def register(name, pssw, email):
         query = "INSERT INTO user VALUES (%s,%s,%s)"
         val = (name, email, pssw)
 
-    mydb = connect_mysql()
-
-    mycursor = mydb.cursor()
     try:
+        mydb = connect_mysql()
+        mycursor = mydb.cursor()
         mycursor.execute(query,val)
         mydb.commit()
         if mycursor.rowcount > 0:

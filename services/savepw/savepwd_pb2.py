@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rsavepwd.proto\x12\x06savepw\"<\n\x0bSaveRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\n\n\x02pw\x18\x02 \x01(\x05\x12\x0f\n\x07service\x18\x03 \x01(\t\"\x1c\n\tSaveReply\x12\x0f\n\x07message\x18\x01 \x01(\t2;\n\x05Saver\x12\x32\n\x06SavePw\x12\x13.savepw.SaveRequest\x1a\x11.savepw.SaveReply\"\x00\x42%\n\x0e/SDCC/servicesB\x0bSavePwProtoP\x01\xa2\x02\x03SPWb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rsavepwd.proto\x12\x06savepw\"<\n\x0bSaveRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\n\n\x02pw\x18\x02 \x01(\x05\x12\x0f\n\x07service\x18\x03 \x01(\t\"\x1d\n\tSaveReply\x12\x10\n\x08isStored\x18\x01 \x01(\x08\x32;\n\x05Saver\x12\x32\n\x06SavePw\x12\x13.savepw.SaveRequest\x1a\x11.savepw.SaveReply\"\x00\x42%\n\x0e/SDCC/servicesB\x0bSavePwProtoP\x01\xa2\x02\x03SPWb\x06proto3')
 
 
 
@@ -42,7 +42,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _SAVEREQUEST._serialized_start=25
   _SAVEREQUEST._serialized_end=85
   _SAVEREPLY._serialized_start=87
-  _SAVEREPLY._serialized_end=115
-  _SAVER._serialized_start=117
-  _SAVER._serialized_end=176
+  _SAVEREPLY._serialized_end=116
+  _SAVER._serialized_start=118
+  _SAVER._serialized_end=177
 # @@protoc_insertion_point(module_scope)

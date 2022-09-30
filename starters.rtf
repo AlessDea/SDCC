@@ -1,0 +1,28 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red28\green51\blue69;\red250\green250\blue251;}
+{\*\expandedcolortbl;;\cssrgb\c14118\c26275\c34118;\cssrgb\c98431\c98431\c98824;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww13980\viewh7360\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+	DA web_templates:\
+		\cf2 \cb3 \expnd0\expndtw0\kerning0
+./run.sh -p 3600 -c 5000 -n webapp\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+	DA user_db:\
+		\cf2 \cb3 \expnd0\expndtw0\kerning0
+./run.sh -p 3306 -c 3306 -n login-db\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\
+	DA newpw:\
+		\cf2 \cb3 \expnd0\expndtw0\kerning0
+./run.sh -p 50051 -c 50051 -n new-password-microservice\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\
+	DA login:\
+		\cf2 \cb3 \expnd0\expndtw0\kerning0
+./run.sh -p 50052 -c 50052 -n login-microservice\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\
+	DA register:\
+		\cf2 \cb3 \expnd0\expndtw0\kerning0
+./run.sh -p 50053 -c 50053 -n register-microservice}

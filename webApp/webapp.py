@@ -105,7 +105,7 @@ def login():
         if isLogged:
             # return render_template('newPassword.html')                        # Bisogna passarci il coockie per vedere se è user o agency per vedere quali servizi ha
 
-            resp = make_response(render_template('newPassword.html'))
+            resp = make_response(render_template('home.html'))
             resp.set_cookie('userID', username)
             
             if isAgency:

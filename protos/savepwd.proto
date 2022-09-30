@@ -1,11 +1,11 @@
 
 /*
       Dopo aver modificato il .proto file:
-          python -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/newpassword.proto
+          python3 -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/savepwd.proto
 
       Questo genera
-          - newpassword_pb2.py che contiene le classi di richiesta e risposta
-          - newpassword_pb2_grpc.py che contiene le classi client e server
+          - savepwd_pb2.py che contiene le classi di richiesta e risposta
+          - savepwd_pb2_grpc.py che contiene le classi client e server
 
 */
 
@@ -36,6 +36,6 @@ message SaveRequest {
 
 // The response message containing the new password
 message SaveReply {
-  string message = 1;
+  bool isStored = 1;
 }
 
