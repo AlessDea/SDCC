@@ -38,4 +38,4 @@ echo ${container_name}
 docker build -t ${container_name} .
 id=$(docker run -dp ${host_port}:${container_port} ${container_name})
 
-docker network connect net1 ${id} --alias newpassword
+docker network connect net1 ${id} --alias savepassword

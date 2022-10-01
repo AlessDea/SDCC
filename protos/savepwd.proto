@@ -28,7 +28,7 @@ service Saver {
 // The request message containing the user's name.
 message SaveRequest {
   string username = 1;
-  int32 pw = 2;
+  string pw = 2;
   string service = 3;
 
 }

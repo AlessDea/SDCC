@@ -8,16 +8,19 @@ import register_pb2_grpc
 import mysql.connector
 
 def connect_mysql():
-    connection = mysql.connector.connect(
-        host="login-db",
-        # host='localhost',
-        user="root",
-        password="",
-        database="mydb"
-        # port="3306",
-        # auth_plugin='mysql_native_password'
-    )
-    return connection
+    try:
+        connection = mysql.connector.connect(
+            host="login-db",
+            # host='localhost',
+            user="root",
+            password="",
+            database="mydb"
+            # port="3306",
+            # auth_plugin='mysql_native_password'
+        )
+        return connection
+    except:
+        return False
 
 
 def register(name, pssw, email):
@@ -29,18 +32,23 @@ def register(name, pssw, email):
         query = "INSERT INTO user VALUES (%s,%s,%s)"
         val = (name, email, pssw)
 
-    try:
-        mydb = connect_mysql()
-        mycursor = mydb.cursor()
-        mycursor.execute(query,val)
-        mydb.commit()
-        if mycursor.rowcount > 0:
-            return True
+    mydb = connect_mysql()
+
+    if mydb != False:
+        try:
+            mydb = connect_mysql()
+            mycursor = mydb.cursor()
+            mycursor.execute(query,val)
+            mydb.commit()
+            if mycursor.rowcount > 0:
+                return True
+            return False
+        except:
+            return False
+        finally:
+            mycursor.close()
+    else:
         return False
-    except:
-        return False
-    finally:
-        mycursor.close()
 
 
 class Register(register_pb2_grpc.RegisterServicer):

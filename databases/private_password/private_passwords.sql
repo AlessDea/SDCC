@@ -14,16 +14,6 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
 USE `mydb` ;
 
--- -----------------------------------------------------
--- Table `mydb`.`user`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`user` (
-  `username` VARCHAR(16) NOT NULL,
-  `email` VARCHAR(255) NOT NULL,
-  `password` VARCHAR(60) NOT NULL,
-  PRIMARY KEY (`username`),
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE);
-
 
 -- -----------------------------------------------------
 -- Table `mydb`.`private_passwords`

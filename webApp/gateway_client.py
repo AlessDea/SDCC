@@ -63,7 +63,7 @@ def registration(user, pssw, mail):
 
 
 def savePw(u, p, s):
-    with grpc.insecure_channel('newpassword:50054') as channel:
+    with grpc.insecure_channel('savepassword:50054') as channel:
         stub = SaverStub(channel)
         response = stub.SavePw(SaveRequest(username=u, pw=p, service=s))
         return response.isStored

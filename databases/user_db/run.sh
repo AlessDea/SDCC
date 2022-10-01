@@ -36,4 +36,4 @@ echo ${container_port}
 echo ${container_name}
 
 docker build -t  ${container_name} .
-docker run --name ${container_name} -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p ${host_port}:${container_port} -d -v mysql:/var/lib/mysql --network net1 login-db:latest
+docker run --name ${container_name} -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p ${host_port}:${container_port} -d -v login-db:/var/lib/mysql --network net1 login-db:latest

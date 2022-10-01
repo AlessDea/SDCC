@@ -53,7 +53,7 @@ def newpassword():
                     flash('Error: to save your password, you need to specify the liked Service!')
                     return render_template('newPassword.html')
                 username = request.cookies.get('userID')
-                gateway_client.savePw(username, npw, service)       # Da implementare!
+                gateway_client.savePw(username, str(npw), service)
 
             return render_template('newPassword.html', newpasswd=npw)
     return render_template('newPassword.html')
@@ -61,11 +61,19 @@ def newpassword():
 @app.route('/savepassword/', methods=('GET', 'POST'))
 def savepassword():
     if request.method == 'POST':
-        ret = gateway_client.savePw('alessandro', request.form['password'], request.form['service'])
-        if ret == 'Success':
-            flash('Success!')
+        password = request.form['password']
+        service = request.form['service']
+        if request.form['submit'] == 'save':
+            username = request.cookies.get('userID')
+            ret = gateway_client.savePw(username, str(password), service)
+            if ret:
+                flash('Password for \''+service+'\' successfully stored!')
+            else:
+                flash('Error: the DB is not responding or this is already your password for \''+service+'\'!')
         else:
-            flash('Error!')
+            # SAFETY_CHECK
+            flash('Error!: SAFETY_CHECK still not implemented!')            # DA IMPLEMENTARE
+
     return render_template('savePassword.html')
 
 @app.route('/newdoublecode/', methods=('GET', 'POST'))
