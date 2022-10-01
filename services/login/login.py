@@ -8,16 +8,19 @@ import login_pb2_grpc
 import mysql.connector
 
 def connect_mysql():
-    connection = mysql.connector.connect(
-        host="login-db",
-        # host='localhost',
-        user="root",
-        password="",
-        database="mydb"
-        # port="3306",
-        # auth_plugin='mysql_native_password'
-    )
-    return connection
+    try:
+        connection = mysql.connector.connect(
+            host="login-db",
+            # host='localhost',
+            user="root",
+            password="",
+            database="mydb"
+            # port="3306",
+            # auth_plugin='mysql_native_password'
+        )
+        return connection
+    except:
+        return False
 
 
 def login(name, pssw, isAgency):
@@ -29,15 +32,20 @@ def login(name, pssw, isAgency):
 
     mydb = connect_mysql()
 
-    mycursor = mydb.cursor()
-    try:
-        mycursor.execute(query,(name,))
-        myresult = mycursor.fetchall()
-        if mycursor.rowcount > 0 and myresult[0][0] == pssw:
-            return True
+    if mydb != False:
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute(query,(name,))
+            myresult = mycursor.fetchall()
+            if mycursor.rowcount > 0 and myresult[0][0] == pssw:
+                return True
+            return False
+        except:
+            return False
+        finally:
+            mycursor.close()
+    else:
         return False
-    finally:
-        mycursor.close()
 
 
 def getMail(name):
@@ -46,15 +54,20 @@ def getMail(name):
 
     mydb = connect_mysql()
 
-    mycursor = mydb.cursor()
-    try:
-        mycursor.execute(query,(name,))
-        myresult = mycursor.fetchall()
-        if mycursor.rowcount > 0:
-            return myresult[0][0]
+    if mydb != False:
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute(query,(name,))
+            myresult = mycursor.fetchall()
+            if mycursor.rowcount > 0:
+                return myresult[0][0]
+            return False
+        except:
+            return False
+        finally:
+            mycursor.close()
+    else:
         return False
-    finally:
-        mycursor.close()
 
 
 class Login(login_pb2_grpc.LoginServicer):

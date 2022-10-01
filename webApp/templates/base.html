@@ -30,10 +30,15 @@
     <a href="{{ url_for('home') }}" class="w3-bar-item w3-button" title="Home"><i class="fa fa-home  w3-xlarge"></i> Home</a>
     <a href="{{ url_for('newpassword') }}" class="w3-bar-item w3-button" title="New Password"><i class="fa fa-key  w3-xlarge"></i> New Password</a>
     <a href="{{ url_for('savepassword') }}" class="w3-bar-item w3-button" title="New Password"><i class="fa fa-floppy-o  w3-xlarge"></i> Save Password</a>
-    <a href="#" class="w3-bar-item w3-button" title="New temporary password"><i class="fa fa-clock-o  w3-xlarge"></i> New temporary password</a>
-    <a href="#" class="w3-bar-item w3-button" title="New shared password"><i class="fa fa-users  w3-xlarge"></i> New shared password</a>
-    <a href="{{ url_for('newdoublecode') }}" class="w3-bar-item w3-button" title="Double authentication"><i class="fa fa-shield  w3-xlarge"></i> Double authentication</a>
     <a href="{{ url_for('listpasswords') }}" class="w3-bar-item w3-button" title="List your password"><i class="fa fa-list  w3-xlarge"></i> List your password</a>
+
+    {% if agency == 1 %}
+        <a href="#" class="w3-bar-item w3-button" title="New temporary password"><i class="fa fa-clock-o  w3-xlarge"></i> New temporary password</a>
+        <a href="#" class="w3-bar-item w3-button" title="New shared password"><i class="fa fa-users  w3-xlarge"></i> New shared password</a>
+        <a href="{{ url_for('newdoublecode') }}" class="w3-bar-item w3-button" title="Double authentication"><i class="fa fa-shield  w3-xlarge"></i> Double authentication</a>
+    {% else %}
+        <a href="#" class="w3-bar-item w3-button" title="New shared password"><i class="fa fa-users  w3-xlarge"></i> Manage Groups</a>
+    {% endif %}
 
 
 </div>

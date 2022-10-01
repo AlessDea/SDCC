@@ -53,7 +53,7 @@ def newpassword():
                     flash('Error: to save your password, you need to specify the liked Service!')
                     return render_template('newPassword.html')
                 username = request.cookies.get('userID')
-                gateway_client.savePw(username, str(npw), service)
+                gateway_client.savePw(username, str(npw), service)          # BISOGNA METTERCI IL FLASH SE E' ANDATO BENE O NO
 
             return render_template('newPassword.html', newpasswd=npw)
     return render_template('newPassword.html')
@@ -86,7 +86,7 @@ def newdoublecode():
 @app.route('/listpasswords/', methods=('GET', 'POST'))
 def listpasswords():
     if request.method == 'POST':
-        pwlist = {'p1': 'n', 'p2':'n','p3': 't', 'p4': 'n', 'p5': 't'}
+        pwlist = {'p1':'n', 'p2':'n', 'p3':'t', 'p4':'n', 'p5':'t'}
         return render_template('listPasswords.html', pwlist=pwlist)
     return render_template('listPasswords.html')
 
@@ -111,22 +111,14 @@ def login():
             isLogged = gateway_client.doLogin(username, password, isAgency)
 
         if isLogged:
-            # return render_template('newPassword.html')                        # Bisogna passarci il coockie per vedere se è user o agency per vedere quali servizi ha
-
-            resp = make_response(render_template('home.html'))
+            resp = make_response(render_template('home.html', agency=isAgency))
             resp.set_cookie('userID', username)
             
-            if isAgency:
-                # return agency_template
-                return resp
-            else:
-                resp.set_cookie('email', gateway_client.getEmail(username))       # Bisogna fare una query al db per il fetch dell'email
-                # return user_template
-                return resp
+            if not isAgency:
+                resp.set_cookie('email', gateway_client.getEmail(username))
 
             return resp
-        elif isLogged == None:
-            flash('Invalid credentials')
+            
         else:
             flash('Invalid credentials')
     return render_template('login.html')
