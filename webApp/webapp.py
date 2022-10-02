@@ -21,6 +21,7 @@ def home():
 
 @app.route('/newpassword/', methods=('GET', 'POST'))
 def newpassword():
+    isAgency = request.cookies.get('isAgency')
     type1 = None
     if request.method == 'POST':
         len = request.form['len']
@@ -51,15 +52,16 @@ def newpassword():
             if save:
                 if not service:
                     flash('Error: to save your password, you need to specify the liked Service!')
-                    return render_template('newPassword.html')
+                    return render_template('newPassword.html', agency=isAgency)
                 username = request.cookies.get('userID')
                 gateway_client.savePw(username, str(npw), service)          # BISOGNA METTERCI IL FLASH SE E' ANDATO BENE O NO
 
-            return render_template('newPassword.html', newpasswd=npw)
-    return render_template('newPassword.html')
+            return render_template('newPassword.html', agency=isAgency, newpasswd=npw)
+    return render_template('newPassword.html', agency=isAgency)
 
 @app.route('/savepassword/', methods=('GET', 'POST'))
 def savepassword():
+    isAgency = request.cookies.get('isAgency')
     if request.method == 'POST':
         password = request.form['password']
         service = request.form['service']
@@ -74,25 +76,27 @@ def savepassword():
             # SAFETY_CHECK
             flash('Error!: SAFETY_CHECK still not implemented!')            # DA IMPLEMENTARE
 
-    return render_template('savePassword.html')
+    return render_template('savePassword.html', agency=isAgency)
 
 @app.route('/newdoublecode/', methods=('GET', 'POST'))
 def newdoublecode():
+    isAgency = request.cookies.get('isAgency')
     if request.method == 'POST':
-        code = gateway_client.getNewNumPw(6)
-        return render_template('newDoubleCode.html', newpasswd=code)
-    return render_template('newDoubleCode.html')
+        code = gateway_client.getNewNumPw(6, False)
+        return render_template('newDoubleCode.html', agency=isAgency, newpasswd=code)
+    return render_template('newDoubleCode.html', agency=isAgency)
 
 @app.route('/listpasswords/', methods=('GET', 'POST'))
 def listpasswords():
+    isAgency = request.cookies.get('isAgency')
     if request.method == 'POST':
         username = request.cookies.get('userID')
         lista = gateway_client.doList(username)
         if lista:
-            return render_template('listPasswords.html', lista=lista)
+            return render_template('listPasswords.html', agency=isAgency, lista=lista)
         else:
             flash('No password found!')
-    return render_template('listPasswords.html')
+    return render_template('listPasswords.html', agency=isAgency)
 
 @app.route('/getcookie')
 def getcookie():
@@ -115,8 +119,9 @@ def login():
             isLogged = gateway_client.doLogin(username, password, isAgency)
 
         if isLogged:
-            resp = make_response(render_template('home.html', agency=isAgency))
+            resp = make_response(render_template('home.html', agency=str(isAgency)))
             resp.set_cookie('userID', username)
+            resp.set_cookie('isAgency', str(isAgency))
             
             if not isAgency:
                 resp.set_cookie('email', gateway_client.getEmail(username))
@@ -129,7 +134,11 @@ def login():
 
 @app.route("/logout")
 def logout():
-    return render_template('homepage.html')
+    resp = make_response(render_template('homepage.html'))
+    resp.set_cookie('userID', '')
+    resp.set_cookie('isAgency', '')
+    resp.set_cookie('email', '')
+    return resp
 
 @app.route('/register/', methods=('GET', 'POST'))
 def register():
