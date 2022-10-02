@@ -86,8 +86,12 @@ def newdoublecode():
 @app.route('/listpasswords/', methods=('GET', 'POST'))
 def listpasswords():
     if request.method == 'POST':
-        pwlist = {'p1':'n', 'p2':'n', 'p3':'t', 'p4':'n', 'p5':'t'}
-        return render_template('listPasswords.html', pwlist=pwlist)
+        username = request.cookies.get('userID')
+        lista = gateway_client.doList(username)
+        if lista:
+            return render_template('listPasswords.html', lista=lista)
+        else:
+            flash('No password found!')
     return render_template('listPasswords.html')
 
 @app.route('/getcookie')

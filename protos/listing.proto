@@ -1,0 +1,30 @@
+
+/*
+      Dopo aver modificato il .proto file:
+          python3 -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/listing.proto
+
+      Questo genera
+          - listing_pb2.py che contiene le classi di richiesta e risposta
+          - listing_pb2_grpc.py che contiene le classi client e server
+
+*/
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "/SDCC/services";
+option java_outer_classname = "ListingProto";
+option objc_class_prefix = "LIS";
+package listing;
+
+service Listing {
+  rpc doList (ListRequest) returns (ListReply) {}
+}
+
+message ListRequest {
+  string username = 1;
+}
+
+message ListReply {
+  map<string, string> list = 1;
+}

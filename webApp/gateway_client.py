@@ -11,6 +11,8 @@ from protos.savepwd_pb2 import *
 from protos.savepwd_pb2_grpc import *
 from protos.register_pb2 import *
 from protos.register_pb2_grpc import *
+from protos.listing_pb2 import *
+from protos.listing_pb2_grpc import *
 
 
 def getNewNumPw(l, sy):
@@ -67,3 +69,10 @@ def savePw(u, p, s):
         stub = SaverStub(channel)
         response = stub.SavePw(SaveRequest(username=u, pw=p, service=s))
         return response.isStored
+
+
+def doList(u):
+    with grpc.insecure_channel('listing:50055') as channel:
+        stub = ListingStub(channel)
+        response = stub.doList(ListRequest(username=u))
+        return response.list
