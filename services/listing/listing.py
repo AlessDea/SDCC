@@ -3,8 +3,16 @@ import logging
 import grpc
 from mysql.connector import Error
 
-import listing_pb2
-import listing_pb2_grpc
+from protos.login_pb2 import *
+from protos.login_pb2_grpc import *
+from protos.newpassword_pb2 import *
+from protos.newpassword_pb2_grpc import *
+from protos.savepwd_pb2 import *
+from protos.savepwd_pb2_grpc import *
+from protos.register_pb2 import *
+from protos.register_pb2_grpc import *
+from protos.listing_pb2 import *
+from protos.listing_pb2_grpc import *
 import mysql.connector
 
 def connect_mysql():
@@ -49,16 +57,16 @@ def listing(name):
         return dictionary
 
 
-class Listing(listing_pb2_grpc.ListingServicer):
+class Listing(ListingServicer):
 
     def doList(self, request, context):
         response = listing(request.username)
-        return listing_pb2.ListReply(list=response)
+        return ListReply(list=response)
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    listing_pb2_grpc.add_ListingServicer_to_server(Listing(), server)
+    add_ListingServicer_to_server(Listing(), server)
     server.add_insecure_port('[::]:50055')
     server.start()
     server.wait_for_termination()

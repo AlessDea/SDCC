@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import newpassword_pb2 as newpassword__pb2
+import protos.newpassword_pb2 as newpassword__pb2
 
 
 class PasswordStub(object):

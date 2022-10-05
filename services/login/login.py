@@ -3,8 +3,16 @@ import logging
 import grpc
 from mysql.connector import Error
 
-import login_pb2
-import login_pb2_grpc
+from protos.login_pb2 import *
+from protos.login_pb2_grpc import *
+from protos.newpassword_pb2 import *
+from protos.newpassword_pb2_grpc import *
+from protos.savepwd_pb2 import *
+from protos.savepwd_pb2_grpc import *
+from protos.register_pb2 import *
+from protos.register_pb2_grpc import *
+from protos.listing_pb2 import *
+from protos.listing_pb2_grpc import *
 import mysql.connector
 
 def connect_mysql():
@@ -26,9 +34,9 @@ def connect_mysql():
 def login(name, pssw, isAgency):
 
     if isAgency == True:
-        query = "SELECT password FROM agencies where username = %s"
+        query = "SELECT password FROM user where username = %s and isAgency = 1"
     else:
-        query = "SELECT password FROM user where username = %s"
+        query = "SELECT password FROM user where username = %s and isAgency = 0"
 
     mydb = connect_mysql()
 
@@ -70,20 +78,20 @@ def getMail(name):
         return False
 
 
-class Login(login_pb2_grpc.LoginServicer):
+class Login(LoginServicer):
 
     def doLogin(self, request, context):
         response = login(request.username, request.password, request.type)
-        return login_pb2.LogReply(isLogged=response)
+        return LogReply(isLogged=response)
 
     def getEmail(self, request, context):
         response = getMail(request.username)
-        return login_pb2.EmailReply(email=response)
+        return EmailReply(email=response)
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    login_pb2_grpc.add_LoginServicer_to_server(Login(), server)
+    add_LoginServicer_to_server(Login(), server)
     server.add_insecure_port('[::]:50052')
     server.start()
     server.wait_for_termination()

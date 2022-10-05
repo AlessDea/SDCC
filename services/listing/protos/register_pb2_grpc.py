@@ -2,10 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import listing_pb2 as listing__pb2
+import protos.register_pb2 as register__pb2
 
 
-class ListingStub(object):
+class RegisterStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -14,42 +14,42 @@ class ListingStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.doList = channel.unary_unary(
-                '/listing.Listing/doList',
-                request_serializer=listing__pb2.ListRequest.SerializeToString,
-                response_deserializer=listing__pb2.ListReply.FromString,
+        self.registration = channel.unary_unary(
+                '/register.Register/registration',
+                request_serializer=register__pb2.RegRequest.SerializeToString,
+                response_deserializer=register__pb2.RegReply.FromString,
                 )
 
 
-class ListingServicer(object):
+class RegisterServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def doList(self, request, context):
+    def registration(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_ListingServicer_to_server(servicer, server):
+def add_RegisterServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'doList': grpc.unary_unary_rpc_method_handler(
-                    servicer.doList,
-                    request_deserializer=listing__pb2.ListRequest.FromString,
-                    response_serializer=listing__pb2.ListReply.SerializeToString,
+            'registration': grpc.unary_unary_rpc_method_handler(
+                    servicer.registration,
+                    request_deserializer=register__pb2.RegRequest.FromString,
+                    response_serializer=register__pb2.RegReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'listing.Listing', rpc_method_handlers)
+            'register.Register', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class Listing(object):
+class Register(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def doList(request,
+    def registration(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +59,8 @@ class Listing(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/listing.Listing/doList',
-            listing__pb2.ListRequest.SerializeToString,
-            listing__pb2.ListReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/register.Register/registration',
+            register__pb2.RegRequest.SerializeToString,
+            register__pb2.RegReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

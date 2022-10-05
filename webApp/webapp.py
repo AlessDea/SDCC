@@ -24,7 +24,15 @@ def newpassword():
     isAgency = request.cookies.get('isAgency')
     type1 = None
     if request.method == 'POST':
-        len = request.form['len']
+
+        service  = request.form['service']
+        save     = request.form.get('savePssw')
+        if save == 'yes':
+            save = True
+        else:
+            save = False
+        username = request.cookies.get('userID')
+        len      = request.form['len']
         if not len:
             flash('Len is required!')
         else:
@@ -38,25 +46,27 @@ def newpassword():
             if type != 'num':
                 type1 = request.form['r2']
                 if type1 == 'ulc':
-                    npw = gateway_client.getNewAlphNumPw(int(len), symbol)
+                    npw = gateway_client.getNewAlphNumPw(username, int(len), service, symbol, save)
                 elif type1 == 'uc':
-                    npw = gateway_client.getNewUpperPw(int(len), symbol)
+                    npw = gateway_client.getNewUpperPw(username, int(len), service, symbol, save)
                 else:
-                    npw = gateway_client.getNewLowerPw(int(len), symbol)
+                    npw = gateway_client.getNewLowerPw(username, int(len), service, symbol, save)
             else:
-                npw = gateway_client.getNewNumPw(int(len), symbol)
+                npw = gateway_client.getNewNumPw(username, int(len), service, symbol, save)
 
-            service = request.form['service']
-            save = request.form.get('savePssw')
-
+            message = "Your new password:"
+            
             if save:
+                message = "New password correctly saved:"
                 if not service:
                     flash('Error: to save your password, you need to specify the liked Service!')
                     return render_template('newPassword.html', agency=isAgency)
-                username = request.cookies.get('userID')
-                gateway_client.savePw(username, str(npw), service)          # BISOGNA METTERCI IL FLASH SE E' ANDATO BENE O NO
 
-            return render_template('newPassword.html', agency=isAgency, newpasswd=npw)
+                if not npw[1]:
+                    flash('Error saving your password!')
+                    return render_template('newPassword.html', agency=isAgency)
+
+            return render_template('newPassword.html', agency=isAgency, newpasswd=npw[0], msg=message)
     return render_template('newPassword.html', agency=isAgency)
 
 @app.route('/savepassword/', methods=('GET', 'POST'))

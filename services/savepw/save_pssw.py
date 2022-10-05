@@ -3,8 +3,16 @@ import logging
 import grpc
 from mysql.connector import Error
 
-import savepwd_pb2
-import savepwd_pb2_grpc
+from protos.login_pb2 import *
+from protos.login_pb2_grpc import *
+from protos.newpassword_pb2 import *
+from protos.newpassword_pb2_grpc import *
+from protos.savepwd_pb2 import *
+from protos.savepwd_pb2_grpc import *
+from protos.register_pb2 import *
+from protos.register_pb2_grpc import *
+from protos.listing_pb2 import *
+from protos.listing_pb2_grpc import *
 import mysql.connector
 
 def connect_mysql():
@@ -55,16 +63,16 @@ def save(uname, pw, service):
         return False
 
 
-class Saver(savepwd_pb2_grpc.SaverServicer):
+class Saver(SaverServicer):
 
     def SavePw(self, request, context):
         response = save(request.username, request.pw, request.service)
-        return savepwd_pb2.SaveReply(isStored=response)
+        return SaveReply(isStored=response)
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    savepwd_pb2_grpc.add_SaverServicer_to_server(Saver(), server)
+    add_SaverServicer_to_server(Saver(), server)
     server.add_insecure_port('[::]:50054')
     server.start()
     server.wait_for_termination()

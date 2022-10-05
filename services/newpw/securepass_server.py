@@ -13,8 +13,17 @@ import pickle
 from concurrent import futures
 import logging
 import grpc
-import newpassword_pb2
-import newpassword_pb2_grpc
+
+from protos.login_pb2 import *
+from protos.login_pb2_grpc import *
+from protos.newpassword_pb2 import *
+from protos.newpassword_pb2_grpc import *
+from protos.savepwd_pb2 import *
+from protos.savepwd_pb2_grpc import *
+from protos.register_pb2 import *
+from protos.register_pb2_grpc import *
+from protos.listing_pb2 import *
+from protos.listing_pb2_grpc import *
 
 alphabetUpper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 alphabetLower = 'abcdefghijklmnopqrstuvwxyz'
@@ -81,7 +90,6 @@ def generate_upper_code(l, sy):
 
     return code
 
-
 # no symbols
 def generate_alphanumeric_code(l, sy):
     code = ''
@@ -115,31 +123,52 @@ def checkRandomStatus():
         #print('No state.dat, seeding')
         random.seed(12345)
 
+def savePw(u, p, s):
+    try:
+        with grpc.insecure_channel('savepassword:50054') as channel:
+            stub = SaverStub(channel)
+            response = stub.SavePw(SaveRequest(username=u, pw=p, service=s))
+            return response.isStored
+    except:
+        return False
 
-class Password(newpassword_pb2_grpc.PasswordServicer):
+
+class Password(PasswordServicer):
 
 
     def GetNewNumPass(self, request, context):
         npw = generate_num_code(request.length, request.symbols)
-        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
+        isStored = False
+        if request.hastoSave:
+            isStored = savePw(request.name, npw, request.service)
+        return PwReply(pw=npw, isSaved=isStored)
 
     def GetNewLowerPass(self, request, context):
         npw = generate_lower_code(request.length, request.symbols)
-        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
+        isStored = False
+        if request.hastoSave:
+            isStored = savePw(request.name, npw, request.service)
+        return PwReply(pw=npw, isSaved=isStored)
 
     def GetNewUpperPass(self, request, context):
         npw = generate_upper_code(request.length, request.symbols)
-        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
+        isStored = False
+        if request.hastoSave:
+            isStored = savePw(request.name, npw, request.service)
+        return PwReply(pw=npw, isSaved=isStored)
 
 # no symbols
     def GetNewAlphaNumPass(self, request, context):
         npw = generate_alphanumeric_code(request.length, request.symbols)
-        return newpassword_pb2.PwReply(message='la tua password: ', pw=npw)
+        isStored = False
+        if request.hastoSave:
+            isStored = savePw(request.name, npw, request.service)
+        return PwReply(pw=npw, isSaved=isStored)
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    newpassword_pb2_grpc.add_PasswordServicer_to_server(Password(), server)
+    add_PasswordServicer_to_server(Password(), server)
     server.add_insecure_port('[::]:50051')
     server.start()
     server.wait_for_termination()

@@ -3,8 +3,16 @@ import logging
 import grpc
 from mysql.connector import Error
 
-import register_pb2
-import register_pb2_grpc
+from protos.login_pb2 import *
+from protos.login_pb2_grpc import *
+from protos.newpassword_pb2 import *
+from protos.newpassword_pb2_grpc import *
+from protos.savepwd_pb2 import *
+from protos.savepwd_pb2_grpc import *
+from protos.register_pb2 import *
+from protos.register_pb2_grpc import *
+from protos.listing_pb2 import *
+from protos.listing_pb2_grpc import *
 import mysql.connector
 
 def connect_mysql():
@@ -26,10 +34,10 @@ def connect_mysql():
 def register(name, pssw, email):
 
     if email == "":
-        query = "INSERT INTO agencies VALUES (%s,%s)"
+        query = "INSERT INTO user VALUES (%s,'',%s,1)"
         val = (name, pssw)
     else:
-        query = "INSERT INTO user VALUES (%s,%s,%s)"
+        query = "INSERT INTO user VALUES (%s,%s,%s,0)"
         val = (name, email, pssw)
 
     mydb = connect_mysql()
@@ -51,16 +59,16 @@ def register(name, pssw, email):
         return False
 
 
-class Register(register_pb2_grpc.RegisterServicer):
+class Register(RegisterServicer):
 
     def registration(self, request, context):
         response = register(request.username, request.password, request.email)
-        return register_pb2.RegReply(isRegistered=response)
+        return RegReply(isRegistered=response)
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    register_pb2_grpc.add_RegisterServicer_to_server(Register(), server)
+    add_RegisterServicer_to_server(Register(), server)
     server.add_insecure_port('[::]:50053')
     server.start()
     server.wait_for_termination()

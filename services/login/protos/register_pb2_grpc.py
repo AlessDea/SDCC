@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import register_pb2 as register__pb2
+import protos.register_pb2 as register__pb2
 
 
 class RegisterStub(object):

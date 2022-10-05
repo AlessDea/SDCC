@@ -15,32 +15,32 @@ from protos.listing_pb2 import *
 from protos.listing_pb2_grpc import *
 
 
-def getNewNumPw(l, sy):
+def getNewNumPw(username, l, serv, sy, isSave):
     with grpc.insecure_channel('newpassword:50051') as channel:
         stub = PasswordStub(channel)
-        response = stub.GetNewNumPass(PwRequest(length=l, symbols=sy))
-        return response.pw
+        response = stub.GetNewNumPass(PwRequest(name=username, length=l, service=serv, symbols=sy, hastoSave=isSave))
+        return response.pw, response.isSaved
 
 
-def getNewAlphNumPw(l, sy):
+def getNewAlphNumPw(username, l, serv, sy, isSave):
     with grpc.insecure_channel('newpassword:50051') as channel:
         stub = PasswordStub(channel)
-        response = stub.GetNewAlphaNumPass(PwRequest(length=l, symbols=sy))
-        return response.pw
+        response = stub.GetNewAlphaNumPass(PwRequest(name=username, length=l, service=serv, symbols=sy, hastoSave=isSave))
+        return response.pw, response.isSaved
 
 
-def getNewUpperPw(l, sy):
+def getNewUpperPw(username, l, serv, sy, isSave):
     with grpc.insecure_channel('newpassword:50051') as channel:
         stub = PasswordStub(channel)
-        response = stub.GetNewUpperPass(PwRequest(length=l, symbols=sy))
-        return response.pw
+        response = stub.GetNewUpperPass(PwRequest(name=username, length=l, service=serv, symbols=sy, hastoSave=isSave))
+        return response.pw, response.isSaved
 
 
-def getNewLowerPw(l, sy):
+def getNewLowerPw(username, l, serv, sy, isSave):
     with grpc.insecure_channel('newpassword:50051') as channel:
         stub = PasswordStub(channel)
-        response = stub.GetNewLowerPass(PwRequest(length=l, symbols=sy))
-        return response.pw
+        response = stub.GetNewLowerPass(PwRequest(name=username, length=l, service=serv, symbols=sy, hastoSave=isSave))
+        return response.pw, response.isSaved
 
 
 def doLogin(user, pssw, isAgency):

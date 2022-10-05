@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import savepwd_pb2 as savepwd__pb2
+import protos.savepwd_pb2 as savepwd__pb2
 
 
 class SaverStub(object):
