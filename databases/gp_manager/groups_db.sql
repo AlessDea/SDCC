@@ -17,28 +17,12 @@ USE `mydb` ;
 -- -----------------------------------------------------
 -- Table `mydb`.`groups`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`group` (
-  `idgroup` INT NOT NULL AUTO_INCREMENT,
-  `service` VARCHAR(45) NOT NULL,
-  `num_part` INT NULL,
-  PRIMARY KEY (`idgroup`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`table2`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`participant` (
-  `groups_idgroup` INT NOT NULL,
+CREATE TABLE IF NOT EXISTS `mydb`.`gruppi` (
+  `group_name` VARCHAR(45) NOT NULL,
   `username` VARCHAR(45) NOT NULL,
   `email_addr` VARCHAR(45) NOT NULL,
-  INDEX `fk_table2_groups_idx` (`groups_idgroup` ASC) VISIBLE,
-  PRIMARY KEY (`groups_idgroup`, `username`),
-  CONSTRAINT `fk_table2_groups`
-    FOREIGN KEY (`groups_idgroup`)
-    REFERENCES `mydb`.`group` (`idgroup`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  `service` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`group_name`, `username`, `service`))
 ENGINE = InnoDB;
 
 

@@ -1,46 +1,67 @@
 import mysql
 import mysql.connector
 
-
-
 def connect_mysql():
+    try:
+        connection = mysql.connector.connect(
+            host="group-db-mysql-primary.default.svc.cluster.local",
+            user="root",
+            password="root",
+            database="groupdb",
+            port="3306"
+        )
+        return connection
+    except:
+        return False
 
-    connection = mysql.connector.connect(
-        #host="groups-db",
-        host='localhost',
-        user="root",
-        password="",
-        database="mydb",
-        port="3306"
-        #auth_plugin='mysql_native_password'
-    )
-    return connection
 
 
+def get_emails(group_name, service):
 
-def get_emails():
-
-    query1 = "SELECT * FROM `group` WHERE service = %s"
-    query2 = "SELECT email_addr FROM participant WHERE groups_idgroup = %s"
+    query = "SELECT email_addr FROM gruppi WHERE group_name = %s AND service = %s"
+    val = (group_name, service)
 
     mydb = connect_mysql()
-    mycursor = mydb.cursor()
 
-    service = 'reserved-leonardo'
+    if mydb != False:
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute(query,val)
+            myresult = mycursor.fetchall()
+            if mycursor.rowcount > 0:
+                emails_lst = []
+                for res in myresult:
+                    emails_lst.append(res[0])
+                return emails_lst
+            return False
+        except:
+            return False
+        finally:
+            mycursor.close()
+    else:
+        return False
 
-    mycursor.execute(query1, (service, ))
-    myresult = mycursor.fetchall()
-    for res in myresult:
-        print("{0} - {1} - {2}".format(res[0], res[1], res[2]))
 
-    gid = myresult[0][0]
-    mycursor.execute(query2, (gid, ))
-    myresult = mycursor.fetchall()
-    emails_lst = []
-    for res in myresult:
-        emails_lst.append(res[0])
-        #print("email: ", res[0])
 
-    mycursor.close()
+def create_group(group_name, username, email, service):
 
-    return emails_lst
+    query = "INSERT INTO gruppi VALUES (%s,%s,%s,%s)"
+    val = (group_name, username, email, service)
+
+    mydb = connect_mysql()
+
+    if mydb != False:
+        try:
+            mydb = connect_mysql()
+            mycursor = mydb.cursor()
+            mycursor.execute(query,val)
+            mydb.commit()
+            if mycursor.rowcount > 0:
+                return True
+            return False
+        except:
+            return False
+        finally:
+            mycursor.close()
+    else:
+        return False
