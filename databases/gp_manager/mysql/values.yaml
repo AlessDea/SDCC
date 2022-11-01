@@ -141,7 +141,7 @@ initdbScripts:
     mysql -P 3306 -uroot -proot groupdb -e "
     CREATE DATABASE IF NOT EXISTS groupdb;
     USE groupdb;
-    CREATE TABLE gruppi (group_name VARCHAR(45) NOT NULL, username VARCHAR(45) NOT NULL, email_addr VARCHAR(45) NOT NULL, service VARCHAR(45) NOT NULL, PRIMARY KEY (group_name, username, service));"
+    CREATE TABLE gruppi (group_name VARCHAR(45) NOT NULL, username VARCHAR(45) NOT NULL, email_addr VARCHAR(45) NOT NULL, service VARCHAR(45) NOT NULL, PRIMARY KEY (group_name, username));"
 
 ##
 # initdbScripts: {}

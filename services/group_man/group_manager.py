@@ -1,9 +1,12 @@
 # questo sarebbe il servizio di password condivise: prende le richieste e le 
 # inoltra al microservizio per l'invio delle email, prende poi le risposte dei singoli utenti
+from concurrent import futures
+
 import pika
 import time
 import random
 import json
+import threading
 
 import db_utils
 
@@ -11,35 +14,55 @@ from protos.sharedpw_pb2 import *
 from protos.sharedpw_pb2_grpc import *
 from protos.newpassword_pb2 import *
 from protos.newpassword_pb2_grpc import *
+from protos.gp_manager_pb2 import *
+from protos.gp_manager_pb2_grpc import *
 
 connection_parameters = pika.ConnectionParameters('localhost')
 connection = pika.BlockingConnection(connection_parameters)
 
 
 
+class GpCreator(GpCreatorServicer):
+   def gpCreate(self, request, context):
+        response = db_utils.create_group(request.group_name, request.username, request.email, request.service)
+        return gpCreateRep(isCreated=response)
 
-def produce_req(group_id):
-    '''
-    bisogna anche generare dei token, quindi qui deve chiedere al microservizio newpw di generarli per lui
-    poi li mette insieme alle email e li invia
-    '''
-    print('sending email to group ', group_id)
 
-    emails_lst = db_utils.get_emails() #restituisce la lista di email
-    num_t = len(emails_lst) #numero di token da generare
 
-    message = dict.fromkeys(emails_lst)
-    #chiama newpw e genera un token per ogni email
-    for e in emails_lst:
+def create_group_thread():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    add_GpCreatorServicer_to_server(GpCreator(), server)
+    server.add_insecure_port('[::]:50057')
+    server.start()
+    server.wait_for_termination()
+
+
+
+def get_participants(group_id):
+    emails_lst = db_utils.get_emails()  # restituisce la lista di email
+    return  emails_lst
+
+
+def tokens_generations(n):
+    tokens = []
+    for e in range(n):
         with grpc.insecure_channel('newpw-service:50051') as channel:
             stub = PasswordStub(channel)
             response = stub.GetNewNumPass(PwRequest(name=None, length=6, service=None, symbols=False, hastoSave=False))
-            message[e] = str(response) + "@" + str(group_id)
 
+            tokens.append(response.pw)
+    return tokens
+
+
+def produce_req(group_id, emails, tkns):
+    print('sending email to group ', group_id)
+
+    message = dict.fromkeys(emails)
+
+    for e, t in emails, tkns:
+        message[e] = t + "@" + str(group_id)
 
     packet = json.dumps(message)
-    # while True:
-    # Use the default channel
 
     channel = connection.channel()
 
@@ -50,31 +73,43 @@ def produce_req(group_id):
     # message = f"Sending messageId: {messageId}"
     channel.basic_publish(exchange='', routing_key='emails_queue', body=packet)
     #print(f"sent message: {packet}")
-
     # Close connection
     #connection.close()
+
 
 def on_message_received(channel, method, properties, body):
 
     '''
         invia le informazioni al microservizio shared_pw
-        fai una lettura su db delle informazioni:
-        - groupId
-        - usernames: lista dei partecipanti al gruppo
-        - tokens: lista dei tokens generati
-        - creator: creatore del gruppo
-        - ex: per informazioni extra
     '''
 
-    with grpc.insecure_channel('shared-pw:50056') as channel:
+
+    info_lst = db_utils.get_info(json.loads(body))
+    usernames = []
+    emails_lst = []
+    for r in info_lst:
+        usernames.append(r[1])
+        emails_lst.append(r[2])
+
+
+    gid = info_lst[0][0]
+    agency = info_lst[0][3]
+    tkns = tokens_generations(len(emails_lst))
+
+
+    with grpc.insecure_channel('sharedpw-service:50056') as channel:
         stub = SharedStub(channel)
-        response = stub.sendInfo(InfoMsg(groupId = gid, username=usernames, token = tokens, creator=creator, extra=ex))
-
-
+        info = InfoMsg()
+        info.groupId.append(gid)
+        info.username.extend(usernames)
+        info.token.extend(tkns)
+        info.creator.append(None)
+        info.extra.append(agency)
+        response = stub.sendInfo(info)
 
     print(f"received: {json.loads(body)}")
 
-    produce_req(json.loads(body))
+    produce_req(json.loads(body), emails_lst, tkns)
 
     # Send ack when the processing is finished
     channel.basic_ack(delivery_tag=method.delivery_tag)
@@ -82,6 +117,10 @@ def on_message_received(channel, method, properties, body):
 
 
 if __name__ == '__main__':
+
+    groupCreatorThr = threading.Thread(target=create_group_thread())
+    groupCreatorThr.start()
+
     # Use the default channel
     channel = connection.channel()
     # Declare the queue, create if needed
@@ -95,3 +134,5 @@ if __name__ == '__main__':
 
     print("starting consumer")
     channel.start_consuming()
+
+    groupCreatorThr.join()

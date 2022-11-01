@@ -18,10 +18,11 @@ def connect_mysql():
 
 def get_emails(group_name, service):
 
-    query = "SELECT email_addr FROM gruppi WHERE group_name = %s AND service = %s"
+    query = "SELECT email_addr FROM gruppi WHERE group_name = %s"
     val = (group_name, service)
 
     mydb = connect_mysql()
+    mycursor = None
 
     if mydb != False:
         try:
@@ -37,10 +38,36 @@ def get_emails(group_name, service):
         except:
             return False
         finally:
-            mycursor.close()
+            if mycursor != None:
+                mycursor.close()
     else:
         return False
 
+
+
+def get_info(group_name):
+
+    query = "SELECT * FROM gruppi WHERE group_name = %s"
+    val = (group_name)
+
+    mydb = connect_mysql()
+    mycursor = None
+
+    if mydb != False:
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute(query, val)
+            myresult = mycursor.fetchall()
+            if mycursor.rowcount > 0:
+                return myresult
+            return False
+        except:
+            return False
+        finally:
+            if mycursor != None:
+                mycursor.close()
+    else:
+        return False
 
 
 def create_group(group_name, username, email, service):
@@ -49,7 +76,7 @@ def create_group(group_name, username, email, service):
     val = (group_name, username, email, service)
 
     mydb = connect_mysql()
-
+    mycursor = None
     if mydb != False:
         try:
             mydb = connect_mysql()
@@ -62,6 +89,7 @@ def create_group(group_name, username, email, service):
         except:
             return False
         finally:
-            mycursor.close()
+            if mycursor != None:
+                mycursor.close()
     else:
         return False
