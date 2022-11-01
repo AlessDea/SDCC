@@ -1,7 +1,6 @@
 from concurrent import futures
 import logging
 import grpc
-from mysql.connector import Error
 
 from protos.login_pb2 import *
 from protos.login_pb2_grpc import *
@@ -18,13 +17,11 @@ import mysql.connector
 def connect_mysql():
     try:
         connection = mysql.connector.connect(
-            host="login-db",
-            # host='localhost',
+            host="user-db-mysql-primary.default.svc.cluster.local",
             user="root",
-            password="",
-            database="mydb"
-            # port="3306",
-            # auth_plugin='mysql_native_password'
+            password="root",
+            database="userdb",
+            port="3306"
         )
         return connection
     except:

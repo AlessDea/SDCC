@@ -9,35 +9,30 @@
     <link id="u-page-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide:400">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-  </head>
+</head>
 
 <body class="body1" data-lang="it">
 <div class="w3-top w3-monospace">
     <nav class="navbar  sticky-top">
         <header class="u-custom-color-1 u-header u-header " id="sec-be1d">
-            <a class=" title-sec" href="{{url_for('home')}}" style="color:white;">
+            <a class=" title-sec" href="{{url_for('homepage')}}" style="color:white;">
               Secure PassWorld
             </a>
             <ul>
-                <li><a id="login" style="color: white;" href="{{url_for('login')}}">Login</a></li>
-                <li><a id="register" style="color: white;" href="{{url_for('register')}}">Register</a></li>
+                <li><a id="login" style="color: white;" href="/login">Login</a></li>
+                <li><a id="register" style="color: white;" href="/register">Register</a></li>
             </ul>
         </header>
     </nav>
 </div>
 
-
 <div class="main-div-homepage" style="display: flex; justify-content: center;" id="main">
-
     {% block content %}{% endblock %}
-
 </div>
 
 {% for message in get_flashed_messages() %}
       <div class="alert w3-monospace" style=" width: 50%; margin: auto;">{{ message }}</div>
 {% endfor %}
-
 
 <footer class="footer">
     <div class="u-clearfix ">
@@ -46,7 +41,6 @@
         </p>
    </div>
 </footer>
-
 
 </body>
 </html>

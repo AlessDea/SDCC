@@ -11,7 +11,7 @@ def fun():
 
 if __name__ == '__main__':
     # fun()
-    password = "porcamadonna"
+    password = "badpassword"
 
     bytes = password.encode('utf-8')
 

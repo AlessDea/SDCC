@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %} Group Create {% endblock %}
+
+{% block content %}
+
+<script>
+    document.getElementById("groupcreate").style.backgroundColor = "#C5C5C5";
+    document.getElementById("groupcreate").style.color = "black";
+</script>
+
+  <div class="w3-monospace " style="background-color:white;border-radius: 8px;">
+
+    <div>
+
+      <header class="w3-container" style="background-color:#333333;">
+        <h2 class="w3-monospace" style=color:white>Create a new Group</h2>
+      </header>
+
+      <div id="myDIV" class="header" style="margin-left: 30px">
+        <h2>Enter the members of the group one by one:</h2>
+        <input type="text" style="height: 50px; border-radius: 5px;" id="myInput" placeholder="Username...">
+        <span onclick="newElement()" class="button button2">Add</span>
+      </div>
+
+      <script>
+        // Create a "close" button and append it to each list item
+        var myNodelist = document.getElementsByTagName("LI");
+        var i;
+        for (i = 0; i < myNodelist.length; i++) {
+          var span = document.createElement("SPAN");
+          span.className = "close";
+          span.classList.add("fa");
+          span.classList.add("fa-close");
+          myNodelist[i].appendChild(span);
+        }
+
+        // Click on a close button to hide the current list item
+        var close = document.getElementsByClassName("close");
+        var i;
+        for (i = 0; i < close.length; i++) {
+          close[i].onclick = function() {
+            var div = this.parentElement;
+            div.parentNode.removeChild(div);
+          }
+        }
+
+        // Create a new list item when clicking on the "Add" button
+        function newElement() {
+          var li = document.createElement("li");
+          var inputValue = document.getElementById("myInput").value;
+          var t = document.createTextNode(inputValue);
+          li.appendChild(t);
+
+          if (inputValue === '') {
+            alert("You must write something!");
+          } else {
+            document.getElementById("myUL").appendChild(li);
+          }
+          document.getElementById("myInput").value = "";
+
+          var span = document.createElement("SPAN");
+          span.className = "close";
+          span.classList.add("fa");
+          span.classList.add("fa-close");
+          span.style.margin = "15px";
+          li.appendChild(span);
+
+          for (i = 0; i < close.length; i++) {
+            close[i].onclick = function() {
+              var div = this.parentElement;
+              div.parentNode.removeChild(div);
+            }
+          }
+        }
+      </script>
+
+    </div>
+
+    <div class="w3-container" style="margin-left: 12px; margin-right: 12px;">
+      <ul id="myUL" class="w3-ul w3-card-4" style="border-radius: 5px; color: white;">
+
+      </ul>
+    </div>
+
+    <div id="myDIV" class="header" style="margin-left:30px;">
+      <input type="text" style="height: 50px; border-radius: 5px; margin-bottom: 30px;" id="groupName" placeholder="Group name...">
+      <span onclick="get_list_items()" class="button button2">Create Group</span>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT PER PRENDERE GLI ELEMENTI NELL'ELENCO -->
+  <script>
+    const get_list_items = () => {
+      const lis = document.getElementById('myUL').getElementsByTagName('li');
+        // Loop through the NodeList object. 
+        for (let i = 0; i <= lis.length - 1; i++) {
+          // QUA CI VA IL PASSAGGIO DELLA LISTA AL SERVER
+          console.log (lis[i].textContent);
+        }
+    }
+  </script>
+    
+  <!-- UTILIZZABILE PER IL MESSAGGIO DI CONFERMA DELLA CREAZIONE O DI ERRORE -->
+  {% for message in get_flashed_messages() %}
+    <div class="alert w3-monospace">{{ message }}</div>
+  {% endfor %}
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %} List Group {% endblock %}
+
+{% block content %}
+
+<script>
+    document.getElementById("grouplist").style.backgroundColor = "#C5C5C5";
+    document.getElementById("grouplist").style.color = "black";
+</script>
+
+  <div class="w3-monospace " style="background-color:white;border-radius: 8px;">
+
+    <div>
+      <header class="w3-container" style="background-color:#333333;">
+        <h2 class="w3-monospace" style=color:white>Here are all your groups:</h2>
+      </header>
+
+      <div class="w3-container ">
+        <ul class="w3-ul w3-card-4 ">
+          {% for group in lista %}
+            <li name="row" class="w3-bar">
+
+              <span class="w3-xlarge w3-right"><a onclick="deleteRow(this)" class="fa fa-close w3-xlarge"></a></span>
+
+              <div class="w3-bar-item ">
+                <span class="w3-large " style="color: white;"><i class="fa fa-users  w3-xlarge" style="margin-right: 25px;"></i>{{group}}</span>
+              </div>
+
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function deleteRow(obj){
+      let text = "Are you sure you want to leave this group?";
+      if (confirm(text) == true) {
+        obj.parentNode.parentNode.remove();
+      }
+    }
+  </script>
+    
+  {% for message in get_flashed_messages() %}
+    <div class="alert w3-monospace">{{ message }}</div>
+  {% endfor %}
+
+{% endblock %}
