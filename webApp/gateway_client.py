@@ -13,6 +13,8 @@ from protos.register_pb2 import *
 from protos.register_pb2_grpc import *
 from protos.listing_pb2 import *
 from protos.listing_pb2_grpc import *
+from protos.sharedpw_pb2 import *
+from protos.sharedpw_pb2_grpc import *
 
 
 def getNewNumPw(username, l, serv, sy, isSave):
@@ -75,4 +77,16 @@ def doList(u):
     with grpc.insecure_channel('listing-service:50055') as channel:
         stub = ListingStub(channel)
         response = stub.doList(ListRequest(username=u))
+        return response.list
+
+def requestSharedPw(gid, requester):
+    with grpc.insecure_channel('sharedpw-service:50056') as channel:
+        stub = SharedStub(channel)
+        response = stub.makeReq(ShRequest(groupId = gid, username=requester, extra = None))
+        return response.list
+
+def responseSharedPw(gid, u, res, t):
+    with grpc.insecure_channel('sharedpw-service:50056') as channel:
+        stub = SharedStub(channel)
+        response = stub.sendResp(respMsg(groupId = gid, result=res, token = t, username=u))
         return response.list

@@ -10,10 +10,10 @@ connection = pika.BlockingConnection(connection_parameters)
 
 def on_message_received(channel, method, properties, body):
     # print(f"received: {json.loads(body)}, will take {processing_time} to process...")
-
-    for e in json.loads(body):
-        print(e)
-        send_email(e)
+    d = json.loads(body)
+    for e in d:
+        #print(e)
+        send_email(e, d[e])
 
     # Simulate processing
 

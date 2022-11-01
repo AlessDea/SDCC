@@ -12,7 +12,7 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "/shared_pw_dev/shared_pw";
+option java_package = "/SDCC/services";
 option java_outer_classname = "SharedPwProto";
 option objc_class_prefix = "SHP";
 package shared_pw;
@@ -20,6 +20,7 @@ package shared_pw;
 service Shared {
   rpc makeReq (ShRequest) returns (ShReply) {}
   rpc sendResp (respMsg) returns (respRep) {}
+  rpc sendInfo (InfoMsg) returns (InfoResp) {}
 }
 
 message ShRequest {
@@ -36,8 +37,21 @@ message respMsg{
   string groupId = 1;
   string result = 2;
   string token = 3;
+  string username = 4;
 }
 
 message respRep{
+  string message = 1;
+}
+
+message InfoMsg{
+  string groupId = 1;
+  repeated string username = 2;
+  repeated string token = 3;
+  string creator = 4;
+  string extra = 5;
+}
+
+message InfoResp{
   string message = 1;
 }
