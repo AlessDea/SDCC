@@ -1,103 +1,133 @@
-from __future__ import print_function
-
-import random
-
 import grpc
-from protos.login_pb2 import *
+
 from protos.login_pb2_grpc import *
+from protos.login_pb2 import *
 from protos.newpassword_pb2 import *
 from protos.newpassword_pb2_grpc import *
-from protos.savepwd_pb2 import *
-from protos.savepwd_pb2_grpc import *
-from protos.register_pb2 import *
-from protos.register_pb2_grpc import *
-from protos.listing_pb2 import *
-from protos.listing_pb2_grpc import *
+from protos.managepassword_pb2 import *
+from protos.managepassword_pb2_grpc import *
+from protos.groupmanager_pb2 import *
+from protos.groupmanager_pb2_grpc import *
 from protos.sharedpw_pb2 import *
 from protos.sharedpw_pb2_grpc import *
-from protos.gp_manager_pb2 import *
-from protos.gp_manager_pb2_grpc import *
+from protos.notification_pb2 import *
+from protos.notification_pb2_grpc import *
 
 
-def getNewNumPw(username, l, serv, sy, isSave):
-    with grpc.insecure_channel('newpw-service:50051') as channel:
-        stub = PasswordStub(channel)
-        response = stub.GetNewNumPass(PwRequest(name=username, length=l, service=serv, symbols=sy, hastoSave=isSave))
-        return response.pw, response.isSaved
-
-
-def getNewAlphNumPw(username, l, serv, sy, isSave):
-    with grpc.insecure_channel('newpw-service:50051') as channel:
-        stub = PasswordStub(channel)
-        response = stub.GetNewAlphaNumPass(PwRequest(name=username, length=l, service=serv, symbols=sy, hastoSave=isSave))
-        return response.pw, response.isSaved
-
-
-def getNewUpperPw(username, l, serv, sy, isSave):
-    with grpc.insecure_channel('newpw-service:50051') as channel:
-        stub = PasswordStub(channel)
-        response = stub.GetNewUpperPass(PwRequest(name=username, length=l, service=serv, symbols=sy, hastoSave=isSave))
-        return response.pw, response.isSaved
-
-
-def getNewLowerPw(username, l, serv, sy, isSave):
-    with grpc.insecure_channel('newpw-service:50051') as channel:
-        stub = PasswordStub(channel)
-        response = stub.GetNewLowerPass(PwRequest(name=username, length=l, service=serv, symbols=sy, hastoSave=isSave))
-        return response.pw, response.isSaved
-
-
-def doLogin(user, pssw, isAgency):
+def registration(username, password, isAgency):
     with grpc.insecure_channel('login-service:50052') as channel:
         stub = LoginStub(channel)
-        response = stub.doLogin(LogRequest(username=user, password=pssw, type=isAgency))
-        return response.isLogged
-
-
-def getEmail(user):
-    with grpc.insecure_channel('login-service:50052') as channel:
-        stub = LoginStub(channel)
-        response = stub.getEmail(EmailRequest(username=user))
-        return response.email
-
-
-def registration(user, pssw, mail):
-    with grpc.insecure_channel('register-service:50053') as channel:
-        stub = RegisterStub(channel)
-        response = stub.registration(RegRequest(username=user, password=pssw, email=mail))
+        response = stub.registration(RegistrationRequest(username=username, password=password, isAgency=isAgency))
         return response.isRegistered
 
 
-def savePw(u, p, s):
-    with grpc.insecure_channel('savepassword-service:50054') as channel:
+def doLogin(username, password, isAgency):
+    with grpc.insecure_channel('login-service:50052') as channel:
+        stub = LoginStub(channel)
+        response = stub.doLogin(LoginRequest(username=username, password=password, isAgency=isAgency))
+        return response.isLogged
+
+
+def checkEmployee(email, agency):
+    with grpc.insecure_channel('login-service:50052') as channel:
+        stub = LoginStub(channel)
+        response = stub.checkEmployee(CheckEmployeeRequest(email=email, agency=agency))
+        return response.isEmployeeChecked
+
+
+def addEmployee(email, agency):
+    with grpc.insecure_channel('login-service:50052') as channel:
+        stub = LoginStub(channel)
+        response = stub.addEmployee(AddEmployeeRequest(email=email, agency=agency))
+        return response.isEmployeeAdded
+
+
+def checkAgency(agency):
+    with grpc.insecure_channel('login-service:50052') as channel:
+        stub = LoginStub(channel)
+        response = stub.checkAgency(CheckAgencyRequest(agency=agency))
+        return response.isAgencyChecked
+
+
+def getNewNumericPassword(email, length, service, symbols, isSave):
+    with grpc.insecure_channel('newpw-service:50051') as channel:
+        stub = PasswordStub(channel)
+        response = stub.GetNewNumericPassword(NewPasswordRequest(email=email, length=length, service=service, symbols=symbols, hasToSave=isSave))
+        return response.password, response.isSaved
+
+
+def getNewAlphaNumericPassword(email, length, service, symbols, isSave):
+    with grpc.insecure_channel('newpw-service:50051') as channel:
+        stub = PasswordStub(channel)
+        response = stub.GetNewAlphaNumericPassword(NewPasswordRequest(email=email, length=length, service=service, symbols=symbols, hasToSave=isSave))
+        return response.password, response.isSaved
+
+
+def getNewUpperPassword(email, length, service, symbols, isSave):
+    with grpc.insecure_channel('newpw-service:50051') as channel:
+        stub = PasswordStub(channel)
+        response = stub.GetNewUpperPassword(NewPasswordRequest(email=email, length=length, service=service, symbols=symbols, hasToSave=isSave))
+        return response.password, response.isSaved
+
+
+def getNewLowerPassword(email, length, service, symbols, isSave):
+    with grpc.insecure_channel('newpw-service:50051') as channel:
+        stub = PasswordStub(channel)
+        response = stub.GetNewLowerPassword(NewPasswordRequest(email=email, length=length, service=service, symbols=symbols, hasToSave=isSave))
+        return response.password, response.isSaved
+
+
+def savePassword(email, password, service):
+    with grpc.insecure_channel('managepw-service:50054') as channel:
         stub = SaverStub(channel)
-        response = stub.SavePw(SaveRequest(username=u, pw=p, service=s))
+        response = stub.SavePassword(SavePasswordRequest(email=email, password=password, service=service))
         return response.isStored
 
 
-def doList(u):
-    with grpc.insecure_channel('listing-service:50055') as channel:
-        stub = ListingStub(channel)
-        response = stub.doList(ListRequest(username=u))
+def doList(email):
+    with grpc.insecure_channel('managepw-service:50054') as channel:
+        stub = SaverStub(channel)
+        response = stub.doList(ListPasswordRequest(email=email))
         return response.list
 
 
-def requestSharedPw(gid, requester):
-    with grpc.insecure_channel('sharedpw-service:50056') as channel:
-        stub = SharedStub(channel)
-        response = stub.makeReq(ShRequest(groupId = gid, username=requester, extra = None))
-        return response.list
-
-
-def responseSharedPw(gid, u, res, t):
-    with grpc.insecure_channel('sharedpw-service:50056') as channel:
-        stub = SharedStub(channel)
-        response = stub.sendResp(respMsg(groupId = gid, result=res, token = t, username=u))
-        return response.list
-
-
-def groupCreate(gp_name, user, mail, s):
-    with grpc.insecure_channel('gp-create-service:50057') as channel:
-        stub = GpCreatorStub(channel)
-        response = stub.groupCreate(gpCreateReq(group_name = gp_name, username=user, email=mail, service=s))
+def groupCreate(group_name, emails, agency):
+    with grpc.insecure_channel('groupmanager-service:50057') as channel:
+        stub = GroupManagerStub(channel)
+        response = stub.groupCreate(GroupCreateRequest(group_name=group_name, emails=emails, agency=agency))
         return response.isCreated
+
+
+def groupList(email):
+    with grpc.insecure_channel('groupmanager-service:50057') as channel:
+        stub = GroupManagerStub(channel)
+        response = stub.groupList(GroupListRequest(email=email))
+        return response.list
+
+
+def passwordRequest(group_name, email, service):
+    with grpc.insecure_channel('sharedpw-service:50056') as channel:
+        stub = SharedStub(channel)
+        response = stub.passwordRequest(SharedPasswordRequest(group_name=group_name, email=email, service=service))
+        return response.exists, response.password
+
+
+def checkPassword(group_name, agency, email, password):
+    with grpc.insecure_channel('sharedpw-service:50056') as channel:
+        stub = SharedStub(channel)
+        response = stub.checkPassword(CheckSharedPasswordRequest(group_name=group_name, agency=agency, email=email, password=password))
+        return response.isChecked
+
+
+def checkStatus(group_name, email, service):
+    with grpc.insecure_channel('notification-service:50058') as channel:
+        stub = NotificationStub(channel)
+        response = stub.checkStatus(CheckStatusRequest(group_name=group_name, email=email, service=service))
+        return response.status, response.total
+
+
+def acceptDecline(group_name, service, email_applicant, email_member, token, accepted):
+    with grpc.insecure_channel('notification-service:50058') as channel:
+        stub = NotificationStub(channel)
+        response = stub.acceptDecline(NotificationMessageRequest(group_name=group_name, service=service, email_applicant=email_applicant, email_member=email_member, token=token, accepted=accepted))
+        return response.isOk

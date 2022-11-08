@@ -161,6 +161,17 @@
           color: black;
        }
 
+       .button3 {
+          background-color: white;
+          color: #333333;
+          border: 2px solid white;
+        }
+
+       .button3:hover {
+          background-color: #333333;
+          color: white;
+       }
+
        .alert {
             padding: 20px;
             margin: 5px;

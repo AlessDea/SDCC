@@ -1,4 +1,3 @@
-
 /*
       Dopo aver modificato il .proto file:
           python3 -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/login.proto
@@ -6,7 +5,6 @@
       Questo genera
           - login_pb2.py che contiene le classi di richiesta e risposta
           - login_pb2_grpc.py che contiene le classi client e server
-
 */
 
 syntax = "proto3";
@@ -18,24 +16,55 @@ option objc_class_prefix = "LOG";
 package login;
 
 service Login {
-  rpc doLogin (LogRequest) returns (LogReply) {}
-  rpc getEmail (EmailRequest) returns (EmailReply) {}
+  rpc registration(RegistrationRequest) returns (RegistrationReply) {} // For login
+  rpc doLogin (LoginRequest) returns (LoginReply) {} // For login
+  rpc checkEmployee(CheckEmployeeRequest) returns (CheckEmployeeReply) {} // For Group Manager
+  rpc addEmployee(AddEmployeeRequest) returns (AddEmployeeReply) {} // For Group Manager
+  rpc checkAgency(CheckAgencyRequest) returns (CheckAgencyReply) {} // For double authentication
 }
 
-message LogRequest {
+message RegistrationRequest {
   string username = 1;
   string password = 2;
-  bool type = 3;
+  bool isAgency = 3;
 }
 
-message LogReply {
-  bool isLogged = 1;
+message RegistrationReply {
+  bool isRegistered = 1;
 }
 
-message EmailRequest {
+message LoginRequest {
   string username = 1;
+  string password = 2;
+  bool isAgency = 3;
 }
 
-message EmailReply {
+message LoginReply {
+  sint32 isLogged = 1; // 0 credenziali errate, 1 credenziali corrette - no agenzia - o agenzia, 2 credenziali corrette utente - si agenzia, -1 errore generico
+}
+
+message CheckEmployeeRequest {
   string email = 1;
+  string agency = 2;
+}
+
+message CheckEmployeeReply {
+  sint32 isEmployeeChecked = 1; // 0 utente - si agenzia, 1 utente - no agenzia, 2 no utente, -1 errore generico
+}
+
+message AddEmployeeRequest {
+  string email = 1;
+  string agency = 2;
+}
+
+message AddEmployeeReply {
+  bool isEmployeeAdded = 1;
+}
+
+message CheckAgencyRequest {
+  string agency = 1;
+}
+
+message CheckAgencyReply {
+  bool isAgencyChecked = 1;
 }

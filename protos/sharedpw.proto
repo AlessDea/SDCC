@@ -1,12 +1,10 @@
-
 /*
       Dopo aver modificato il .proto file:
-          python3 -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/login.proto
+          python3 -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/sharedpw.proto
 
       Questo genera
           - login_pb2.py che contiene le classi di richiesta e risposta
           - login_pb2_grpc.py che contiene le classi client e server
-
 */
 
 syntax = "proto3";
@@ -15,43 +13,31 @@ option java_multiple_files = true;
 option java_package = "/SDCC/services";
 option java_outer_classname = "SharedPwProto";
 option objc_class_prefix = "SHP";
-package shared_pw;
+package sharedpw;
 
 service Shared {
-  rpc makeReq (ShRequest) returns (ShReply) {}
-  rpc sendResp (respMsg) returns (respRep) {}
-  rpc sendInfo (InfoMsg) returns (InfoResp) {}
+  rpc passwordRequest (SharedPasswordRequest) returns (SharedPasswordReply) {}
+  rpc checkPassword (CheckSharedPasswordRequest) returns (CheckSharedPasswordReply) {}
 }
 
-message ShRequest {
-  string groupId = 1;
-  string username = 2;
-  string extra = 3;
+message SharedPasswordRequest {
+ string group_name = 1;
+ string email = 2;
+ string service = 3;
 }
 
-message ShReply {
-  string message = 1;
+message SharedPasswordReply {
+  bool exists = 1;
+  string password = 2;
 }
 
-message respMsg{
-  string groupId = 1;
-  string result = 2;
-  string token = 3;
-  string username = 4;
+message CheckSharedPasswordRequest {
+  string group_name = 1;
+  string agency = 2;
+  string email = 3;
+  string password = 4;
 }
 
-message respRep{
-  string message = 1;
-}
-
-message InfoMsg{
-  string groupId = 1;
-  repeated string username = 2;
-  repeated string token = 3;
-  string creator = 4;
-  string extra = 5;
-}
-
-message InfoResp{
-  string message = 1;
+message CheckSharedPasswordReply {
+  bool isChecked = 1;
 }

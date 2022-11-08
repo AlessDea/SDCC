@@ -1,0 +1,277 @@
+from concurrent import futures
+import logging
+import grpc
+import mysql.connector
+import pika
+from pika.exchange_type import ExchangeType
+import json
+from email.message import EmailMessage
+import ssl
+import smtplib
+
+from protos.notification_pb2 import *
+from protos.notification_pb2_grpc import *
+from protos.newpassword_pb2 import *
+from protos.newpassword_pb2_grpc import *
+
+file = "TokenGmail.txt"  # email_password
+email_sender = 'sdccsp@gmail.com'
+port = 465  # for SSL
+
+
+def connect_rabbitmq():
+    try:
+        connection_parameters = pika.ConnectionParameters('rabbitmq.default.svc.cluster.local')
+        pika_connection = pika.BlockingConnection(connection_parameters)
+        return pika_connection
+    except:
+        return False
+
+
+def connect_mysql_primary():
+    try:
+        connection = mysql.connector.connect(
+            host="notification-db-mysql-primary.default.svc.cluster.local",
+            user="root",
+            password="root",
+            database="mydb",
+            port="3306"
+        )
+        return connection
+    except:
+        return False
+
+
+def connect_mysql_secondary():
+    try:
+        connection = mysql.connector.connect(
+            host="notification-db-mysql-secondary.default.svc.cluster.local",
+            user="root",
+            password="root",
+            database="mydb",
+            port="3306"
+        )
+        return connection
+    except:
+        return False
+
+
+def storePassword(group_name, email, service, password):
+
+    query = "INSERT INTO shared_password VALUES (%s,%s,%s,%s)"
+    val = (group_name, email, service, password)
+
+    mydb = connect_mysql_primary()
+    mycursor = None
+
+    if mydb != False:
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute(query,val)
+            mydb.commit()
+            if mycursor.rowcount > 0:
+                return True
+            return False
+        except:
+            return False
+        finally:
+            if mycursor != None:
+                mycursor.close()
+    else:
+        return False
+
+
+def checkRequestStatus(group_name, email, service):
+    
+    queryStatus = "SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s AND status = '1'"
+    queryTotal = "SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s"
+    val = (group_name, email, service)
+
+    mydb = connect_mysql_secondary()
+    mycursor = None
+
+    if mydb != False:
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute(queryStatus,val)
+            myresultStatus = mycursor.fetchall()
+            mycursor.execute(queryTotal,val)
+            myresultTotal = mycursor.fetchall()
+            if mycursor.rowcount > 0:
+                return myresultStatus[0][0], myresultTotal[0][0]
+            return -2, -2
+        except:
+            return -2, -2
+        finally:
+            if mycursor != None:
+                mycursor.close()
+    else:
+        return -2, -2
+
+
+def acceptDecline(group_name, service, email_applicant, email_member, token, accepted):
+
+    mydb = connect_mysql_primary()
+    mycursor = None
+
+    if mydb != False:
+        try:
+            mycursor = mydb.cursor()
+
+            select_query = "SELECT token FROM request WHERE group_name = %s AND service = %s AND email_applicant = %s AND email_member = %s"
+            val = (group_name, service, email_applicant, email_member)
+
+            mycursor.execute(select_query, val)
+            myresult = mycursor.fetchone()[0]
+
+            if myresult == token:
+                if accepted:
+                    query = "UPDATE request SET accepted = '1' WHERE group_name = %s AND service = %s AND email_applicant = %s AND email_member = %s"
+                else:
+                    query = "DELETE FROM request WHERE group_name = %s AND service = %s AND email_applicant = %s"
+                    val = (group_name, service, email_applicant)
+                mycursor.execute(query, val)
+                mydb.commit()
+                if mycursor.rowcount > 0:
+                    return True
+            return False
+        except:
+            return False
+        finally:
+            if mycursor != None:
+                mycursor.close()
+    else:
+        return False
+
+
+def send_email(group_name, email_receiver, service, subject, message):
+    with open(file, "r") as thefile:
+        password = thefile.readlines()
+    email_password = password[0].replace("\n", "")
+
+    # Create an email
+    email = EmailMessage()
+    email['From'] = email_sender  # set sender
+    email['To'] = email_receiver  # set receiver
+    email['Subject'] = subject  # set subject
+    email.set_content(message, subtype="plain", charset="utf-8")  # set body
+
+    # Create ssl context
+    context = ssl.create_default_context()
+    smtp = None
+
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', port, context=context) as smtp:
+            smtp.login(email_sender, email_password)
+            smtp.sendmail(email_sender, email_receiver, email.as_string())
+            return True
+    except:
+        return False
+    finally:
+        smtp.quit()
+
+
+# Consume from RabbitMQ the request for send email. Queue email_queue
+def on_message_received(channel, method, properties, body):
+    dictionary = json.loads(body)
+
+    group_name = dictionary['group_name']
+    service = dictionary['service']
+    email_applicant = dictionary['email_applicant']
+    participants = dictionary['participants']
+
+    subject = "Share Password Request - Group: " + str(group_name) + ' - Agency: ' + str(service)
+
+    token = passwordCreate(len(participants))
+    if token == None:
+        return False
+    i = 0
+    # BISOGNA METTERE IL CICLO PER TUTTE LE EMAIL E SE ALMENO UNA RITORNA FALSE NON AGGIUNGI LA RICHIESTA NEL DB
+    for email in participants:
+        message = 'Your authorization code is: ' + token[i] + '\nInsert this code in the Share Password page and click on Accept or Decline'
+        i = i + 1
+        if not send_email(group_name, email, service, subject, message):
+            return False
+
+    response = storeRequest()
+    if response == False:
+        return False
+    
+    # Send ack when the processing is finished
+    channel.basic_ack(delivery_tag=method.delivery_tag, multiple=False)
+    return True
+
+
+def passwordCreate(participants_number):
+    tokens = []
+    try:
+        for _ in range(participants_number):
+            with grpc.insecure_channel('newpw-service:50051') as channel:
+                stub = PasswordStub(channel)
+                response = stub.GetNewAlphaNumericPassword(NewPasswordRequest(email=None, service=None, length=6, symbols=False, hastoSave=False))
+                tokens.append(response.password)
+        return tokens
+    except:
+        return None
+
+
+class Notification(NotificationServicer):
+
+    def checkStatus(self, request, context):
+        status, total = checkRequestStatus(request.group_name, request.email, request.service)
+        return CheckStatusReply(status=status, total=total)
+        
+    def acceptDecline(self, request, context):
+        # execute accept/decline update ...
+        response = acceptDecline(request.group_name, request.service, request.email_applicant, request.email_member, request.token, request.accepted)
+        # ... if the accept/decline has been updated correctly ...
+        if response:
+            # ... and was a decline, send the 'Shared Password deied' email
+            if request.accepted == False:
+                subject = 'Shared Password Response'
+                message = 'Your request for a Share Password has been denied by ' + str(request.email_member) + '.'
+                
+                send_email(request.group_name, request.email_applicant, request.service, subject, message)
+                
+            # ... and was an accept
+            else:
+                # check if everyone accepted and send the confirm email if so
+                status, total = checkRequestStatus(request.group_name, request.email_applicant, request.service)
+                if status == total:
+                    subject = 'Shared Password Response'
+                    message = 'Your request for a Share Password has been accepted!'
+                    
+                    send_email(request.group_name, request.email_applicant, request.service, subject, message)
+
+        # returns if the accept/decline has been updated correctly
+        return NotificationMessageReply(isOk=response)
+
+
+def serve():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    add_NotificationServicer_to_server(Notification(), server)
+    server.add_insecure_port('[::]:50058')
+    server.start()
+    server.wait_for_termination()
+
+
+def consumingEmailQueue():
+    connection = connect_rabbitmq()
+    if connection != False:
+        try:
+            channel = connection.channel()
+            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
+            channel.queue_declare(queue='email_queue')
+            channel.bind(exchange='routing', queue='email_queue', routing_key='notification')
+            channel.basic_qos(prefetch_count=1)   # Remove this line to let RabbitMQ act in round robin manner
+            channel.basic_consume(queue='email_queue', auto_ack=False, on_message_callback=on_message_received)
+            channel.start_consuming()
+        except:
+            return False
+    else:
+        return False
+
+if __name__ == '__main__':
+
+    logging.basicConfig()
+    serve()

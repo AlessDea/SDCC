@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: managepw-deployment
+  labels: 
+    app: managepw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: managepw
+  template:
+    metadata:
+      labels:
+        app: managepw
+    spec:
+      containers:
+      - name: managepw
+        image: managepw-image
+        imagePullPolicy: Never 
+        resources:
+          limits:
+            cpu: 50m
+          requests:
+            cpu: 20m
+        ports:
+        - containerPort: 50054
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: managepw-service
+spec:
+  selector:
+    app: managepw
+  ports:
+    - protocol: TCP
+      port: 50054
+      targetPort: 50054
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: managepw-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: managepw-deployment
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: 
+          type: Utilization
+          averageUtilization: 50

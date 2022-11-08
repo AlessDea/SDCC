@@ -1,0 +1,41 @@
+
+/*
+      Dopo aver modificato il .proto file:
+          python3 -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/groupmanager.proto
+
+      Questo genera
+          - gp_manager_pb2.py che contiene le classi di richiesta e risposta
+          - gp_manager_pb2_grpc.py che contiene le classi client e server
+
+*/
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "/SDCC/services";
+option java_outer_classname = "GpManagerProto";
+option objc_class_prefix = "GPM";
+package groupmanager;
+
+service GroupManager {
+  rpc groupCreate (GroupCreateRequest) returns (GroupCreateReply) {}
+  rpc groupList (GroupListRequest) returns (GroupListReply) {}
+}
+
+message GroupCreateRequest {
+  string group_name = 1;
+  repeated string emails = 2;
+  string agency = 3;
+}
+
+message GroupCreateReply {
+  sint32 isCreated = 1;             // -1: errore | 0: utente essite ed è dipendente | 1: utente esiste ma non dipendente | 2: utente non esiste | 3: group_name già usato
+}
+
+message GroupListRequest {
+  string email = 1;
+}
+
+message GroupListReply {
+  map<string, string> list = 1;     // composto da (group_name x agency)
+}

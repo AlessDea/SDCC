@@ -18,4 +18,4 @@ COPY . /app
 # configure the container to run in an executed manner
 ENTRYPOINT [ "python" ]
 
-CMD ["securepass_server.py"]
+CMD ["newpw.py"]

@@ -18,15 +18,19 @@
 
       <div class="w3-container ">
         <ul class="w3-ul w3-card-4 ">
-          {% for group in lista %}
+          {% for group, service in lista.items() %}
             <li name="row" class="w3-bar">
+              <form id="info" method="post">
 
-              <span class="w3-xlarge w3-right"><a onclick="deleteRow(this)" class="fa fa-close w3-xlarge"></a></span>
+                <!-- <span class="w3-xlarge w3-right"><a onclick="deleteRow(this)" class="fa fa-close w3-xlarge" style="margin-top: 10px;"></a></span> -->
+                <button class="button button3" name="submit" value="leave_group" style="float: right;">Leave Group</button>
+                <button class="button button3" name="submit" value="shared_password" style="float: right; margin-right: 15px;">Get Shared Password</button>
 
-              <div class="w3-bar-item ">
-                <span class="w3-large " style="color: white;"><i class="fa fa-users  w3-xlarge" style="margin-right: 25px;"></i>{{group}}</span>
-              </div>
+                <div class="w3-bar-item ">
+                  <span class="w3-large " style="color: white;"><i class="fa fa-users  w3-xlarge" style="margin-right: 25px; margin-top: 10px;"></i>Agency: {{service}} | Group Name: {{group}}</span>
+                </div>
 
+              </form>
             </li>
           {% endfor %}
         </ul>
@@ -35,14 +39,14 @@
 
   </div>
 
-  <script>
+  <!-- <script>
     function deleteRow(obj){
       let text = "Are you sure you want to leave this group?";
       if (confirm(text) == true) {
         obj.parentNode.parentNode.remove();
       }
     }
-  </script>
+  </script> -->
     
   {% for message in get_flashed_messages() %}
     <div class="alert w3-monospace">{{ message }}</div>

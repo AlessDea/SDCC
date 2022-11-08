@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %} Add Employee {% endblock %}
+
+{% block content %}
+
+<script>
+    document.getElementById("addemployee").style.backgroundColor = "#C5C5C5";
+    document.getElementById("addemployee").style.color = "black";
+</script>
+
+  <div class="w3-monospace " style="background-color:white;border-radius: 8px;">
+
+    <div>
+
+      <header class="w3-container" style="background-color:#333333;">
+        <h2 class="w3-monospace" style=color:white>Add employees to your agency</h2>
+      </header>
+
+      <form id="info" method="post">
+        <div id="myDIV" class="header" style="margin-left: 30px">
+          <h2>Enter the email of the employee:</h2>
+          <input type="email" style="height: 50px; border-radius: 5px;" id="myInput" name="myInput" placeholder="Email..." required="required">
+          <button class="button button2" name="submit" value="add_employee">Add</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+    
+  {% for message in get_flashed_messages() %}
+    <div class="alert w3-monospace">{{ message }}</div>
+  {% endfor %}
+
+{% endblock %}

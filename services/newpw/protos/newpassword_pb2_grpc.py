@@ -15,30 +15,25 @@ class PasswordStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetNewPass = channel.unary_unary(
-                '/newpw.Password/GetNewPass',
-                request_serializer=newpassword__pb2.PwRequest.SerializeToString,
-                response_deserializer=newpassword__pb2.PwReply.FromString,
+        self.GetNewNumericPassword = channel.unary_unary(
+                '/newpw.Password/GetNewNumericPassword',
+                request_serializer=newpassword__pb2.NewPasswordRequest.SerializeToString,
+                response_deserializer=newpassword__pb2.NewPasswordReply.FromString,
                 )
-        self.GetNewNumPass = channel.unary_unary(
-                '/newpw.Password/GetNewNumPass',
-                request_serializer=newpassword__pb2.PwRequest.SerializeToString,
-                response_deserializer=newpassword__pb2.PwReply.FromString,
+        self.GetNewLowerPassword = channel.unary_unary(
+                '/newpw.Password/GetNewLowerPassword',
+                request_serializer=newpassword__pb2.NewPasswordRequest.SerializeToString,
+                response_deserializer=newpassword__pb2.NewPasswordReply.FromString,
                 )
-        self.GetNewLowerPass = channel.unary_unary(
-                '/newpw.Password/GetNewLowerPass',
-                request_serializer=newpassword__pb2.PwRequest.SerializeToString,
-                response_deserializer=newpassword__pb2.PwReply.FromString,
+        self.GetNewUpperPassword = channel.unary_unary(
+                '/newpw.Password/GetNewUpperPassword',
+                request_serializer=newpassword__pb2.NewPasswordRequest.SerializeToString,
+                response_deserializer=newpassword__pb2.NewPasswordReply.FromString,
                 )
-        self.GetNewUpperPass = channel.unary_unary(
-                '/newpw.Password/GetNewUpperPass',
-                request_serializer=newpassword__pb2.PwRequest.SerializeToString,
-                response_deserializer=newpassword__pb2.PwReply.FromString,
-                )
-        self.GetNewAlphaNumPass = channel.unary_unary(
-                '/newpw.Password/GetNewAlphaNumPass',
-                request_serializer=newpassword__pb2.PwRequest.SerializeToString,
-                response_deserializer=newpassword__pb2.PwReply.FromString,
+        self.GetNewAlphaNumericPassword = channel.unary_unary(
+                '/newpw.Password/GetNewAlphaNumericPassword',
+                request_serializer=newpassword__pb2.NewPasswordRequest.SerializeToString,
+                response_deserializer=newpassword__pb2.NewPasswordReply.FromString,
                 )
 
 
@@ -46,31 +41,25 @@ class PasswordServicer(object):
     """The  service definition.
     """
 
-    def GetNewPass(self, request, context):
+    def GetNewNumericPassword(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetNewNumPass(self, request, context):
+    def GetNewLowerPassword(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetNewLowerPass(self, request, context):
+    def GetNewUpperPassword(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetNewUpperPass(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GetNewAlphaNumPass(self, request, context):
+    def GetNewAlphaNumericPassword(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -79,30 +68,25 @@ class PasswordServicer(object):
 
 def add_PasswordServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetNewPass': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetNewPass,
-                    request_deserializer=newpassword__pb2.PwRequest.FromString,
-                    response_serializer=newpassword__pb2.PwReply.SerializeToString,
+            'GetNewNumericPassword': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNewNumericPassword,
+                    request_deserializer=newpassword__pb2.NewPasswordRequest.FromString,
+                    response_serializer=newpassword__pb2.NewPasswordReply.SerializeToString,
             ),
-            'GetNewNumPass': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetNewNumPass,
-                    request_deserializer=newpassword__pb2.PwRequest.FromString,
-                    response_serializer=newpassword__pb2.PwReply.SerializeToString,
+            'GetNewLowerPassword': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNewLowerPassword,
+                    request_deserializer=newpassword__pb2.NewPasswordRequest.FromString,
+                    response_serializer=newpassword__pb2.NewPasswordReply.SerializeToString,
             ),
-            'GetNewLowerPass': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetNewLowerPass,
-                    request_deserializer=newpassword__pb2.PwRequest.FromString,
-                    response_serializer=newpassword__pb2.PwReply.SerializeToString,
+            'GetNewUpperPassword': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNewUpperPassword,
+                    request_deserializer=newpassword__pb2.NewPasswordRequest.FromString,
+                    response_serializer=newpassword__pb2.NewPasswordReply.SerializeToString,
             ),
-            'GetNewUpperPass': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetNewUpperPass,
-                    request_deserializer=newpassword__pb2.PwRequest.FromString,
-                    response_serializer=newpassword__pb2.PwReply.SerializeToString,
-            ),
-            'GetNewAlphaNumPass': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetNewAlphaNumPass,
-                    request_deserializer=newpassword__pb2.PwRequest.FromString,
-                    response_serializer=newpassword__pb2.PwReply.SerializeToString,
+            'GetNewAlphaNumericPassword': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNewAlphaNumericPassword,
+                    request_deserializer=newpassword__pb2.NewPasswordRequest.FromString,
+                    response_serializer=newpassword__pb2.NewPasswordReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -116,7 +100,7 @@ class Password(object):
     """
 
     @staticmethod
-    def GetNewPass(request,
+    def GetNewNumericPassword(request,
             target,
             options=(),
             channel_credentials=None,
@@ -126,14 +110,14 @@ class Password(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewPass',
-            newpassword__pb2.PwRequest.SerializeToString,
-            newpassword__pb2.PwReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewNumericPassword',
+            newpassword__pb2.NewPasswordRequest.SerializeToString,
+            newpassword__pb2.NewPasswordReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def GetNewNumPass(request,
+    def GetNewLowerPassword(request,
             target,
             options=(),
             channel_credentials=None,
@@ -143,14 +127,14 @@ class Password(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewNumPass',
-            newpassword__pb2.PwRequest.SerializeToString,
-            newpassword__pb2.PwReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewLowerPassword',
+            newpassword__pb2.NewPasswordRequest.SerializeToString,
+            newpassword__pb2.NewPasswordReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def GetNewLowerPass(request,
+    def GetNewUpperPassword(request,
             target,
             options=(),
             channel_credentials=None,
@@ -160,14 +144,14 @@ class Password(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewLowerPass',
-            newpassword__pb2.PwRequest.SerializeToString,
-            newpassword__pb2.PwReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewUpperPassword',
+            newpassword__pb2.NewPasswordRequest.SerializeToString,
+            newpassword__pb2.NewPasswordReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def GetNewUpperPass(request,
+    def GetNewAlphaNumericPassword(request,
             target,
             options=(),
             channel_credentials=None,
@@ -177,25 +161,8 @@ class Password(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewUpperPass',
-            newpassword__pb2.PwRequest.SerializeToString,
-            newpassword__pb2.PwReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetNewAlphaNumPass(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewAlphaNumPass',
-            newpassword__pb2.PwRequest.SerializeToString,
-            newpassword__pb2.PwReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/newpw.Password/GetNewAlphaNumericPassword',
+            newpassword__pb2.NewPasswordRequest.SerializeToString,
+            newpassword__pb2.NewPasswordReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -17,7 +17,7 @@
         <header class="u-custom-color-1 u-header u-header " id="sec-be1d" >
             <button class="w3-button  w3-xlarge w3-hide-large" onclick="w3_open()" style="color:black;">&#9776;</button>
               <a class=" title-sec" href="#" style="color:white">
-                  Secure PassWorld
+                  Secure PassWorld 
               </a>
         </header>
     </nav>
@@ -27,16 +27,18 @@
     <button class="w3-bar-item w3-button w3-large w3-hide-large" onclick="w3_close()"> &times; </button>
     <a href="{{ url_for('logout') }}" class="w3-bar-item w3-button" style="border-bottom: 1px solid white; padding-bottom: 10px;" title="Logout"><i class="fa fa-sign-out w3-xlarge"></i> Logout</a>
     <a href="{{ url_for('home') }}" id="home" class="w3-bar-item w3-button" title="Home"><i class="fa fa-home  w3-xlarge"></i> Home</a>
-    <a href="{{ url_for('newpassword') }}" id="newpassword" class="w3-bar-item w3-button" title="New Password"><i class="fa fa-key  w3-xlarge"></i> New Password</a>
-    <a href="{{ url_for('savepassword') }}" id="savepassword" class="w3-bar-item w3-button" title="New Password"><i class="fa fa-floppy-o  w3-xlarge"></i> Save Password</a>
-    <a href="{{ url_for('listpasswords') }}" id="listpassword" class="w3-bar-item w3-button" title="List your password"><i class="fa fa-list  w3-xlarge"></i> List your password</a>
-
     {% if agency == 'True' %}
         <a href="#" id="newtemp" class="w3-bar-item w3-button" title="New temporary password"><i class="fa fa-clock-o  w3-xlarge"></i> New temporary password</a>
-        <a href="{{ url_for('groupcreate') }}" id="groupcreate" class="w3-bar-item w3-button" title="New shared password"><i class="fa fa-users  w3-xlarge"></i> Create new group</a>
+        <a href="{{ url_for('groupcreate') }}" id="groupcreate" class="w3-bar-item w3-button" title="Create new group"><i class="fa fa-users  w3-xlarge"></i> Create new group</a>
+        <a href="{{ url_for('addemployee') }}" id="addemployee" class="w3-bar-item w3-button" title="Add Employee"><i class="fa fa-user-plus  w3-xlarge"></i> Add Employee</a>
         <a href="{{ url_for('newdoublecode') }}" id="newdoublecode" class="w3-bar-item w3-button" title="Double authentication"><i class="fa fa-shield  w3-xlarge"></i> Double authentication</a>
     {% else %}
-        <a href="{{ url_for('grouplist') }}" id="grouplist" class="w3-bar-item w3-button" title="New shared password"><i class="fa fa-users  w3-xlarge"></i> Manage Groups</a>
+        <a href="{{ url_for('newpassword') }}" id="newpassword" class="w3-bar-item w3-button" title="New Password"><i class="fa fa-key  w3-xlarge"></i> New Password</a>
+        <a href="{{ url_for('savepassword') }}" id="savepassword" class="w3-bar-item w3-button" title="Save Password"><i class="fa fa-floppy-o  w3-xlarge"></i> Save Password</a>
+        <a href="{{ url_for('listpasswords') }}" id="listpassword" class="w3-bar-item w3-button" title="List your password"><i class="fa fa-list  w3-xlarge"></i> List your password</a>    
+        {% if hasAgency == 'True' %}
+            <a href="{{ url_for('grouplist') }}" id="grouplist" class="w3-bar-item w3-button" style="border-top: 1px solid white; padding-bottom: 10px;" title="New shared password"><i class="fa fa-users  w3-xlarge"></i> List Groups</a>
+        {% endif %}
     {% endif %}
 </div>
 

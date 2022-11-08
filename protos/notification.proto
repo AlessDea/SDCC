@@ -1,0 +1,50 @@
+/*
+      Dopo aver modificato il .proto file:
+          python3 -m grpc_tools.protoc -I../../protos --python_out=. --grpc_python_out=. ../../protos/notification.proto
+
+      Questo genera
+          - login_pb2.py che contiene le classi di richiesta e risposta
+          - login_pb2_grpc.py che contiene le classi client e server
+*/
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "/SDCC/services";
+option java_outer_classname = "NotificationProto";
+option objc_class_prefix = "NTP";
+package notification;
+
+service Notification {
+  rpc checkStatus (CheckStatusRequest) returns (CheckStatusReply) {}
+  rpc acceptDecline (NotificationMessageRequest) returns (NotificationMessageReply) {}
+}
+
+message CheckStatusRequest {
+  string group_name = 1;
+  string email = 2;
+  string service = 3;
+}
+
+// N.B.: nel DB status = 0: ancora non accettato, 1 se accettato
+// Example: 3/10 accepted
+// SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s AND status = '1';
+// SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s;
+
+message CheckStatusReply {
+  sint32 status = 1; // -1: se non esiste richiesta, 0: accettato, > 0: richieste pendenti 
+  int32 total = 2;
+}
+
+message NotificationMessageRequest {
+  string group_name = 1;
+  string service = 2;
+  string email_applicant = 3;
+  string email_member = 4;
+  string token = 5;
+  bool accepted = 6;
+}
+
+message NotificationMessageReply {
+  bool isOk = 1;
+}
