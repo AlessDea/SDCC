@@ -8,6 +8,7 @@ import json
 from email.message import EmailMessage
 import ssl
 import smtplib
+import threading
 
 from protos.notification_pb2 import *
 from protos.notification_pb2_grpc import *
@@ -56,18 +57,43 @@ def connect_mysql_secondary():
         return False
 
 
-def storePassword(group_name, email, service, password):
+def storePassword(group_name, email_applicant, service, participants, token):
 
-    query = "INSERT INTO shared_password VALUES (%s,%s,%s,%s)"
-    val = (group_name, email, service, password)
+    val = []
+    for email_member in participants:
+        val.append(tuple([group_name, email_applicant, service, email_member, token]))
 
     mydb = connect_mysql_primary()
     mycursor = None
 
     if mydb != False:
         try:
+            query = "INSERT INTO request VALUES (%s,%s,%s,%s,%s,'0')"
             mycursor = mydb.cursor()
-            mycursor.execute(query,val)
+            mycursor.executemany(query,participants)
+            mydb.commit()
+            if mycursor.rowcount > 0:
+                return True
+            return False
+        except:
+            return False
+        finally:
+            if mycursor != None:
+                mycursor.close()
+    else:
+        return False
+
+
+def deleteRequest(group_name, email_applicant, service):
+
+    mydb = connect_mysql_primary()
+    mycursor = None
+
+    if mydb != False:
+        try:
+            query = "DELETE FROM request WHERE group_name = %s AND service = %s AND email_applicant = %s"
+            val = (group_name, service, email_applicant)
+            mycursor.execute(query, val)
             mydb.commit()
             if mycursor.rowcount > 0:
                 return True
@@ -84,7 +110,7 @@ def storePassword(group_name, email, service, password):
 def checkRequestStatus(group_name, email, service):
     
     queryStatus = "SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s AND status = '1'"
-    queryTotal = "SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s"
+    queryTotal  = "SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s"
     val = (group_name, email, service)
 
     mydb = connect_mysql_secondary()
@@ -118,7 +144,7 @@ def acceptDecline(group_name, service, email_applicant, email_member, token, acc
         try:
             mycursor = mydb.cursor()
 
-            select_query = "SELECT token FROM request WHERE group_name = %s AND service = %s AND email_applicant = %s AND email_member = %s"
+            select_query = "SELECT token FROM request WHERE group_name = %s AND service = %s AND email_applicant = %s AND email_member = %s AND status = '0'"
             val = (group_name, service, email_applicant, email_member)
 
             mycursor.execute(select_query, val)
@@ -126,7 +152,7 @@ def acceptDecline(group_name, service, email_applicant, email_member, token, acc
 
             if myresult == token:
                 if accepted:
-                    query = "UPDATE request SET accepted = '1' WHERE group_name = %s AND service = %s AND email_applicant = %s AND email_member = %s"
+                    query = "UPDATE request SET status = '1' WHERE group_name = %s AND service = %s AND email_applicant = %s AND email_member = %s"
                 else:
                     query = "DELETE FROM request WHERE group_name = %s AND service = %s AND email_applicant = %s"
                     val = (group_name, service, email_applicant)
@@ -144,7 +170,7 @@ def acceptDecline(group_name, service, email_applicant, email_member, token, acc
         return False
 
 
-def send_email(group_name, email_receiver, service, subject, message):
+def send_email(email_receiver, subject, message):
     with open(file, "r") as thefile:
         password = thefile.readlines()
     email_password = password[0].replace("\n", "")
@@ -171,10 +197,21 @@ def send_email(group_name, email_receiver, service, subject, message):
         smtp.quit()
 
 
-# Consume from RabbitMQ the request for send email. Queue email_queue
-def on_message_received(channel, method, properties, body):
-    dictionary = json.loads(body)
+def sendDoubleauthCode(dictionary):
+    agency = dictionary['agency']
+    email = dictionary['email']
+    token = dictionary['token']
 
+    subject = "Double Auth Code - Agency: " + str(agency)
+
+    message = 'Your Double Authentication Code is: ' + str(token)
+    
+    if send_email(email, subject, message):
+        return True
+    return False
+
+
+def sendSharedPassword(dictionary):
     group_name = dictionary['group_name']
     service = dictionary['service']
     email_applicant = dictionary['email_applicant']
@@ -185,21 +222,34 @@ def on_message_received(channel, method, properties, body):
     token = passwordCreate(len(participants))
     if token == None:
         return False
+
     i = 0
-    # BISOGNA METTERE IL CICLO PER TUTTE LE EMAIL E SE ALMENO UNA RITORNA FALSE NON AGGIUNGI LA RICHIESTA NEL DB
     for email in participants:
-        message = 'Your authorization code is: ' + token[i] + '\nInsert this code in the Share Password page and click on Accept or Decline'
+        message = 'Your authorization code is: ' + str(token[i]) + '\nInsert this code in the Share Password page and click on Accept or Decline'
         i = i + 1
-        if not send_email(group_name, email, service, subject, message):
+        if not send_email(email, subject, message):
             return False
 
-    response = storeRequest()
-    if response == False:
-        return False
-    
-    # Send ack when the processing is finished
-    channel.basic_ack(delivery_tag=method.delivery_tag, multiple=False)
-    return True
+    if storePassword(group_name, email_applicant, service, participants, token):
+        return True
+    return False
+
+# Consume from RabbitMQ the request from Group Manager. Queue email_queue
+def on_message_received(channel, method, properties, body):
+    dictionary = json.loads(body)
+
+    if dictionary['TAG'] == 'Doubleauth':
+        response = sendDoubleauthCode(dictionary)
+    else:
+        response = sendSharedPassword(dictionary)
+
+    # Send ack only if there were no errors
+    # (try/except not required, at worst multiple requests are sent and only the last one is valid)
+    if response:
+        # Send ack when the processing is finished
+        channel.basic_ack(delivery_tag=method.delivery_tag, multiple=False)
+        return True
+    return False
 
 
 def passwordCreate(participants_number):
@@ -228,23 +278,27 @@ class Notification(NotificationServicer):
         if response:
             # ... and was a decline, send the 'Shared Password deied' email
             if request.accepted == False:
-                subject = 'Shared Password Response'
+                subject = 'Shared Password Response - Group: ' + str(request.group_name) + ' - Agency: ' + str(request.service)
                 message = 'Your request for a Share Password has been denied by ' + str(request.email_member) + '.'
                 
-                send_email(request.group_name, request.email_applicant, request.service, subject, message)
+                send_email(request.email_applicant, subject, message)
                 
             # ... and was an accept
             else:
                 # check if everyone accepted and send the confirm email if so
                 status, total = checkRequestStatus(request.group_name, request.email_applicant, request.service)
                 if status == total:
-                    subject = 'Shared Password Response'
+                    subject = 'Shared Password Response - Group: ' + str(request.group_name) + ' - Agency: ' + str(request.service)
                     message = 'Your request for a Share Password has been accepted!'
                     
-                    send_email(request.group_name, request.email_applicant, request.service, subject, message)
+                    send_email(request.email_applicant, subject, message)
 
         # returns if the accept/decline has been updated correctly
         return NotificationMessageReply(isOk=response)
+
+    def deleteRequest(self, request, context):
+        response = deleteRequest(request.group_name, request.email, request.service)
+        return DeleteResponse(hasBeenDeleted=response)
 
 
 def serve():
@@ -274,4 +328,11 @@ def consumingEmailQueue():
 if __name__ == '__main__':
 
     logging.basicConfig()
-    serve()
+
+    grpcThread = threading.Thread(target=serve())
+    grpcThread.start()
+
+    while True:
+        rabbitThread = threading.Thread(target=consumingEmailQueue())
+        rabbitThread.start()
+        rabbitThread.join()

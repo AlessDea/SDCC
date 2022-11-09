@@ -5,6 +5,7 @@ import mysql.connector
 import pika
 from pika.exchange_type import ExchangeType
 import json
+from datetime import datetime, timedelta
 
 from protos.sharedpw_pb2 import *
 from protos.sharedpw_pb2_grpc import *
@@ -57,7 +58,7 @@ def askSharedPassword(group_name, email, service):
     pika_connection = connect_rabbitmq()
     if pika_connection != False:
         try:
-            message = {'group_name':group_name, 'email':email, 'service':service}
+            message = {'TAG':'SharedPassword', 'group_name':group_name, 'email':email, 'service':service}
             body = json.dumps(message)
 
             channel = pika_connection.channel()
@@ -75,8 +76,15 @@ def askSharedPassword(group_name, email, service):
 
 def storePassword(group_name, email, service, password):
 
-    query = "INSERT INTO shared_password VALUES (%s,%s,%s,%s)"
-    val = (group_name, email, service, password)
+    if password == '':
+        query = "INSERT INTO shared_password VALUES (%s,%s,%s,'','0')"
+        val = (group_name, email, service)
+    else:
+        dt = datetime.now()
+        dt = dt + timedelta(hours = 24)
+        expire = datetime.timestamp(dt)
+        query = "UPDATE shared_password SET password = %s, expire_date = %s WHERE group_name = %s AND email = %s AND service = %s"
+        val = (password, expire, group_name, email, service)
 
     mydb = connect_mysql_primary()
     mycursor = None
@@ -99,8 +107,11 @@ def storePassword(group_name, email, service, password):
 
 
 def checkIfPasswordExists(group_name, agency, email):
+
+    dt = datetime.now()
+    now = datetime.timestamp(dt)
     
-    query = "SELECT password FROM shared_password WHERE group_name = %s AND email = %s AND service = %s"
+    query = "SELECT password, expire_date FROM shared_password WHERE group_name = %s AND email = %s AND service = %s"
     val = (group_name, email, agency)
 
     mydb = connect_mysql_secondary()
@@ -112,15 +123,19 @@ def checkIfPasswordExists(group_name, agency, email):
             mycursor.execute(query,val)
             myresult = mycursor.fetchall()
             if mycursor.rowcount > 0:
-                return myresult[0][0]
-            return None
+                if myresult[0][0] != '':
+                    if myresult[0][1] >= now:
+                        return 1, myresult[0][0]    # LA PASSWORD ESISTE ED E' VALIDA
+                    return 2                        # COME SE NON HA ENTRY
+                return 0                            # 3 ENTRY MA PASSWORD VUOTA
+            return 2                                # NON HA ENTRY
         except:
-            return None
+            return -1
         finally:
             if mycursor != None:
                 mycursor.close()
     else:
-        return None
+        return -1
 
 
 def checkNotificationStatus(group_name, email, service):
@@ -143,48 +158,73 @@ def passwordCreate():
         return None
 
 
+def deleteRequest(group_name, email, service):
+    try:
+        with grpc.insecure_channel('notification-service:50058') as channel:
+            stub = NotificationStub(channel)
+            response = stub.deleteRequest(DeleteRequest(group_name=group_name, email=email, service=service))
+            return response.hasBeenDeleted
+    except:
+        return False
+
+
+def deleteTransaction(group_name, email, service, password)):
+    # send requesto to NewPassword
+    password = passwordCreate()
+    if password != None:
+        # delete the request on Notification DB
+        if deleteRequest(request.group_name, request.email, request.service):
+            # save the password on Shared-DB
+            hasBeenStored = storePassword(request.group_name, request.email, request.service, password)
+            if hasBeenStored:
+                return True, f"{group_name}: Your Shared Password for the service {service} is: {password}"
+            return False, 'An error occurred storing the password!'
+        return False, 'An error occurred deleting the accepted request!'
+    return False, 'An error occurred during the password creation!'
+
+
 class Shared(SharedServicer):
 
     def passwordRequest(self, request, context):
-
-        # check if password already exists ...
-        password = checkIfPasswordExists(request.group_name, request.service, request.email)
-        if password != None:
+        # check if password already exists and isn't expired ...
+        result, password = checkIfPasswordExists(request.group_name, request.service, request.email)
+        # ... if an error occurred
+        if result == -1:
+            password = 'An error occurred checking your password!'
+        # ... if entry exists but password is empty
+        elif result == 0:
+            response, password = deleteTransaction(request.group_name, request.email, request.service)
+            return SharedPasswordReply(exists=response, password=password)
+        # ... if exists and it's valid
+        elif result == 1:
             return SharedPasswordReply(exists=True, password=password)
-
         # ... if not ...
-
-        # ask Notification if request has already been sent
-        status, total = checkNotificationStatus(request.group_name, request.email, request.service)
-
-        # if an error occurred
-        if status == -2:
-            password = 'An error occurred checking your request status!'
-        # if hasn't already been sent
-        elif status == -1:
-            # send requesto to Rabbit
-            response = askSharedPassword(request.group_name, request.email, request.service)
-            if response:
-                password = 'Shared password requested!'
-            else:
-                password = 'An error occurred asking the shared password!'
-        # if has been accepted
-        elif status == 0:
-            # send requesto to NewPassword
-            password = passwordCreate()
-            if password == None:
-                password = 'An error occurred during the password creation!'
-            else:
-                # save the password on Shared-DB
-                response = storePassword(request.group_name, request.email, request.service, password)
-                if response:
-                    return SharedPasswordReply(exists=True, password=password)
-                else:
-                    password = 'An error occurred saving the password!'
-        # if still needs to be accepted
         else:
-            # show status
-            password = str(status) + '/' + str(total) + ' accepted!'
+            # ask Notification if request has already been sent
+            status, total = checkNotificationStatus(request.group_name, request.email, request.service)
+            # if an error occurred
+            if status == -2:
+                password = 'An error occurred checking your request status!'
+            # if hasn't already been sent
+            elif status == -1:
+                # send requesto to Rabbit
+                response = askSharedPassword(request.group_name, request.email, request.service)
+                if response:
+                    password = f"{group_name}: Your Shared Password for the service {service} has been requested!"
+                else:
+                    password = 'An error occurred asking the shared password!'
+            # if has been accepted
+            elif status == 0:
+                storeRequest = storePassword(request.group_name, request.email, request.service, '')
+                if storeRequest:
+                    # delete the request on Notification DB and store the password
+                    response, password = deleteTransaction(request.group_name, request.email, request.service)
+                    return SharedPasswordReply(exists=response, password=password)
+                password = 'An error occurred storing the entry'
+            # if still needs to be accepted
+            else:
+                # show status
+                password = str(status) + ' out of ' + str(total) + ' users has accepted!'
 
         return SharedPasswordReply(exists=False, password=password)
 

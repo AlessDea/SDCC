@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: doubleauth-deployment
+  labels: 
+    app: doubleauth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: doubleauth
+  template:
+    metadata:
+      labels:
+        app: doubleauth
+    spec:
+      containers:
+      - name: doubleauth
+        image: doubleauth-image
+        imagePullPolicy: Never
+        resources:
+          limits:
+            cpu: 50m
+          requests:
+            cpu: 20m
+        ports:
+        - containerPort: 50059
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: doubleauth-service
+spec:
+  selector:
+    app: doubleauth
+  ports:
+    - protocol: TCP
+      port: 50059
+      targetPort: 50059
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: doubleauth-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: doubleauth-deployment
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: 
+          type: Utilization
+          averageUtilization: 50
