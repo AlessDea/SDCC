@@ -141,7 +141,7 @@ initdbScripts:
     mysql -P 3306 -uroot -proot mydb -e "
     CREATE SCHEMA IF NOT EXISTS mydb DEFAULT CHARACTER SET utf8 ;
     USE mydb ;
-    CREATE TABLE IF NOT EXISTS team (group_name VARCHAR(45) NOT NULL,email VARCHAR(45) NOT NULL,service VARCHAR(45) NOT NULL,PRIMARY KEY (group_name, email, service));"
+    CREATE TABLE IF NOT EXISTS team (group_name VARCHAR(45) NOT NULL,email VARCHAR(100) NOT NULL,service VARCHAR(45) NOT NULL,PRIMARY KEY (group_name, email, service));"
 
 ##
 # initdbScripts: {}

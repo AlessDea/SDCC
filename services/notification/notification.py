@@ -9,9 +9,6 @@ from email.message import EmailMessage
 import ssl
 import smtplib
 import threading
-# from threading import Thread
-# from threading import Event
-
 
 from protos.notification_pb2 import *
 from protos.notification_pb2_grpc import *
@@ -30,7 +27,8 @@ def connect_rabbitmq():
         connection_parameters = pika.ConnectionParameters('rabbitmq.default.svc.cluster.local')
         pika_connection = pika.BlockingConnection(connection_parameters)
         return pika_connection
-    except:
+    except Exception as e:
+        logging.warning('Except rabbitmq connection: ' + str(e))
         return False
 
 
@@ -351,51 +349,6 @@ class Notification(NotificationServicer):
         return DeleteResponse(hasBeenDeleted=response)
 
 
-# class GrpcThread(Thread):
-#     def __init__(self):
-#         Thread.__init__(self)
-#         self.id = id
-
-#     def serve():
-#         logging.warning('GrpcThread executing...')
-#         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-#         add_NotificationServicer_to_server(Notification(), server)
-#         server.add_insecure_port('[::]:50058')
-#         server.start()
-#         server.wait_for_termination()
-
-
-# class RabbitmqThread(Thread):
-#     def __init__(self):
-#         Thread.__init__(self)
-#         self.id = id
-
-#     def consumingEmailQueue():
-#         connection = connect_rabbitmq()
-#         logging.warning('Rabbitmq Connection: ' + str(connection))
-#         if connection != False:
-#             try:
-#                 logging.warning('Connection not False')
-#                 channel = connection.channel()
-#                 logging.warning('Connection 1')
-#                 channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
-#                 logging.warning('Connection 2')
-#                 channel.queue_declare(queue='email_queue')
-#                 logging.warning('Connection 3')
-#                 channel.queue_bind(exchange='routing', queue='email_queue', routing_key='notification')
-#                 logging.warning('Connection 4')
-#                 channel.basic_qos(prefetch_count=1)   # Remove this line to let RabbitMQ act in round robin manner
-#                 logging.warning('Connection 5')
-#                 channel.basic_consume(queue='email_queue', auto_ack=False, on_message_callback=on_message_received)
-#                 logging.warning('Connection 6')
-#                 channel.start_consuming()
-#             except Exception as e:
-#                 logging.warning('Rabbitmq notification Except: ' + str(e))
-#                 return False
-#         else:
-#             return False
-
-
 if __name__ == '__main__':
 
     logging.basicConfig()
@@ -403,11 +356,11 @@ if __name__ == '__main__':
     logging.warning('Init notification microservice...')
 
     grpcThread = threading.Thread(target=serve)
-    rabbitmqThread = threading.Thread(target=consumingEmailQueue)
-
     grpcThread.start()
     
     while True:
+        rabbitmqThread = threading.Thread(target=consumingEmailQueue)
         rabbitmqThread.start()
-        logging.warning('Rabbitmq thread started...')
+        logging.warning('Rabbitmq started...')
         rabbitmqThread.join()
+        logging.warning('Rabbitmq thread joined...')

@@ -165,10 +165,7 @@ def savepassword():
                 flash('Password for \''+service+'\' successfully stored!')
             else:
                 flash('Error: the DB is not responding or this is already your password for \''+service+'\'!')
-        else:
-            # SAFETY_CHECK
-            flash('Error!: SAFETY_CHECK still not implemented!')  # DA IMPLEMENTARE
-
+                
     return render_template('savePassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
 
 
@@ -207,7 +204,7 @@ def groupcreate():
     if isAgency == 'True':
         if request.method == 'POST':
             counter = int(request.form['counter']) + 1
-            if counter != 1:
+            if counter > 2:
                 group_list = []
                 for i in range(1,counter):
                     user = request.form['username'+str(i)]
@@ -227,7 +224,8 @@ def groupcreate():
                     flash('Error, all the users has to be your employee!')
                 else:
                     flash('Error, some user doesn\'t exists!')
-
+            else:
+                flash('Error, insert at least 2 different members!')
     return render_template('groupCreate.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
 
 
@@ -246,22 +244,28 @@ def addemployee():
     return redirect(url_for('home'))
 
 
-
-
-
-
-
-
-
-@app.route('/newdoublecode', methods=['GET','POST'])
-def newdoublecode():
+@app.route('/requestmanager', methods=('GET', 'POST'))
+def requestmanager():
     if session.get('username', None) == None:
         return redirect(url_for('login'))
-    isAgency = session['isAgency']
-    if request.method == 'POST':
-        code = gateway_client.getNewNumPw(6, False)
-        return render_template('newDoubleCode.html', agency=isAgency, newpasswd=code)
-    return render_template('newDoubleCode.html', agency=isAgency)
+    if session.get('isAgency', None) != 'True':
+        if request.method == 'POST':
+            choice = False
+            if request.form['submit'] == 'accept':
+                choice = True
+            group_name = request.form['group_name']
+            email_applicant = request.form['email_applicant']
+            agency = request.form['agency']
+            token = request.form['token']
+
+            response = gateway_client.acceptDecline(group_name, agency, email_applicant, session.get('username', None), token, choice)
+            
+            if response:
+                flash('Response sent correctly!')
+            else:
+                flash('Error, something went wrong or the token was\'t correct!')
+        return render_template('requestManager.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':

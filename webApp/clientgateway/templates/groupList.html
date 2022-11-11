@@ -17,13 +17,16 @@
       </header>
 
       <div class="w3-container ">
+    
+        {% for message in get_flashed_messages() %}
+          <div class="alert w3-monospace">{{ message }}</div>
+        {% endfor %}
+        
         <ul class="w3-ul w3-card-4 ">
           {% for group, service in lista.items() %}
             <li name="row" class="w3-bar">
               <form id="info" method="post">
 
-                <!-- <span class="w3-xlarge w3-right"><a onclick="deleteRow(this)" class="fa fa-close w3-xlarge" style="margin-top: 10px;"></a></span> -->
-                <button class="button button3" name="submit" value="leave_group" style="float: right;">Leave Group</button>
                 <button class="button button3" name="submit" value="shared_password" style="float: right; margin-right: 15px;">Get Shared Password</button>
 
                 <div class="w3-bar-item ">
@@ -38,18 +41,5 @@
     </div>
 
   </div>
-
-  <!-- <script>
-    function deleteRow(obj){
-      let text = "Are you sure you want to leave this group?";
-      if (confirm(text) == true) {
-        obj.parentNode.parentNode.remove();
-      }
-    }
-  </script> -->
-    
-  {% for message in get_flashed_messages() %}
-    <div class="alert w3-monospace">{{ message }}</div>
-  {% endfor %}
 
 {% endblock %}

@@ -141,7 +141,7 @@ initdbScripts:
     mysql -P 3306 -uroot -proot mydb -e "
     CREATE DATABASE IF NOT EXISTS mydb;
     USE mydb;
-    CREATE TABLE IF NOT EXISTS private_passwords (email VARCHAR(45) NOT NULL,service VARCHAR(255) NOT NULL,password VARCHAR(60) NOT NULL,PRIMARY KEY (email, service));"    
+    CREATE TABLE IF NOT EXISTS private_passwords (email VARCHAR(100) NOT NULL,service VARCHAR(255) NOT NULL,password VARCHAR(60) NOT NULL,PRIMARY KEY (email, service));"    
 ##
 # initdbScripts: {}
 ## @param initdbScriptsConfigMap ConfigMap with the initdb scripts (Note: Overrides `initdbScripts`)

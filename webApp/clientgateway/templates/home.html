@@ -9,10 +9,33 @@
     document.getElementById("home").style.color = "black";
 </script>
 
-<div class="w3-monospace " style="background-color:white;border-radius: 8px;">
-    <div>    
+<div class="w3-monospace">
+    <h1 class="u-title" style="border-bottom: 3px solid #77aad9; padding-bottom: 10px;">
+      <span class="u-text-white" style="font-size: 85px">Welcome back!</span>
+    </h1>
+    <div>
+          <div style="float:left; padding-right: 50px;">
+                <p class="u-text-white" style="font-size: 25px";>From here you can:<br>
+                  {% if agency != 'True' %}
+                    <span class="u-text-palette-1-light-1">•</span> Create secure passwords<br>
+                    <span class="u-text-palette-1-light-1">•</span> Save all your passwords<br>
+                    <span class="u-text-palette-1-light-1">•</span> List all your passwords
+                  {% else %}
+                    <span class="u-text-palette-1-light-1">•</span> Create groups for your agency<br>
+                    <span class="u-text-palette-1-light-1">•</span> Add your employees
+                  {% endif %}
+                </p>
+          </div>
+          {% if agency != 'True' %}
+          <div style="float:left;">
+                <p class="u-text-white" style="font-size: 25px">If you are part of an <span style="font-weight: 700;" class="u-text-palette-1-light-1">agency</span> that uses our tools, you can also:<br>
+                    <span class="u-text-palette-1-light-1">•</span> List all the groups you belong to<br>
+                    <span class="u-text-palette-1-light-1">•</span> Ask your team for a Shared Password<br>
+                    <span class="u-text-palette-1-light-1">•</span> Accept or Decline a request for a Shared Password
+                </p>
+          </div>
+          {% endif %}
     </div>
 </div>
 
 {% endblock %}
-
