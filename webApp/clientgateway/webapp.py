@@ -189,8 +189,13 @@ def grouplist():
     if session.get('username', None) == None:
         return redirect(url_for('login'))
     if session.get('isAgency', None) != 'True':
-        # if request.method == 'POST':
-        #   qualcosa
+        if request.method == 'POST':
+            email = session['username']
+            splitted = (request.form['submit']).split(',')
+            group_name = splitted[0]
+            service = splitted[1]
+            response, message = gateway_client.passwordRequest(group_name, email, service)
+            flash(message)
         lista = gateway_client.groupList(session.get('username', None))
         return render_template('groupList.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=lista)
     return redirect(url_for('home'))

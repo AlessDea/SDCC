@@ -17,17 +17,17 @@
       </header>
 
       <div class="w3-container ">
-    
         {% for message in get_flashed_messages() %}
           <div class="alert w3-monospace">{{ message }}</div>
         {% endfor %}
         
         <ul class="w3-ul w3-card-4 ">
+          {%%}
           {% for group, service in lista.items() %}
             <li name="row" class="w3-bar">
               <form id="info" method="post">
 
-                <button class="button button3" name="submit" value="shared_password" style="float: right; margin-right: 15px;">Get Shared Password</button>
+                <button class="button button3" name="submit" value="{{group}},{{service}}" style="float: right; margin-right: 15px;">Get Shared Password</button>
 
                 <div class="w3-bar-item ">
                   <span class="w3-large " style="color: white;"><i class="fa fa-users  w3-xlarge" style="margin-right: 25px; margin-top: 10px;"></i>Agency: {{service}} | Group Name: {{group}}</span>
