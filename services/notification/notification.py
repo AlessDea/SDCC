@@ -9,6 +9,9 @@ from email.message import EmailMessage
 import ssl
 import smtplib
 import threading
+# from threading import Thread
+# from threading import Event
+
 
 from protos.notification_pb2 import *
 from protos.notification_pb2_grpc import *
@@ -18,6 +21,8 @@ from protos.newpassword_pb2_grpc import *
 file = "TokenGmail.txt"  # email_password
 email_sender = 'sdccsp@gmail.com'
 port = 465  # for SSL
+connection = None
+channel = None
 
 
 def connect_rabbitmq():
@@ -54,7 +59,7 @@ def connect_mysql_secondary():
         )
         return connection
     except:
-        return False
+        return connect_mysql_primary()
 
 
 def storePassword(group_name, email_applicant, service, participants, token):
@@ -108,7 +113,7 @@ def deleteRequest(group_name, email_applicant, service):
 
 
 def checkRequestStatus(group_name, email, service):
-    
+
     queryStatus = "SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s AND status = '1'"
     queryTotal  = "SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s"
     val = (group_name, email, service)
@@ -190,11 +195,11 @@ def send_email(email_receiver, subject, message):
         with smtplib.SMTP_SSL('smtp.gmail.com', port, context=context) as smtp:
             smtp.login(email_sender, email_password)
             smtp.sendmail(email_sender, email_receiver, email.as_string())
-            return True
-    except:
+            smtp.quit()
+        return True
+    except Exception as e:
+        logging.warning('send_email excpetion: ' + str(e))
         return False
-    finally:
-        smtp.quit()
 
 
 def sendDoubleauthCode(dictionary):
@@ -205,10 +210,63 @@ def sendDoubleauthCode(dictionary):
     subject = "Double Auth Code - Agency: " + str(agency)
 
     message = 'Your Double Authentication Code is: ' + str(token)
-    
-    if send_email(email, subject, message):
+
+    if (send_email(email, subject, message)):
+        logging.warning('Email sent')
+        return True
+    logging.warning('Email error')
+    return False
+
+
+# Consume from RabbitMQ the request from Group Manager. Queue email_queue
+def on_message_received(channel, method, properties, body):
+
+    dictionary = json.loads(body)
+
+    logging.warning('on_message_received: ' + str(dictionary))
+
+    if dictionary['TAG'] == 'Doubleauth':
+        logging.warning('TAG Doubleauth')
+        response = sendDoubleauthCode(dictionary)
+        logging.warning('Control back to me')
+    else:
+        logging.warning('TAG SharedPassword')
+        response = sendSharedPassword(dictionary)
+
+    # Send ack only if there were no errors
+    # (try/except not required, at worst multiple requests are sent and only the last one is valid)
+    if response:
+        # Send ack when the processing is finished
+        channel.basic_ack(delivery_tag=method.delivery_tag, multiple=False)
+        logging.warning('Ack to rabbitmq sent')
         return True
     return False
+
+
+def consumingEmailQueue():
+    connection = connect_rabbitmq()
+    logging.warning('Rabbitmq Connection: ' + str(connection))
+    if connection != False:
+        try:
+            logging.warning('Connection not False')
+            channel = connection.channel()
+            logging.warning('Connection 1')
+            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
+            logging.warning('Connection 2')
+            channel.queue_declare(queue='email_queue')
+            logging.warning('Connection 3')
+            channel.queue_bind(exchange='routing', queue='email_queue', routing_key='notification')
+            logging.warning('Connection 4')
+            channel.basic_qos(prefetch_count=1)   # Remove this line to let RabbitMQ act in round robin manner
+            logging.warning('Connection 5')
+            channel.basic_consume(queue='email_queue', on_message_callback=on_message_received)
+            logging.warning('Connection 6')
+            channel.start_consuming()
+        except Exception as e:
+            logging.warning('Rabbitmq notification Except: ' + str(e))
+            return False
+    else:
+        return False
 
 
 def sendSharedPassword(dictionary):
@@ -217,7 +275,7 @@ def sendSharedPassword(dictionary):
     email_applicant = dictionary['email_applicant']
     participants = dictionary['participants']
 
-    subject = "Share Password Request - Group: " + str(group_name) + ' - Agency: ' + str(service)
+    subject = "Share Password Request - Group: " + str(group_name) + ' - Agency: ' + str(service) + ' - Applicant: ' + str(email_applicant)
 
     token = passwordCreate(len(participants))
     if token == None:
@@ -231,23 +289,6 @@ def sendSharedPassword(dictionary):
             return False
 
     if storePassword(group_name, email_applicant, service, participants, token):
-        return True
-    return False
-
-# Consume from RabbitMQ the request from Group Manager. Queue email_queue
-def on_message_received(channel, method, properties, body):
-    dictionary = json.loads(body)
-
-    if dictionary['TAG'] == 'Doubleauth':
-        response = sendDoubleauthCode(dictionary)
-    else:
-        response = sendSharedPassword(dictionary)
-
-    # Send ack only if there were no errors
-    # (try/except not required, at worst multiple requests are sent and only the last one is valid)
-    if response:
-        # Send ack when the processing is finished
-        channel.basic_ack(delivery_tag=method.delivery_tag, multiple=False)
         return True
     return False
 
@@ -265,12 +306,21 @@ def passwordCreate(participants_number):
         return None
 
 
+def serve():
+    logging.warning('GrpcThread executing...')
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    add_NotificationServicer_to_server(Notification(), server)
+    server.add_insecure_port('[::]:50058')
+    server.start()
+    server.wait_for_termination()
+
+
 class Notification(NotificationServicer):
 
     def checkStatus(self, request, context):
         status, total = checkRequestStatus(request.group_name, request.email, request.service)
         return CheckStatusReply(status=status, total=total)
-        
+
     def acceptDecline(self, request, context):
         # execute accept/decline update ...
         response = acceptDecline(request.group_name, request.service, request.email_applicant, request.email_member, request.token, request.accepted)
@@ -280,9 +330,9 @@ class Notification(NotificationServicer):
             if request.accepted == False:
                 subject = 'Shared Password Response - Group: ' + str(request.group_name) + ' - Agency: ' + str(request.service)
                 message = 'Your request for a Share Password has been denied by ' + str(request.email_member) + '.'
-                
+
                 send_email(request.email_applicant, subject, message)
-                
+
             # ... and was an accept
             else:
                 # check if everyone accepted and send the confirm email if so
@@ -290,7 +340,7 @@ class Notification(NotificationServicer):
                 if status == total:
                     subject = 'Shared Password Response - Group: ' + str(request.group_name) + ' - Agency: ' + str(request.service)
                     message = 'Your request for a Share Password has been accepted!'
-                    
+
                     send_email(request.email_applicant, subject, message)
 
         # returns if the accept/decline has been updated correctly
@@ -301,38 +351,63 @@ class Notification(NotificationServicer):
         return DeleteResponse(hasBeenDeleted=response)
 
 
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    add_NotificationServicer_to_server(Notification(), server)
-    server.add_insecure_port('[::]:50058')
-    server.start()
-    server.wait_for_termination()
+# class GrpcThread(Thread):
+#     def __init__(self):
+#         Thread.__init__(self)
+#         self.id = id
+
+#     def serve():
+#         logging.warning('GrpcThread executing...')
+#         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+#         add_NotificationServicer_to_server(Notification(), server)
+#         server.add_insecure_port('[::]:50058')
+#         server.start()
+#         server.wait_for_termination()
 
 
-def consumingEmailQueue():
-    connection = connect_rabbitmq()
-    if connection != False:
-        try:
-            channel = connection.channel()
-            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
-            channel.queue_declare(queue='email_queue')
-            channel.bind(exchange='routing', queue='email_queue', routing_key='notification')
-            channel.basic_qos(prefetch_count=1)   # Remove this line to let RabbitMQ act in round robin manner
-            channel.basic_consume(queue='email_queue', auto_ack=False, on_message_callback=on_message_received)
-            channel.start_consuming()
-        except:
-            return False
-    else:
-        return False
+# class RabbitmqThread(Thread):
+#     def __init__(self):
+#         Thread.__init__(self)
+#         self.id = id
+
+#     def consumingEmailQueue():
+#         connection = connect_rabbitmq()
+#         logging.warning('Rabbitmq Connection: ' + str(connection))
+#         if connection != False:
+#             try:
+#                 logging.warning('Connection not False')
+#                 channel = connection.channel()
+#                 logging.warning('Connection 1')
+#                 channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
+#                 logging.warning('Connection 2')
+#                 channel.queue_declare(queue='email_queue')
+#                 logging.warning('Connection 3')
+#                 channel.queue_bind(exchange='routing', queue='email_queue', routing_key='notification')
+#                 logging.warning('Connection 4')
+#                 channel.basic_qos(prefetch_count=1)   # Remove this line to let RabbitMQ act in round robin manner
+#                 logging.warning('Connection 5')
+#                 channel.basic_consume(queue='email_queue', auto_ack=False, on_message_callback=on_message_received)
+#                 logging.warning('Connection 6')
+#                 channel.start_consuming()
+#             except Exception as e:
+#                 logging.warning('Rabbitmq notification Except: ' + str(e))
+#                 return False
+#         else:
+#             return False
+
 
 if __name__ == '__main__':
 
     logging.basicConfig()
 
-    grpcThread = threading.Thread(target=serve())
-    grpcThread.start()
+    logging.warning('Init notification microservice...')
 
+    grpcThread = threading.Thread(target=serve)
+    rabbitmqThread = threading.Thread(target=consumingEmailQueue)
+
+    grpcThread.start()
+    
     while True:
-        rabbitThread = threading.Thread(target=consumingEmailQueue())
-        rabbitThread.start()
-        rabbitThread.join()
+        rabbitmqThread.start()
+        logging.warning('Rabbitmq thread started...')
+        rabbitmqThread.join()

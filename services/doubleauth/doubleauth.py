@@ -1,3 +1,5 @@
+from concurrent import futures
+
 import grpc
 import mysql.connector
 import logging
@@ -7,6 +9,8 @@ from pika.exchange_type import ExchangeType
 
 from protos.newpassword_pb2 import *
 from protos.newpassword_pb2_grpc import *
+from protos.doubleauth_pb2_grpc import *
+from protos.doubleauth_pb2 import *
 
 
 def connect_rabbitmq():
@@ -43,7 +47,7 @@ def connect_mysql_secondary():
         )
         return connection
     except:
-        return False
+        return connect_mysql_primary()
 
 
 def registerThirdPart(email, agency):
@@ -73,7 +77,7 @@ def registerThirdPart(email, agency):
 
 def loginThirdPart(email, agency):
 
-    queryCheckLogin = "SELECT * FROM doubleauth where email = %s AND agency = %s"
+    queryCheckLogin = "SELECT * FROM doubleauth WHERE email = %s AND agency = %s"
     val = (email,agency)
     queryUpdateCode = "UPDATE doubleauth SET token = %s WHERE email = %s AND agency = %s"
     
@@ -93,7 +97,9 @@ def loginThirdPart(email, agency):
                     mydb.commit()
                     if mycursor.rowcount > 0:
                         if (sendMessage(email, agency, code)): # Tutto è andato bene, torna True per comunicare al sito di terze parti di indirizzare l'utente sulla pagina di doppia autenticazione
+                            logging.warning('SendMessage True')
                             return True
+                        logging.warning('SendMessage False')
             return False # Errore generico o coppia agenzia-email non esistente
         except:
             return False # Errore generico o coppia agenzia-email non esistente
@@ -108,16 +114,19 @@ def sendMessage(email, agency, code):
 
     message = {"TAG":"Doubleauth", "email":email, "agency":agency, "token":code}
     packet = json.dumps(message)
-  
+    
     connection = connect_rabbitmq()
-    if connection:
+    logging.warning('Rabbitmq Connection: ' + str(connection))
+    if connection != False:
         try:
             channel = connection.channel()
             channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
             channel.basic_publish(exchange='routing', routing_key='notification', body=packet)
             connection.close()
+            logging.warning('Rabbitmq Ok')
             return True
         except:
+            logging.warning('Rabbitmq Except')
             return False
     return False
 
@@ -134,10 +143,12 @@ def generateCode(email):
 
 def checkDoubleAuthCode(email, agency, code):
 
-    query = "SELECT token FROM user where email = %s AND agency = %s"
-    val = (email, agency, code)
+    query = "SELECT token FROM doubleauth WHERE email = %s AND agency = %s"
+    val = (email, agency)
 
+    logging.warning('Connessione al DB')
     mydb = connect_mysql_secondary()
+    logging.warning('mydb: ' + str(mydb))
     mycursor = None
 
     if mydb != False:
@@ -146,9 +157,12 @@ def checkDoubleAuthCode(email, agency, code):
             mycursor.execute(query,val)
             myresult = mycursor.fetchall()
             if mycursor.rowcount > 0 and myresult[0][0] == code:
+                logging.warning('DB and code tutto ok')
                 return True # Codice corretto
+            logging.warning('DB and code errato')
             return False # Codice errato o errore generico
         except:
+            logging.warning('DB error')
             return False # Codice errato o errore generico
         finally:
             if mycursor != None:
@@ -160,16 +174,20 @@ def checkDoubleAuthCode(email, agency, code):
 class Doubleauth(DoubleauthServicer):
 
     def registrationThirdPart(self, request, context):
-        response = registerThirdPart(request.email, request.agency)
-        return RegistrationReply(isRegistered=response)
+        response = registerThirdPart(request.email, request.service)
+        return Reply(message=response)
 
     def doLoginThirdPart(self, request, context):
-        response = loginThirdPart(request.email, request.agency)
-        return LoginReply(isLogged=response)
+        logging.warning('Login Third entered - ' + str(request.email) + str(request.service))
+        response = loginThirdPart(request.email, request.service)
+        logging.warning('Login Third return ' + str(response))
+        return Reply(message=response)
 
     def checkCode(self, request, context):
-        response = checkDoubleAuthCode(request.email, request.agency, request.code)
-        return LoginReply(isLogged=response)
+        logging.warning('Check Code entered')
+        response = checkDoubleAuthCode(request.email, request.service, request.code)
+        logging.warning('Check Code return ' + str(response))
+        return Reply(message=response)
 
 
 def serve():

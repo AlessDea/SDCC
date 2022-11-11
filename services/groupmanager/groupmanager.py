@@ -47,7 +47,7 @@ def connect_mysql_secondary():
         )
         return connection
     except:
-        return False
+        return connect_mysql_primary()
 
 
 def get_emails(group_name, service):

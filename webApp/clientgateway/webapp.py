@@ -1,6 +1,6 @@
 import gateway_client
 from flask import Flask
-from flask import request, session, render_template, redirect, url_for, flash, make_response
+from flask import request, session, render_template, redirect, url_for, flash
 
 # https://towardsdatascience.com/using-python-flask-and-ajax-to-pass-information-between-the-client-and-server-90670c64d688
 
@@ -217,7 +217,7 @@ def groupcreate():
                     group_list.append(user)
                 group_name = request.form['group_name']
 
-                response = gateway_client.groupCreate(group_name,group_list,session.get('username', None))
+                response = gateway_client.groupCreate(group_name, group_list, session.get('username', None))
 
                 if response == 0:
                     flash('Group \''+group_name+'\' created succesfully!')
@@ -237,7 +237,7 @@ def addemployee():
         return redirect(url_for('login'))
     if session.get('isAgency', None) == 'True':
         if request.method == 'POST':
-            response = gateway_client.addEmployee(request.form['myInput'],session.get('username', None))
+            response = gateway_client.addEmployee(request.form['myInput'], session.get('username', None))
             if response:
                 flash('Employee correctly added!')
             else:

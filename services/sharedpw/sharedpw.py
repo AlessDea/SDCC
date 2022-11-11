@@ -49,7 +49,7 @@ def connect_mysql_secondary():
         )
         return connection
     except:
-        return False
+        return connect_mysql_primary()
 
 
 # Publish on RabbitMQ the request for a shared password. Queue request_queue
@@ -168,7 +168,7 @@ def deleteRequest(group_name, email, service):
         return False
 
 
-def deleteTransaction(group_name, email, service, password)):
+def deleteTransaction(group_name, email, service, password):
     # send requesto to NewPassword
     password = passwordCreate()
     if password != None:

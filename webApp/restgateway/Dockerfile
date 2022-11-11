@@ -11,13 +11,12 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 RUN pip install grpcio
 RUN pip install google-api-python-client
-RUN pip install mysql-connector-python-rf
-RUN pip install pika
+RUN pip install flask_restful
 
 # copy every content from the local file to the image
 COPY . /app
 
 # configure the container to run in an executed manner
-ENTRYPOINT [ "python" ]
+ENTRYPOINT ["python"]
 
-CMD ["notification.py"]
+CMD ["restgateway.py"]

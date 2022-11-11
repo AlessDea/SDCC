@@ -509,7 +509,7 @@ primary:
 secondary:
   ## @param secondary.replicaCount Number of MySQL secondary replicas
   ##
-  replicaCount: 1
+  replicaCount: 0
   ## @param secondary.hostAliases Deployment pod host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
