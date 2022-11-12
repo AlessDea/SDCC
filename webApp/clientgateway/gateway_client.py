@@ -182,3 +182,13 @@ def acceptDecline(group_name, service, email_applicant, email_member, token, acc
             return response.isOk
     except:
         return None
+
+
+def getRequestList(email):
+    try:
+        with grpc.insecure_channel('notification-service:50058') as channel:
+            stub = NotificationStub(channel)
+            response = stub.getRequestList(GetListRequest(email=email))
+            return response.lista
+    except:
+        return None

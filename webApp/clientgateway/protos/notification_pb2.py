@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12notification.proto\x12\x0cnotification\"H\n\x12\x43heckStatusRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x0f\n\x07service\x18\x03 \x01(\t\"1\n\x10\x43heckStatusReply\x12\x0e\n\x06status\x18\x01 \x01(\x11\x12\r\n\x05total\x18\x02 \x01(\x05\"\x91\x01\n\x1aNotificationMessageRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\x0f\n\x07service\x18\x02 \x01(\t\x12\x17\n\x0f\x65mail_applicant\x18\x03 \x01(\t\x12\x14\n\x0c\x65mail_member\x18\x04 \x01(\t\x12\r\n\x05token\x18\x05 \x01(\t\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x06 \x01(\x08\"(\n\x18NotificationMessageReply\x12\x0c\n\x04isOk\x18\x01 \x01(\x08\"C\n\rDeleteRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x0f\n\x07service\x18\x03 \x01(\t\"(\n\x0e\x44\x65leteResponse\x12\x16\n\x0ehasBeenDeleted\x18\x01 \x01(\x08\x32\x94\x02\n\x0cNotification\x12Q\n\x0b\x63heckStatus\x12 .notification.CheckStatusRequest\x1a\x1e.notification.CheckStatusReply\"\x00\x12\x63\n\racceptDecline\x12(.notification.NotificationMessageRequest\x1a&.notification.NotificationMessageReply\"\x00\x12L\n\rdeleteRequest\x12\x1b.notification.DeleteRequest\x1a\x1c.notification.DeleteResponse\"\x00\x42+\n\x0e/SDCC/servicesB\x11NotificationProtoP\x01\xa2\x02\x03NTPb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12notification.proto\x12\x0cnotification\"H\n\x12\x43heckStatusRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x0f\n\x07service\x18\x03 \x01(\t\"1\n\x10\x43heckStatusReply\x12\x0e\n\x06status\x18\x01 \x01(\x11\x12\r\n\x05total\x18\x02 \x01(\x05\"\x91\x01\n\x1aNotificationMessageRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\x0f\n\x07service\x18\x02 \x01(\t\x12\x17\n\x0f\x65mail_applicant\x18\x03 \x01(\t\x12\x14\n\x0c\x65mail_member\x18\x04 \x01(\t\x12\r\n\x05token\x18\x05 \x01(\t\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x06 \x01(\x08\"(\n\x18NotificationMessageReply\x12\x0c\n\x04isOk\x18\x01 \x01(\x08\"C\n\rDeleteRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x0f\n\x07service\x18\x03 \x01(\t\"(\n\x0e\x44\x65leteResponse\x12\x16\n\x0ehasBeenDeleted\x18\x01 \x01(\x08\"\x1f\n\x0eGetListRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"\x87\x01\n\x0fGetListResponse\x12\x33\n\x05lista\x18\x01 \x03(\x0b\x32$.notification.GetListResponse.Result\x1a?\n\x06Result\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\x0e\n\x06\x61gency\x18\x02 \x01(\t\x12\x11\n\tapplicant\x18\x03 \x01(\t2\xe5\x02\n\x0cNotification\x12Q\n\x0b\x63heckStatus\x12 .notification.CheckStatusRequest\x1a\x1e.notification.CheckStatusReply\"\x00\x12\x63\n\racceptDecline\x12(.notification.NotificationMessageRequest\x1a&.notification.NotificationMessageReply\"\x00\x12L\n\rdeleteRequest\x12\x1b.notification.DeleteRequest\x1a\x1c.notification.DeleteResponse\"\x00\x12O\n\x0egetRequestList\x12\x1c.notification.GetListRequest\x1a\x1d.notification.GetListResponse\"\x00\x42+\n\x0e/SDCC/servicesB\x11NotificationProtoP\x01\xa2\x02\x03NTPb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'notification_pb2', globals())
@@ -33,6 +33,12 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _DELETEREQUEST._serialized_end=418
   _DELETERESPONSE._serialized_start=420
   _DELETERESPONSE._serialized_end=460
-  _NOTIFICATION._serialized_start=463
-  _NOTIFICATION._serialized_end=739
+  _GETLISTREQUEST._serialized_start=462
+  _GETLISTREQUEST._serialized_end=493
+  _GETLISTRESPONSE._serialized_start=496
+  _GETLISTRESPONSE._serialized_end=631
+  _GETLISTRESPONSE_RESULT._serialized_start=568
+  _GETLISTRESPONSE_RESULT._serialized_end=631
+  _NOTIFICATION._serialized_start=634
+  _NOTIFICATION._serialized_end=991
 # @@protoc_insertion_point(module_scope)

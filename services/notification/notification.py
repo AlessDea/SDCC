@@ -138,6 +138,31 @@ def checkRequestStatus(group_name, email, service):
         return -2, -2
 
 
+def getRequestList(email):
+
+    query  = "SELECT group_name, service, email_applicant FROM request WHERE email_member = %s AND status = '0'"
+    val = (email)
+
+    mydb = connect_mysql_secondary()
+    mycursor = None
+
+    if mydb != False:
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute(query,val)
+            myresult = mycursor.fetchall()
+            if mycursor.rowcount > 0:
+                return myresult
+            return []
+        except:
+            return None
+        finally:
+            if mycursor != None:
+                mycursor.close()
+    else:
+        return None
+
+
 def acceptDecline(group_name, service, email_applicant, email_member, token, accepted):
 
     mydb = connect_mysql_primary()
@@ -347,6 +372,10 @@ class Notification(NotificationServicer):
     def deleteRequest(self, request, context):
         response = deleteRequest(request.group_name, request.email, request.service)
         return DeleteResponse(hasBeenDeleted=response)
+
+    def getRequestList(self, request, context):
+        response = getRequestList(request.email)
+        return GetListResponse(lista=response)
 
 
 if __name__ == '__main__':

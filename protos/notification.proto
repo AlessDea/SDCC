@@ -19,6 +19,7 @@ service Notification {
   rpc checkStatus (CheckStatusRequest) returns (CheckStatusReply) {}
   rpc acceptDecline (NotificationMessageRequest) returns (NotificationMessageReply) {}
   rpc deleteRequest (DeleteRequest) returns (DeleteResponse) {}
+  rpc getRequestList (GetListRequest) returns (GetListResponse) {}
 }
 
 message CheckStatusRequest {
@@ -58,4 +59,17 @@ message DeleteRequest {
 
 message DeleteResponse {
   bool hasBeenDeleted = 1;
+}
+
+message GetListRequest {
+  string email = 1;
+}
+
+message GetListResponse {
+  message Result{
+    string group_name = 1;
+    string agency = 2;
+    string applicant = 3;
+  }
+  repeated Result lista = 1;
 }

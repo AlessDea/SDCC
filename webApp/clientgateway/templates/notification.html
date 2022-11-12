@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %} Notification {% endblock %}
+
+{% block content %}
+
+<script>
+    document.getElementById("requestmanager").style.backgroundColor = "#C5C5C5";
+    document.getElementById("requestmanager").style.color = "black";
+</script>
+
+  <div class="w3-monospace " style="background-color:white;border-radius: 8px;">
+
+    <div>
+      <header class="w3-container" style="background-color:#333333;">
+        <h2 class="w3-monospace" style=color:white>Here are all your Shared Password Requests:</h2>
+      </header>
+
+      <div class="w3-container ">
+    
+        {% for message in get_flashed_messages() %}
+          <div class="alert w3-monospace">{{ message }}</div>
+        {% endfor %}
+
+        <ul class="w3-ul w3-card-4 ">
+          {% for request in lista %}
+            <li name="row" class="w3-bar">
+              <form id="info" method="post">
+
+                <div class="w3-bar-item">
+                  <span class="w3-large" style="color: white;"> Agency: {{request[0]}} | Group Name: {{request[1]}} | Applicant: {{request[2]}}</span>
+                </div>
+
+                <br>
+                <br>
+
+                <div class="row" style="text-align: center;">
+                  <input type="text" style="height: 50px; border-radius: 5px; margin-top: 5px; margin-right: 10px;" id="token" name="token" placeholder=" Token ..." required="required">
+                  <button class="button button3" name="submit" value="1,{{request[0]}},{{request[1]}},{{request[2]}}" style="margin-right: 10px;">Accept</button>
+                  <button class="button button3" name="submit" value="0,{{request[0]}},{{request[1]}},{{request[2]}}">Decline</button>
+                </div>
+
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}

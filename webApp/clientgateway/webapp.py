@@ -101,87 +101,92 @@ def logout():
 def newpassword():
     if session.get('username', None) == None:
         return redirect(url_for('login'))
-    isAgency = session.get('isAgency', None)
-    type1 = None
-    if request.method == 'POST':
-        service  = request.form['service']
-        save     = request.form.get('savePssw')
-        if save == 'yes':
-            save = True
-        else:
-            save = False
-        username = session.get('username', None)
-        len      = request.form['len']
-        if not len:
-            flash('Len is required!')
-        else:
-
-            if not request.form.get('symb'):
-                symbol = False
+    if session.get('isAgency', None) != 'True':
+        isAgency = session.get('isAgency', None)
+        type1 = None
+        if request.method == 'POST':
+            service  = request.form['service']
+            save     = request.form.get('savePssw')
+            if save == 'yes':
+                save = True
             else:
-                symbol = True
+                save = False
+            username = session.get('username', None)
+            len      = request.form['len']
+            if not len:
+                flash('Len is required!')
+            else:
 
-            type = request.form['r1']
-            if type != 'num':
-                type1 = request.form['r2']
-                if type1 == 'ulc':
-                    npw = gateway_client.getNewAlphaNumericPassword(username, int(len), service, symbol, save)
-                elif type1 == 'uc':
-                    npw = gateway_client.getNewUpperPassword(username, int(len), service, symbol, save)
+                if not request.form.get('symb'):
+                    symbol = False
                 else:
-                    npw = gateway_client.getNewLowerPassword(username, int(len), service, symbol, save)
-            else:
-                npw = gateway_client.getNewNumericPassword(username, int(len), service, symbol, save)
+                    symbol = True
 
-            message = "Your new password:"
-            
-            if save:
-                message = "New password correctly saved:"
-                if not service:
-                    flash('Error: to save your password, you need to specify the liked Service!')
-                    return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+                type = request.form['r1']
+                if type != 'num':
+                    type1 = request.form['r2']
+                    if type1 == 'ulc':
+                        npw = gateway_client.getNewAlphaNumericPassword(username, int(len), service, symbol, save)
+                    elif type1 == 'uc':
+                        npw = gateway_client.getNewUpperPassword(username, int(len), service, symbol, save)
+                    else:
+                        npw = gateway_client.getNewLowerPassword(username, int(len), service, symbol, save)
+                else:
+                    npw = gateway_client.getNewNumericPassword(username, int(len), service, symbol, save)
 
-                if not npw[1]:
-                    flash('Error saving your password!')
-                    return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+                message = "Your new password:"
+                
+                if save:
+                    message = "New password correctly saved:"
+                    if not service:
+                        flash('Error: to save your password, you need to specify the liked Service!')
+                        return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
 
-            return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None), newpasswd=npw[0], msg=message)
+                    if not npw[1]:
+                        flash('Error saving your password!')
+                        return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
 
-    return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+                return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None), newpasswd=npw[0], msg=message)
+
+        return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+    return redirect(url_for('home'))
 
 
 @app.route('/savepassword', methods=['GET','POST'])
 def savepassword():
     if session.get('username', None) == None:
         return redirect(url_for('login'))
-    isAgency = session.get('isAgency', None)
-    if request.method == 'POST':
-        password = request.form['password']
-        service = request.form['service']
-        if request.form['submit'] == 'save':
-            username = session.get('username', None)
-            ret = gateway_client.savePassword(username, str(password), service)
-            if ret:
-                flash('Password for \''+service+'\' successfully stored!')
-            else:
-                flash('Error: the DB is not responding or this is already your password for \''+service+'\'!')
-                
-    return render_template('savePassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
-
+    if session.get('isAgency', None) != 'True':
+        isAgency = session.get('isAgency', None)
+        if request.method == 'POST':
+            password = request.form['password']
+            service = request.form['service']
+            if request.form['submit'] == 'save':
+                username = session.get('username', None)
+                ret = gateway_client.savePassword(username, str(password), service)
+                if ret:
+                    flash('Password for \''+service+'\' successfully stored!')
+                else:
+                    flash('Error: the DB is not responding or this is already your password for \''+service+'\'!')
+                    
+        return render_template('savePassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+    return redirect(url_for('home'))
 
 @app.route('/listpasswords', methods=['GET','POST'])
 def listpasswords():
     if session.get('username', None) == None:
         return redirect(url_for('login'))
-    isAgency = session.get('isAgency', None)
-    if request.method == 'POST':
-        username = session.get('username', None)
-        lista = gateway_client.doList(username)
-        if lista:
-            return render_template('listPasswords.html', agency=isAgency, hasAgency=session.get('hasAgency', None), lista=lista)
-        else:
-            flash('No passwords found!')
-    return render_template('listPasswords.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+    if session.get('isAgency', None) != 'True':
+        isAgency = session.get('isAgency', None)
+        if request.method == 'POST':
+            username = session.get('username', None)
+            lista = gateway_client.doList(username)
+            if lista:
+                return render_template('listPasswords.html', agency=isAgency, hasAgency=session.get('hasAgency', None), lista=lista)
+            else:
+                flash('No passwords found!')
+        return render_template('listPasswords.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+    return redirect(url_for('home'))
 
 
 @app.route('/grouplist', methods=('GET', 'POST'))
@@ -231,7 +236,8 @@ def groupcreate():
                     flash('Error, some user doesn\'t exists!')
             else:
                 flash('Error, insert at least 2 different members!')
-    return render_template('groupCreate.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+        return render_template('groupCreate.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+    return redirect(url_for('home'))
 
 
 @app.route('/addemployee', methods=('GET', 'POST'))
@@ -270,6 +276,43 @@ def requestmanager():
             else:
                 flash('Error, something went wrong or the token was\'t correct!')
         return render_template('requestManager.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
+    return redirect(url_for('home'))
+
+
+@app.route('/notification', methods=['GET','POST'])
+def notification():
+    if session.get('username', None) == None:
+        return redirect(url_for('login'))
+    if session.get('isAgency', None) != 'True':
+    
+        lista = gateway_client.getRequestList(session.get('username', None))
+        if lista == None:
+            flash('An error occurred, try again!')
+            return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
+
+        if request.method == 'POST':
+
+            values = (request.form['submit']).split(',')
+
+            accept_decline = int(values[0])
+            agency     = values[1]
+            group_name = values[2]
+            applicant  = values[3]
+            token      = request.form['token']
+
+            if accept_decline:
+                accept_decline = True
+            else:
+                accept_decline = False
+
+            response = gateway_client.acceptDecline(group_name,service,applicant,session.get('username', None), token, accept_decline)
+
+            if response:
+                flash('Response correctly sent!')
+            else:
+                flash('An error occurred, try again!')
+
+        return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=lista)
     return redirect(url_for('home'))
 
 
