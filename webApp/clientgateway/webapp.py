@@ -172,6 +172,7 @@ def savepassword():
         return render_template('savePassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
     return redirect(url_for('home'))
 
+
 @app.route('/listpasswords', methods=['GET','POST'])
 def listpasswords():
     if session.get('username', None) == None:
@@ -252,30 +253,6 @@ def addemployee():
             else:
                 flash('Error, user not found or unable to add the employee!')
         return render_template('addEmployee.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
-    return redirect(url_for('home'))
-
-
-@app.route('/requestmanager', methods=('GET', 'POST'))
-def requestmanager():
-    if session.get('username', None) == None:
-        return redirect(url_for('login'))
-    if session.get('isAgency', None) != 'True':
-        if request.method == 'POST':
-            choice = False
-            if request.form['submit'] == 'accept':
-                choice = True
-            group_name = request.form['group_name']
-            email_applicant = request.form['email_applicant']
-            agency = request.form['agency']
-            token = request.form['token']
-
-            response = gateway_client.acceptDecline(group_name, agency, email_applicant, session.get('username', None), token, choice)
-            
-            if response:
-                flash('Response sent correctly!')
-            else:
-                flash('Error, something went wrong or the token was\'t correct!')
-        return render_template('requestManager.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
     return redirect(url_for('home'))
 
 

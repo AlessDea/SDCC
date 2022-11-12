@@ -68,10 +68,10 @@ def protectedarea():
 
     if request.method == "POST":
         email = session['email']
-        service = session.get("service", None)
-        pw = request.form['pw']
-        groupId = request.form['groupId']
-        msg = {'email': email, 'service': service, 'groupid': groupId, 'pw': pw}
+        service = session.get('service', None)
+        password = request.form['password']
+        group_name = request.form['group_name']
+        msg = {'email': email, 'service': service, 'group_name': group_name, 'password': password}
         resp = requests.post(url_shared, json=json.dumps(msg))
         if resp.json()['Answer'] == "OK":
             return redirect(url_for("home"))

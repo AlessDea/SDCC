@@ -12,6 +12,9 @@ from protos.login_pb2_grpc import *
 from protos.groupmanager_pb2_grpc import *
 from protos.groupmanager_pb2 import *
 
+connection = None
+channel = None
+
 
 def connect_rabbitmq():
     try:
@@ -57,6 +60,7 @@ def get_emails(group_name, service):
 
     mydb = connect_mysql_secondary()
     mycursor = None
+    emails = []
 
     if mydb != False:
         try:
@@ -64,7 +68,9 @@ def get_emails(group_name, service):
             mycursor.execute(query, val)
             myresult = mycursor.fetchall()
             if mycursor.rowcount > 0:
-                return myresult
+                for res in myresult:
+                    emails.append(res[0])
+                return emails
             return None
         except:
             return None
@@ -150,22 +156,23 @@ def checkUserAgency(emails, agency):
 # Publish on RabbitMQ the request for Nofitication. Queue email_queue
 def publishNotificationRequest(group_name, email_applicant, email_list, service):
 
-    pika_connection = connect_rabbitmq()
-    if pika_connection != False:
+    connection = connect_rabbitmq()
+    if connection != False:
         try:
-            message = {'group_name':group_name, 'email_applicant':email_applicant, 'participants':email_list, 'service':service}
+            message = {'TAG':'SharedPassword', 'group_name':group_name, 'email_applicant':email_applicant, 'participants':email_list, 'service':service}
             body = json.dumps(message)
 
-            channel = pika_connection.channel()
+            channel = connection.channel()
             channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
             channel.basic_publish(exchange='routing', routing_key='notification', body=body)
-
+            connection.close()
+            logging.warning('Rabbitmq group manager publish')
             return True
         except:
+            logging.warning('Rabbitmq Exception publish')
             return False
-        finally:
-            pika_connection.close()
     else:
+        logging.warning('Rabbitmq publish else')
         return False
 
 
@@ -180,16 +187,16 @@ def on_message_received(channel, method, properties, body):
 
     email_list = get_emails(group_name,service)
 
+    logging.warning('on_message_received - Group: ' + str(group_name) + " Email_applicant: " + str(email_applicant) + " Service: " + str(service) + " list: " + str(email_list))
+
     # This branch it should never be taken, the Shared Password
     # can only be requested from the Group List page
     if email_list == None:
         return False
 
     # Remove from the email_list the applicant one
-    for i in range(len(email_list)):
-        if email_list[i] == email_applicant:
-            email_list.pop(i)
-            break
+    email_list.remove(str(email_applicant))
+    logging.warning('Lista remove: ' + str(email_list))
 
     # Publish on RabbitMQ the group infos required to send emails
     response = publishNotificationRequest(group_name, email_applicant, email_list, service)
@@ -198,6 +205,7 @@ def on_message_received(channel, method, properties, body):
     # (try/except not required, at worst multiple requests are sent and only the last one is valid)
     if response:
         channel.basic_ack(delivery_tag=method.delivery_tag, multiple=False)
+        logging.warning('Rabbitmq groupmanager ack sent' + str(response))
         return True
     return False
 
@@ -228,16 +236,24 @@ def serve():
 
 def consumingRequestQueue():
     connection = connect_rabbitmq()
+    logging.warning('Rabbitmq connection: ' + str(connection))
     if connection != False:
         try:
             channel = connection.channel()
+            logging.warning('Rabbitmq connection 1')
             channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
+            logging.warning('Rabbitmq connection: 2')
             channel.queue_declare(queue='request_queue')
-            channel.bind(exchange='routing', queue='request_queue', routing_key='groupmanager')
+            logging.warning('Rabbitmq connection: 3')
+            channel.queue_bind(exchange='routing', queue='request_queue', routing_key='groupmanager')
+            logging.warning('Rabbitmq connection: 4')
             channel.basic_qos(prefetch_count=1)   # Remove this line to let RabbitMQ act in round robin manner
-            channel.basic_consume(queue='request_queue', auto_ack=False, on_message_callback=on_message_received)
+            logging.warning('Rabbitmq connection: 5')
+            channel.basic_consume(queue='request_queue', on_message_callback=on_message_received)
+            logging.warning('Rabbitmq connection: 6')
             channel.start_consuming()
-        except:
+        except Exception as e:
+            logging.warning('Rabbitmq Exception: ' + str(e))
             return False
     else:
         return False
@@ -247,10 +263,12 @@ if __name__ == '__main__':
 
     logging.basicConfig()
 
-    grpcThread = threading.Thread(target=serve())
+    grpcThread = threading.Thread(target=serve)
     grpcThread.start()
 
     while True:
-        rabbitThread = threading.Thread(target=consumingRequestQueue())
-        rabbitThread.start()
-        rabbitThread.join()
+        rabbitmqThread = threading.Thread(target=consumingRequestQueue)
+        logging.warning('\n\n\nAvvio thread rabbitmq')
+        rabbitmqThread.start()
+        rabbitmqThread.join()
+        logging.warning('Join thread rabbitmq')

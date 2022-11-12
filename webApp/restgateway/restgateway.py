@@ -17,11 +17,10 @@ def check_shared(arg):
 	try:
 		with grpc.insecure_channel('sharedpw-service:50056') as channel:
 			stub = SharedStub(channel)
-			response = stub.checkPassword(CheckSharedPasswordRequest(group_name=arg['groupid'], email=arg['email'], agency=arg['service'], password=arg['pw']))
-			return response.message
+			response = stub.checkPassword(CheckSharedPasswordRequest(group_name=arg['group_name'], email=arg['email'], agency=arg['service'], password=arg['password']))
+			return response.isChecked
 	except:
 		return False
-
 
 
 def gen_double_code(arg):

@@ -60,11 +60,11 @@ def connect_mysql_secondary():
         return connect_mysql_primary()
 
 
-def storePassword(group_name, email_applicant, service, participants, token):
+def storePassword(group_name, email_applicant, service, participants, tokens):
 
     val = []
-    for email_member in participants:
-        val.append(tuple([group_name, email_applicant, service, email_member, token]))
+    for i in range(len(participants)):
+        val.append(tuple([group_name, email_applicant, service, participants[i], tokens[i]]))
 
     mydb = connect_mysql_primary()
     mycursor = None
@@ -73,12 +73,14 @@ def storePassword(group_name, email_applicant, service, participants, token):
         try:
             query = "INSERT INTO request VALUES (%s,%s,%s,%s,%s,'0')"
             mycursor = mydb.cursor()
-            mycursor.executemany(query,participants)
+            mycursor.executemany(query,val)
             mydb.commit()
             if mycursor.rowcount > 0:
+                logging.warning('Store password insert ok')
                 return True
             return False
-        except:
+        except Exception as e:
+            logging.warning('Store password insert exception: ' + str(e))
             return False
         finally:
             if mycursor != None:
@@ -96,12 +98,16 @@ def deleteRequest(group_name, email_applicant, service):
         try:
             query = "DELETE FROM request WHERE group_name = %s AND service = %s AND email_applicant = %s"
             val = (group_name, service, email_applicant)
+            mycursor = mydb.cursor()
             mycursor.execute(query, val)
             mydb.commit()
             if mycursor.rowcount > 0:
+                logging.warning('DeleteRequest True')
                 return True
+            logging.warning('DeleteRequest False')
             return False
-        except:
+        except Exception as e:
+            logging.warning('DeleteRequest Exception: ' + str(e))
             return False
         finally:
             if mycursor != None:
@@ -112,8 +118,8 @@ def deleteRequest(group_name, email_applicant, service):
 
 def checkRequestStatus(group_name, email, service):
 
-    queryStatus = "SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s AND status = '1'"
-    queryTotal  = "SELECT COUNT(*) FROM request WHERE group_name = %s, email_member = %s, service = %s"
+    queryStatus = "SELECT COUNT(*) FROM request WHERE group_name = %s AND email_applicant = %s AND service = %s AND status = '1'"
+    queryTotal  = "SELECT COUNT(*) FROM request WHERE group_name = %s AND email_applicant = %s AND service = %s"
     val = (group_name, email, service)
 
     mydb = connect_mysql_secondary()
@@ -126,10 +132,12 @@ def checkRequestStatus(group_name, email, service):
             myresultStatus = mycursor.fetchall()
             mycursor.execute(queryTotal,val)
             myresultTotal = mycursor.fetchall()
-            if mycursor.rowcount > 0:
+            logging.warning('myResult: ' + str(myresultTotal[0][0]) + " | " + str(myresultTotal[0]))
+            if myresultTotal[0][0] > 0:
                 return myresultStatus[0][0], myresultTotal[0][0]
-            return -2, -2
-        except:
+            return -1, -1
+        except Exception as e:
+            logging.warning("Exception: " + str(e))
             return -2, -2
         finally:
             if mycursor != None:
@@ -230,9 +238,9 @@ def sendDoubleauthCode(dictionary):
     email = dictionary['email']
     token = dictionary['token']
 
-    subject = "Double Auth Code - Agency: " + str(agency)
+    subject = "Double Auth Code"
 
-    message = 'Your Double Authentication Code is: ' + str(token)
+    message = "Agency: " + str(agency) + "\n\nYour Double Authentication Code is: " + str(token)
 
     if (send_email(email, subject, message)):
         logging.warning('Email sent')
@@ -255,6 +263,7 @@ def on_message_received(channel, method, properties, body):
     else:
         logging.warning('TAG SharedPassword')
         response = sendSharedPassword(dictionary)
+        logging.warning('Response on_message_received: ' + str(response))
 
     # Send ack only if there were no errors
     # (try/except not required, at worst multiple requests are sent and only the last one is valid)
@@ -298,20 +307,25 @@ def sendSharedPassword(dictionary):
     email_applicant = dictionary['email_applicant']
     participants = dictionary['participants']
 
-    subject = "Share Password Request - Group: " + str(group_name) + ' - Agency: ' + str(service) + ' - Applicant: ' + str(email_applicant)
+    subject = "Shared Password Request"
 
-    token = passwordCreate(len(participants))
-    if token == None:
+    logging.warning("Email shared group: " + str(group_name) + ' - Agency: ' + str(service) + ' - Applicant: ' + str(email_applicant))
+
+    tokens = passwordCreate(len(participants))
+    logging.warning('Tokens: ' + str(tokens))
+    if tokens == None:
         return False
 
     i = 0
     for email in participants:
-        message = 'Your authorization code is: ' + str(token[i]) + '\nInsert this code in the Share Password page and click on Accept or Decline'
+        message = "Group: " + str(group_name) + '\nAgency: ' + str(service) + '\nApplicant: ' + str(email_applicant) + "\n\nYour authorization code is: " + str(tokens[i]) + '\nInsert this code in the Share Password page and click on Accept or Decline'
         i = i + 1
+        logging.warning('Prima di send email al partecipante')
         if not send_email(email, subject, message):
             return False
+        logging.warning('Dopo di send email al partecipante')
 
-    if storePassword(group_name, email_applicant, service, participants, token):
+    if storePassword(group_name, email_applicant, service, participants, tokens):
         return True
     return False
 
@@ -322,7 +336,7 @@ def passwordCreate(participants_number):
         for _ in range(participants_number):
             with grpc.insecure_channel('newpw-service:50051') as channel:
                 stub = PasswordStub(channel)
-                response = stub.GetNewAlphaNumericPassword(NewPasswordRequest(email=None, service=None, length=6, symbols=False, hastoSave=False))
+                response = stub.GetNewAlphaNumericPassword(NewPasswordRequest(email=None, service=None, length=6, symbols=False, hasToSave=False))
                 tokens.append(response.password)
         return tokens
     except:
@@ -349,11 +363,10 @@ class Notification(NotificationServicer):
         response = acceptDecline(request.group_name, request.service, request.email_applicant, request.email_member, request.token, request.accepted)
         # ... if the accept/decline has been updated correctly ...
         if response:
+            subject = "Shared Password Response"
             # ... and was a decline, send the 'Shared Password deied' email
             if request.accepted == False:
-                subject = 'Shared Password Response - Group: ' + str(request.group_name) + ' - Agency: ' + str(request.service)
-                message = 'Your request for a Share Password has been denied by ' + str(request.email_member) + '.'
-
+                message = 'Group: ' + str(request.group_name) + '\nAgency: ' + str(request.service) + '\n\nYour request for a Share Password has been denied by ' + str(request.email_member) + '.'
                 send_email(request.email_applicant, subject, message)
 
             # ... and was an accept
@@ -361,9 +374,7 @@ class Notification(NotificationServicer):
                 # check if everyone accepted and send the confirm email if so
                 status, total = checkRequestStatus(request.group_name, request.email_applicant, request.service)
                 if status == total:
-                    subject = 'Shared Password Response - Group: ' + str(request.group_name) + ' - Agency: ' + str(request.service)
-                    message = 'Your request for a Share Password has been accepted!'
-
+                    message = 'Group: ' + str(request.group_name) + '\nAgency: ' + str(request.service) + '\n\nYour request for a Share Password has been accepted!'
                     send_email(request.email_applicant, subject, message)
 
         # returns if the accept/decline has been updated correctly
