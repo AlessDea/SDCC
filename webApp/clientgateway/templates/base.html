@@ -36,7 +36,7 @@
         <a href="{{ url_for('listpasswords') }}" id="listpassword" class="w3-bar-item w3-button" title="List your password"><i class="fa fa-list  w3-xlarge"></i> List your password</a>    
         {% if hasAgency == 'True' %}
             <a href="{{ url_for('grouplist') }}" id="grouplist" class="w3-bar-item w3-button" style="border-top: 1px solid white; padding-bottom: 10px;" title="New shared password"><i class="fa fa-users  w3-xlarge"></i> List Groups</a>
-            <a href="{{ url_for('notification') }}" id="notification" class="w3-bar-item w3-button" title="Accept or Decline a Shared Password Request"><i class="fa fa-solid fa-envelope w3-xlarge"></i> Notification</a>
+            <a href="{{ url_for('notification') }}" id="notification" class="w3-bar-item w3-button" title="Accept or Decline a Shared Password Request"><i class="fa fa-solid fa-envelope w3-xlarge"></i> Requests</a>
         {% endif %}
     {% endif %}
 </div>

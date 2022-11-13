@@ -139,10 +139,10 @@ initdbScripts:
   my_init_script.sh: |
     #!/bin/bash
     mysql -P 3306 -uroot -proot mydb -e "
-    CREATE SCHEMA IF NOT EXISTS mydb DEFAULT CHARACTER SET utf8 ;
-    USE mydb ;
-    CREATE TABLE IF NOT EXISTS shared_password (group_name VARCHAR(45) NOT NULL, email VARCHAR(100) NOT NULL, service VARCHAR(45) NOT NULL, password VARCHAR(45) NOT NULL, expire_date VARCHAR(30) NOT NULL, PRIMARY KEY (group_name, email, service));"
-
+    CREATE SCHEMA IF NOT EXISTS mydb DEFAULT CHARACTER SET utf8;
+    USE mydb;
+    CREATE TABLE IF NOT EXISTS shared (group_name VARCHAR(45) NOT NULL, service VARCHAR(45) NOT NULL, email_applicant VARCHAR(100) NOT NULL, password VARCHAR(45) NOT NULL, expire_date VARCHAR(45) NOT NULL, PRIMARY KEY (group_name, service, email_applicant));
+    CREATE TABLE IF NOT EXISTS request (shared_group_name VARCHAR(45) NOT NULL, shared_service VARCHAR(45) NOT NULL, shared_email_applicant VARCHAR(100) NOT NULL, email_member VARCHAR(100) NOT NULL, token VARCHAR(45) NOT NULL, status TINYINT NOT NULL, PRIMARY KEY (email_member, shared_service, shared_email_applicant, shared_group_name), INDEX fk_request_shared_idx (shared_group_name ASC, shared_service ASC, shared_email_applicant ASC) VISIBLE, CONSTRAINT fk_request_shared FOREIGN KEY (shared_group_name , shared_service , shared_email_applicant) REFERENCES shared (group_name , service , email_applicant) ON DELETE CASCADE ON UPDATE CASCADE);"
 
 ##
 # initdbScripts: {}

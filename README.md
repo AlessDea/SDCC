@@ -1,33 +1,41 @@
 # Secure PassWorld
 
 
-### Applicazioni a microservizi per la gestione di password.
+### Applicazione a microservizi per la gestione di password e tool di sicurezza per aziende.
+
 Il password manager offre i seguenti microservizi:
 
-   1. **Creazione di una nuova password:**
-        - Il microservizio in questione permette di generare in modo automatico una nuova password sicura, anche partendo da informazioni inserite precedentemente dall'utente (Sito, Date, Parole Chiavi).
+   0. **Login**
+        - Permette di:
+             - registrarsi ed accedere alla piattaforma;
+             - associare utenti alle aziende come impiegati.
 
-   2. **Memorizza o modifica password:**
-        - Tale microservizio permette la memorizzazione delle password create con il microservizio precedente oppure di password inserite dall'utente. Permette inoltre di modificare le password già presenti.
+   1. **Password Create**
+        - Permette di generare una nuova password sicura specificando:
+             - tipo (alfanumerica, numerica o solo caratteri);
+             - lunghezza;
+             - presenza o meno di caratteri speciali.
 
-   3. **Listing password:**
-        - Visualizzazione delle password memorizzate o di una password specifica.
+   2. **Password Manager**
+        - Permette di:
+             - memorizzare/modificare password create dal microservizio *Password Create*;
+             - memorizzare/modificare password create dall'utente;
+             - visualizzare le password di un determinato utente.
 
-   4. **Servizio di doppia autenticazione:**
-        - Tale microservizio permette la generazione di un codice temporaneo da utilizzare nel secondo stage di autenticazione.
+   3. **Double Authentication**
+        - Permette di generare un codice temporaneo (tramite il microservizio *Password Create*) da utilizzare in un secondo stage di autenticazione.
 
-        > *Servizio utilizzabile per siti/applicazioni che scelgono di utilizzare tale sistema come framework di autenticazione.*
+             > *Servizio utilizzabile da siti/applicazioni che scelgono di integrare il sistema come framework di autenticazione a due fattori.*
 
-   5. **Generazione password temporanea:**
-        - Generazione di password temporanee utilizzabili da utenti ospiti per un certo periodo specificato dal creatore della password.
+   4. **Group Manager**
+        - Permette alle aziende di creare e gestire gruppi di utenti precedentemente associati come loro impiegati.
 
-        > *Servizio utilizzabile per siti/applicazioni che scelgono di utilizzare tale sistema come framework di autenticazione.*
 
-   6. **Generazioni password condivise:**
-        - tale microservizio offre la possibilità a due o più utenti di limitare l'accesso ad una password. In particolare, l'utilizzo di una certa password è vincolata all'accettazione di tutti i partecipanti ad essa. Una password di questo tipo viene restituita all'utente solamente se la richiesta viene accettata da tutti i 'partecipanti' a questa password. Una volta ottenute tutte le autorizzazioni la password viene mostrata all'utente richiedente.
-        N.B.: la password in questione viene generata in modo temporaneo. Le richieste successive per una password già creata non ne producono una nuova se il periodo di validità non è ancora trascorso.
+   5. **Shared Password**
+        - Permette agli utenti appartenenti almeno ad un gruppo, di richiedere agli altri membri una password temporanea.
+In particolare, la creazione della password è vincolata all'accettazione di tutti i partecipanti, anche un solo rifiuto nega l'utilizzo del servizio. Una volta generata, la password ha una durata di 24 ore. Terminato il periodo di validità, è necessario inviare una nuova richiesta al gruppo.
 
-        > *Servizio utilizzabile per siti/applicazioni che scelgono di utilizzare tale sistema come framework di autenticazione.*
-         
+             > *Servizio utilizzabile da siti/applicazioni che scelgono di integrare il sistema come framework per l'accesso ad aree riservate.*
 
-> *Tale applicazione offre agli utenti di utilizzarla come framework di autenticazione da integrare in siti o applicazioni. In tal caso gli utlimi tre microservizi possono essere utilizzati.*
+   6. **Notification**
+        -  Comunicando con gli altri microservizi in modo asincrono tramite *RabbitMQ*, permette di inviare notifiche agli utenti via email e gestisce lo stato delle richieste di *Shared Password*.

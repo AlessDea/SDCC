@@ -17,7 +17,9 @@ package sharedpw;
 
 service Shared {
   rpc passwordRequest (SharedPasswordRequest) returns (SharedPasswordReply) {}
+  rpc acceptDecline (NotificationMessageRequest) returns (NotificationMessageReply) {}
   rpc checkPassword (CheckSharedPasswordRequest) returns (CheckSharedPasswordReply) {}
+  rpc getRequestList (GetListRequest) returns (GetListResponse) {}
 }
 
 message SharedPasswordRequest {
@@ -40,4 +42,31 @@ message CheckSharedPasswordRequest {
 
 message CheckSharedPasswordReply {
   bool isChecked = 1;
+}
+
+message NotificationMessageRequest {
+  string group_name = 1;
+  string service = 2;
+  string email_applicant = 3;
+  string email_member = 4;
+  string token = 5;
+  bool accepted = 6;
+}
+
+message NotificationMessageReply {
+  bool isOk = 1;
+}
+
+message GetListRequest {
+  string email = 1;
+}
+
+message Result {
+  string group_name = 1;
+  string agency = 2;
+  string applicant = 3;
+}
+
+message GetListResponse {
+  repeated Result lista = 1;
 }

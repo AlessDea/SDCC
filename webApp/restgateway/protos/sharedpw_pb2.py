@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0esharedpw.proto\x12\x08sharedpw\"K\n\x15SharedPasswordRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x0f\n\x07service\x18\x03 \x01(\t\"7\n\x13SharedPasswordReply\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\x12\x10\n\x08password\x18\x02 \x01(\t\"a\n\x1a\x43heckSharedPasswordRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\x0e\n\x06\x61gency\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\x10\n\x08password\x18\x04 \x01(\t\"-\n\x18\x43heckSharedPasswordReply\x12\x11\n\tisChecked\x18\x01 \x01(\x08\x32\xba\x01\n\x06Shared\x12S\n\x0fpasswordRequest\x12\x1f.sharedpw.SharedPasswordRequest\x1a\x1d.sharedpw.SharedPasswordReply\"\x00\x12[\n\rcheckPassword\x12$.sharedpw.CheckSharedPasswordRequest\x1a\".sharedpw.CheckSharedPasswordReply\"\x00\x42\'\n\x0e/SDCC/servicesB\rSharedPwProtoP\x01\xa2\x02\x03SHPb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0esharedpw.proto\x12\x08sharedpw\"K\n\x15SharedPasswordRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x0f\n\x07service\x18\x03 \x01(\t\"7\n\x13SharedPasswordReply\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\x12\x10\n\x08password\x18\x02 \x01(\t\"a\n\x1a\x43heckSharedPasswordRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\x0e\n\x06\x61gency\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\x10\n\x08password\x18\x04 \x01(\t\"-\n\x18\x43heckSharedPasswordReply\x12\x11\n\tisChecked\x18\x01 \x01(\x08\"\x91\x01\n\x1aNotificationMessageRequest\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\x0f\n\x07service\x18\x02 \x01(\t\x12\x17\n\x0f\x65mail_applicant\x18\x03 \x01(\t\x12\x14\n\x0c\x65mail_member\x18\x04 \x01(\t\x12\r\n\x05token\x18\x05 \x01(\t\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x06 \x01(\x08\"(\n\x18NotificationMessageReply\x12\x0c\n\x04isOk\x18\x01 \x01(\x08\"\x1f\n\x0eGetListRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"?\n\x06Result\x12\x12\n\ngroup_name\x18\x01 \x01(\t\x12\x0e\n\x06\x61gency\x18\x02 \x01(\t\x12\x11\n\tapplicant\x18\x03 \x01(\t\"2\n\x0fGetListResponse\x12\x1f\n\x05lista\x18\x01 \x03(\x0b\x32\x10.sharedpw.Result2\xe0\x02\n\x06Shared\x12S\n\x0fpasswordRequest\x12\x1f.sharedpw.SharedPasswordRequest\x1a\x1d.sharedpw.SharedPasswordReply\"\x00\x12[\n\racceptDecline\x12$.sharedpw.NotificationMessageRequest\x1a\".sharedpw.NotificationMessageReply\"\x00\x12[\n\rcheckPassword\x12$.sharedpw.CheckSharedPasswordRequest\x1a\".sharedpw.CheckSharedPasswordReply\"\x00\x12G\n\x0egetRequestList\x12\x18.sharedpw.GetListRequest\x1a\x19.sharedpw.GetListResponse\"\x00\x42\'\n\x0e/SDCC/servicesB\rSharedPwProtoP\x01\xa2\x02\x03SHPb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'sharedpw_pb2', globals())
@@ -29,6 +29,16 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _CHECKSHAREDPASSWORDREQUEST._serialized_end=259
   _CHECKSHAREDPASSWORDREPLY._serialized_start=261
   _CHECKSHAREDPASSWORDREPLY._serialized_end=306
-  _SHARED._serialized_start=309
-  _SHARED._serialized_end=495
+  _NOTIFICATIONMESSAGEREQUEST._serialized_start=309
+  _NOTIFICATIONMESSAGEREQUEST._serialized_end=454
+  _NOTIFICATIONMESSAGEREPLY._serialized_start=456
+  _NOTIFICATIONMESSAGEREPLY._serialized_end=496
+  _GETLISTREQUEST._serialized_start=498
+  _GETLISTREQUEST._serialized_end=529
+  _RESULT._serialized_start=531
+  _RESULT._serialized_end=594
+  _GETLISTRESPONSE._serialized_start=596
+  _GETLISTRESPONSE._serialized_end=646
+  _SHARED._serialized_start=649
+  _SHARED._serialized_end=1001
 # @@protoc_insertion_point(module_scope)

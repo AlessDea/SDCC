@@ -11,8 +11,6 @@ from protos.groupmanager_pb2 import *
 from protos.groupmanager_pb2_grpc import *
 from protos.sharedpw_pb2 import *
 from protos.sharedpw_pb2_grpc import *
-from protos.notification_pb2 import *
-from protos.notification_pb2_grpc import *
 
 
 def registration(username, password, isAgency):
@@ -165,20 +163,10 @@ def checkPassword(group_name, agency, email, password):
         return None
 
 
-def checkStatus(group_name, email, service):
-    try:
-        with grpc.insecure_channel('notification-service:50058') as channel:
-            stub = NotificationStub(channel)
-            response = stub.checkStatus(CheckStatusRequest(group_name=group_name, email=email, service=service))
-            return response.status, response.total
-    except:
-        return None
-
-
 def acceptDecline(group_name, service, email_applicant, email_member, token, accepted):
     try:
-        with grpc.insecure_channel('notification-service:50058') as channel:
-            stub = NotificationStub(channel)
+        with grpc.insecure_channel('sharedpw-service:50056') as channel:
+            stub = SharedStub(channel)
             response = stub.acceptDecline(NotificationMessageRequest(group_name=group_name, service=service, email_applicant=email_applicant, email_member=email_member, token=token, accepted=accepted))
             return response.isOk
     except:
@@ -187,8 +175,8 @@ def acceptDecline(group_name, service, email_applicant, email_member, token, acc
 
 def getRequestList(email):
     try:
-        with grpc.insecure_channel('notification-service:50058') as channel:
-            stub = NotificationStub(channel)
+        with grpc.insecure_channel('sharedpw-service:50056') as channel:
+            stub = SharedStub(channel)
             response = stub.getRequestList(GetListRequest(email=email))
             logging.warning('Response.lista: ' + str(response.lista))
             lista = []

@@ -153,18 +153,18 @@ def checkUserAgency(emails, agency):
     return response.isEmployeeChecked                       # ritorna 0
 
 
-# Publish on RabbitMQ the request for Nofitication. Queue email_queue
-def publishNotificationRequest(group_name, email_applicant, email_list, service):
+# Publish on RabbitMQ the request for Shared Password. Queue info_queue
+def publishEmailsList(group_name, email_applicant, email_list, service):
 
     connection = connect_rabbitmq()
     if connection != False:
         try:
-            message = {'TAG':'SharedPassword', 'group_name':group_name, 'email_applicant':email_applicant, 'participants':email_list, 'service':service}
+            message = {'group_name':group_name, 'email_applicant':email_applicant, 'participants':email_list, 'service':service}
             body = json.dumps(message)
 
             channel = connection.channel()
             channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
-            channel.basic_publish(exchange='routing', routing_key='notification', body=body)
+            channel.basic_publish(exchange='routing', routing_key='sharedpassword', body=body)
             connection.close()
             logging.warning('Rabbitmq group manager publish')
             return True
@@ -199,7 +199,7 @@ def on_message_received(channel, method, properties, body):
     logging.warning('Lista remove: ' + str(email_list))
 
     # Publish on RabbitMQ the group infos required to send emails
-    response = publishNotificationRequest(group_name, email_applicant, email_list, service)
+    response = publishEmailsList(group_name, email_applicant, email_list, service)
     
     # Send ack only if there were no errors
     # (try/except not required, at worst multiple requests are sent and only the last one is valid)

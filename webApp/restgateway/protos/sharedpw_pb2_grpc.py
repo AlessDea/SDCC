@@ -19,10 +19,20 @@ class SharedStub(object):
                 request_serializer=sharedpw__pb2.SharedPasswordRequest.SerializeToString,
                 response_deserializer=sharedpw__pb2.SharedPasswordReply.FromString,
                 )
+        self.acceptDecline = channel.unary_unary(
+                '/sharedpw.Shared/acceptDecline',
+                request_serializer=sharedpw__pb2.NotificationMessageRequest.SerializeToString,
+                response_deserializer=sharedpw__pb2.NotificationMessageReply.FromString,
+                )
         self.checkPassword = channel.unary_unary(
                 '/sharedpw.Shared/checkPassword',
                 request_serializer=sharedpw__pb2.CheckSharedPasswordRequest.SerializeToString,
                 response_deserializer=sharedpw__pb2.CheckSharedPasswordReply.FromString,
+                )
+        self.getRequestList = channel.unary_unary(
+                '/sharedpw.Shared/getRequestList',
+                request_serializer=sharedpw__pb2.GetListRequest.SerializeToString,
+                response_deserializer=sharedpw__pb2.GetListResponse.FromString,
                 )
 
 
@@ -35,7 +45,19 @@ class SharedServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def acceptDecline(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def checkPassword(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def getRequestList(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -49,10 +71,20 @@ def add_SharedServicer_to_server(servicer, server):
                     request_deserializer=sharedpw__pb2.SharedPasswordRequest.FromString,
                     response_serializer=sharedpw__pb2.SharedPasswordReply.SerializeToString,
             ),
+            'acceptDecline': grpc.unary_unary_rpc_method_handler(
+                    servicer.acceptDecline,
+                    request_deserializer=sharedpw__pb2.NotificationMessageRequest.FromString,
+                    response_serializer=sharedpw__pb2.NotificationMessageReply.SerializeToString,
+            ),
             'checkPassword': grpc.unary_unary_rpc_method_handler(
                     servicer.checkPassword,
                     request_deserializer=sharedpw__pb2.CheckSharedPasswordRequest.FromString,
                     response_serializer=sharedpw__pb2.CheckSharedPasswordReply.SerializeToString,
+            ),
+            'getRequestList': grpc.unary_unary_rpc_method_handler(
+                    servicer.getRequestList,
+                    request_deserializer=sharedpw__pb2.GetListRequest.FromString,
+                    response_serializer=sharedpw__pb2.GetListResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -82,6 +114,23 @@ class Shared(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
+    def acceptDecline(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/sharedpw.Shared/acceptDecline',
+            sharedpw__pb2.NotificationMessageRequest.SerializeToString,
+            sharedpw__pb2.NotificationMessageReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
     def checkPassword(request,
             target,
             options=(),
@@ -95,5 +144,22 @@ class Shared(object):
         return grpc.experimental.unary_unary(request, target, '/sharedpw.Shared/checkPassword',
             sharedpw__pb2.CheckSharedPasswordRequest.SerializeToString,
             sharedpw__pb2.CheckSharedPasswordReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def getRequestList(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/sharedpw.Shared/getRequestList',
+            sharedpw__pb2.GetListRequest.SerializeToString,
+            sharedpw__pb2.GetListResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
