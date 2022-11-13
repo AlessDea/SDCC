@@ -65,11 +65,12 @@ message GetListRequest {
   string email = 1;
 }
 
+message Result {
+  string group_name = 1;
+  string agency = 2;
+  string applicant = 3;
+}
+
 message GetListResponse {
-  message Result{
-    string group_name = 1;
-    string agency = 2;
-    string applicant = 3;
-  }
   repeated Result lista = 1;
 }

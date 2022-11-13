@@ -149,7 +149,7 @@ def checkRequestStatus(group_name, email, service):
 def getRequestList(email):
 
     query  = "SELECT group_name, service, email_applicant FROM request WHERE email_member = %s AND status = '0'"
-    val = (email)
+    val = (email,)
 
     mydb = connect_mysql_secondary()
     mycursor = None
@@ -160,9 +160,11 @@ def getRequestList(email):
             mycursor.execute(query,val)
             myresult = mycursor.fetchall()
             if mycursor.rowcount > 0:
+                logging.warning('myresul getrequestlist: ' + str(myresult))
                 return myresult
             return []
-        except:
+        except Exception as e:
+            logging.warning('GetRequestList db exception: ' + str(e))
             return None
         finally:
             if mycursor != None:
@@ -364,7 +366,7 @@ class Notification(NotificationServicer):
         # ... if the accept/decline has been updated correctly ...
         if response:
             subject = "Shared Password Response"
-            # ... and was a decline, send the 'Shared Password deied' email
+            # ... and was a decline, send the 'Shared Password denied' email
             if request.accepted == False:
                 message = 'Group: ' + str(request.group_name) + '\nAgency: ' + str(request.service) + '\n\nYour request for a Share Password has been denied by ' + str(request.email_member) + '.'
                 send_email(request.email_applicant, subject, message)
@@ -386,7 +388,11 @@ class Notification(NotificationServicer):
 
     def getRequestList(self, request, context):
         response = getRequestList(request.email)
-        return GetListResponse(lista=response)
+        
+        lista = []
+        for e in response:
+            lista.append(Result(group_name=e[0], agency=e[1], applicant=e[2]))
+        return GetListResponse(lista=lista)
 
 
 if __name__ == '__main__':

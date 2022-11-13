@@ -1,4 +1,5 @@
 import grpc
+import logging
 
 from protos.login_pb2_grpc import *
 from protos.login_pb2 import *
@@ -189,6 +190,11 @@ def getRequestList(email):
         with grpc.insecure_channel('notification-service:50058') as channel:
             stub = NotificationStub(channel)
             response = stub.getRequestList(GetListRequest(email=email))
-            return response.lista
-    except:
+            logging.warning('Response.lista: ' + str(response.lista))
+            lista = []
+            for i in range(len(response.lista)):
+                lista.append([response.lista[i].agency, response.lista[i].group_name, response.lista[i].applicant])
+            return lista
+    except Exception as e:
+        logging.warning('GetList Gateway exception: ' + str(e))
         return None

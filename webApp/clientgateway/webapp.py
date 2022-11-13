@@ -1,4 +1,5 @@
 import gateway_client
+import logging
 from flask import Flask
 from flask import request, session, render_template, redirect, url_for, flash
 
@@ -263,6 +264,7 @@ def notification():
     if session.get('isAgency', None) != 'True':
     
         lista = gateway_client.getRequestList(session.get('username', None))
+        logging.warning('Lista: ' + str(lista) + ' | ' + str(type(lista)))
         if lista == None:
             flash('An error occurred, try again!')
             return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
@@ -282,16 +284,23 @@ def notification():
             else:
                 accept_decline = False
 
-            response = gateway_client.acceptDecline(group_name,service,applicant,session.get('username', None), token, accept_decline)
+            response = gateway_client.acceptDecline(group_name,agency,applicant,session.get('username', None), token, accept_decline)
 
             if response:
                 flash('Response correctly sent!')
             else:
                 flash('An error occurred, try again!')
 
+            lista = gateway_client.getRequestList(session.get('username', None))
+            logging.warning('Lista: ' + str(lista) + ' | ' + str(type(lista)))
+            if lista == None:
+                flash('An error occurred, try again!')
+                                
         return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=lista)
+    
     return redirect(url_for('home'))
 
 
 if __name__ == '__main__':
+    logging.basicConfig()
     app.run(host='0.0.0.0', port=5000, debug=True)
