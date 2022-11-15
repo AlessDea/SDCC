@@ -154,8 +154,8 @@ def passwordRequest(group_name, email, service):
             stub = SharedStub(channel)
             response = stub.passwordRequest(SharedPasswordRequest(group_name=group_name, email=email, service=service))
             return response.exists, response.password
-    except:
-        raise Exception
+    except Exception as e:
+        raise e
 
 @breaker
 def checkPassword(group_name, agency, email, password):
