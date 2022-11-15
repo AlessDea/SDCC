@@ -34,23 +34,25 @@ def register():
     if session.get('username', None) != None:
         return redirect(url_for('home'))
     if request.method == 'POST':
-        if request.form['submit'] == 'user_register':
-            email = request.form['email']
-            password = request.form['user_password']
-            registered = gateway_client.registration(email, password, False)
-        else:
-            agency = request.form['agency_name']
-            password = request.form['agency_password']
-            registered = gateway_client.registration(agency, password, True)
 
-        if registered:
-            flash('Successfully registered, log in to the site to enter the platform!')
-            return redirect(url_for('login'))
-        elif registered == None:
-            flash('Error, please try again using an other username/agency name.')
-        else:
-            flash('Error, something went wrong, please retry.')
-        
+        try:
+            if request.form['submit'] == 'user_register':
+                email = request.form['email']
+                password = request.form['user_password']
+                registered = gateway_client.registration(email, password, False)
+            else:
+                agency = request.form['agency_name']
+                password = request.form['agency_password']
+                registered = gateway_client.registration(agency, password, True)
+
+            if registered:
+                flash('Successfully registered, log in to the site to enter the platform!')
+                return redirect(url_for('login'))
+            else:
+                flash('Error, please try again using an other username/agency name.')
+        except:
+            flash('Sorry, something went wrong! Please try again.')
+
     return render_template('register.html')
 
 
@@ -59,32 +61,32 @@ def login():
     if session.get('username', None) != None:
         return redirect(url_for('home'))
     if request.method == 'POST':
-        if request.form['submit'] == 'user_login':
-            username = request.form['email']
-            password = request.form['user_password']
-            isAgency = False
-            isLogged = gateway_client.doLogin(username, password, isAgency)
-        else:
-            username = request.form['agency_name']
-            password = request.form['agency_password']
-            isAgency = True
-            isLogged = gateway_client.doLogin(username, password, isAgency)
+        try:
+            if request.form['submit'] == 'user_login':
+                username = request.form['email']
+                password = request.form['user_password']
+                isAgency = False
+                isLogged = gateway_client.doLogin(username, password, isAgency)
+            else:
+                username = request.form['agency_name']
+                password = request.form['agency_password']
+                isAgency = True
+                isLogged = gateway_client.doLogin(username, password, isAgency)
 
-        if isLogged == 1: # Credenziali corrette
-            session['username'] = username
-            session['isAgency'] = str(isAgency)
-            session['hasAgency'] = str(False)
-            return redirect(url_for('home'))
-        elif isLogged == 2:
-            session['username'] = username
-            session['isAgency'] = str(isAgency)
-            session['hasAgency'] = str(True)
-            return redirect(url_for('home'))
-        elif isLogged == 0: # Credenziali errate
-            flash('Invalid credentials.')
-        else: # -1 errore generico
-            flash('Something went wrong, please retry.')
-
+            if isLogged == 1:  # Credenziali corrette
+                session['username'] = username
+                session['isAgency'] = str(isAgency)
+                session['hasAgency'] = str(False)
+                return redirect(url_for('home'))
+            elif isLogged == 2:
+                session['username'] = username
+                session['isAgency'] = str(isAgency)
+                session['hasAgency'] = str(True)
+                return redirect(url_for('home'))
+            elif isLogged == 0:  # Credenziali errate
+                flash('Invalid credentials.')
+        except:
+            flash('Sorry, something went wrong! Please try again.')
     return render_template('login.html')
 
 
@@ -124,30 +126,33 @@ def newpassword():
                     symbol = True
 
                 type = request.form['r1']
-                if type != 'num':
-                    type1 = request.form['r2']
-                    if type1 == 'ulc':
-                        npw = gateway_client.getNewAlphaNumericPassword(username, int(len), service, symbol, save)
-                    elif type1 == 'uc':
-                        npw = gateway_client.getNewUpperPassword(username, int(len), service, symbol, save)
+                try:
+                    if type != 'num':
+                        type1 = request.form['r2']
+                        if type1 == 'ulc':
+                            npw = gateway_client.getNewAlphaNumericPassword(username, int(len), service, symbol, save)
+                        elif type1 == 'uc':
+                            npw = gateway_client.getNewUpperPassword(username, int(len), service, symbol, save)
+                        else:
+                            npw = gateway_client.getNewLowerPassword(username, int(len), service, symbol, save)
                     else:
-                        npw = gateway_client.getNewLowerPassword(username, int(len), service, symbol, save)
-                else:
-                    npw = gateway_client.getNewNumericPassword(username, int(len), service, symbol, save)
+                        npw = gateway_client.getNewNumericPassword(username, int(len), service, symbol, save)
 
-                message = "Your new password:"
-                
-                if save:
-                    message = "New password correctly saved:"
-                    if not service:
-                        flash('Error: to save your password, you need to specify the liked Service!')
-                        return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+                    message = "Your new password:"
 
-                    if not npw[1]:
-                        flash('Error saving your password!')
-                        return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+                    if save:
+                        message = "New password correctly saved:"
+                        if not service:
+                            flash('Error: to save your password, you need to specify the liked Service!')
+                            return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
+                        #potrebbe anche essere tolto ma non si sa mai
+                        if not npw[1]:
+                            flash('Error saving your password!')
+                            return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
 
-                return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None), newpasswd=npw[0], msg=message)
+                    return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None), newpasswd=npw[0], msg=message)
+                except:
+                    flash('Sorry, something went wrong! Please try again.')
 
         return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
     return redirect(url_for('home'))
@@ -164,12 +169,13 @@ def savepassword():
             service = request.form['service']
             if request.form['submit'] == 'save':
                 username = session.get('username', None)
-                ret = gateway_client.savePassword(username, str(password), service)
-                if ret:
-                    flash('Password for \''+service+'\' successfully stored!')
-                else:
-                    flash('Error: the DB is not responding or this is already your password for \''+service+'\'!')
-                    
+                try:
+                    ret = gateway_client.savePassword(username, str(password), service)
+                    if ret:
+                        flash('Password for \''+service+'\' successfully stored!')
+                except:
+                    flash('Sorry, something went wrong! Please try again.')
+
         return render_template('savePassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
     return redirect(url_for('home'))
 
@@ -182,11 +188,13 @@ def listpasswords():
         isAgency = session.get('isAgency', None)
         if request.method == 'POST':
             username = session.get('username', None)
-            lista = gateway_client.doList(username)
-            if lista:
-                return render_template('listPasswords.html', agency=isAgency, hasAgency=session.get('hasAgency', None), lista=lista)
-            else:
-                flash('No passwords found!')
+            try:
+                lista = gateway_client.doList(username)
+                if lista:
+                    return render_template('listPasswords.html', agency=isAgency, hasAgency=session.get('hasAgency', None), lista=lista)
+            except:
+                flash('Sorry, something went wrong! Please try again.')
+
         return render_template('listPasswords.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
     return redirect(url_for('home'))
 
@@ -196,15 +204,19 @@ def grouplist():
     if session.get('username', None) == None:
         return redirect(url_for('login'))
     if session.get('isAgency', None) != 'True':
-        if request.method == 'POST':
-            email = session['username']
-            splitted = (request.form['submit']).split(',')
-            group_name = splitted[0]
-            service = splitted[1]
-            response, message = gateway_client.passwordRequest(group_name, email, service)
-            flash(message)
-        lista = gateway_client.groupList(session.get('username', None))
-        return render_template('groupList.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=lista)
+        try:
+            if request.method == 'POST':
+                email = session['username']
+                splitted = (request.form['submit']).split(',')
+                group_name = splitted[0]
+                service = splitted[1]
+                response, message = gateway_client.passwordRequest(group_name, email, service)
+                flash(message)
+            lista = gateway_client.groupList(session.get('username', None))
+            return render_template('groupList.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=lista)
+        except:
+            flash('Sorry, something went wrong! Please try again.')
+
     return redirect(url_for('home'))
 
 
@@ -226,16 +238,17 @@ def groupcreate():
                     group_list.append(user)
                 group_name = request.form['group_name']
 
-                response = gateway_client.groupCreate(group_name, group_list, session.get('username', None))
+                try:
+                    response = gateway_client.groupCreate(group_name, group_list, session.get('username', None))
 
-                if response == 0:
-                    flash('Group \''+group_name+'\' created succesfully!')
-                elif response == -1:
-                    flash('Error, something went wrong, try to use another Group Name!')
-                elif response == 1:
-                    flash('Error, all the users has to be your employee!')
-                else:
-                    flash('Error, some user doesn\'t exists!')
+                    if response == 0:
+                        flash('Group \''+group_name+'\' created succesfully!')
+                    elif response == -1:
+                        flash('Error, something went wrong, try to use another Group Name!')
+                    elif response == 1:
+                        flash('Error, all the users has to be your employee!')
+                except:
+                    flash('Sorry, something went wrong! Please try again.')
             else:
                 flash('Error, insert at least 2 different members!')
         return render_template('groupCreate.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
@@ -248,11 +261,15 @@ def addemployee():
         return redirect(url_for('login'))
     if session.get('isAgency', None) == 'True':
         if request.method == 'POST':
-            response = gateway_client.addEmployee(request.form['myInput'], session.get('username', None))
-            if response:
-                flash('Employee correctly added!')
-            else:
-                flash('Error, user not found or unable to add the employee!')
+            try:
+                response = gateway_client.addEmployee(request.form['myInput'], session.get('username', None))
+                if response:
+                    flash('Employee correctly added!')
+                else:
+                    flash('Error, user not found or unable to add the employee!')
+            except:
+                flash('Sorry, something went wrong! Please try again.')
+
         return render_template('addEmployee.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
     return redirect(url_for('home'))
 
@@ -284,18 +301,18 @@ def notification():
             else:
                 accept_decline = False
 
-            response = gateway_client.acceptDecline(group_name,agency,applicant,session.get('username', None), token, accept_decline)
+            try:
+                response = gateway_client.acceptDecline(group_name,agency,applicant,session.get('username', None), token, accept_decline)
 
-            if response:
-                flash('Response correctly sent!')
-            else:
-                flash('An error occurred, try again!')
+                if response:
+                    flash('Response correctly sent!')
 
-            lista = gateway_client.getRequestList(session.get('username', None))
-            logging.warning('Lista: ' + str(lista) + ' | ' + str(type(lista)))
-            if lista == None:
-                flash('An error occurred, try again!')
-                                
+                lista = gateway_client.getRequestList(session.get('username', None))
+                logging.warning('Lista: ' + str(lista) + ' | ' + str(type(lista)))
+
+            except:
+                flash('Sorry, something went wrong! Please try again.')
+
         return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=lista)
     
     return redirect(url_for('home'))

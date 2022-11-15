@@ -11,7 +11,11 @@ from protos.sharedpw_pb2 import *
 app = Flask(__name__)
 api = Api(app)
 
+from lib.breaker_listeners import *
 
+breaker = pybreaker.CircuitBreaker(fail_max=2, reset_timeout=5, listeners=[GreetingsListener(), LogListener()])
+
+@breaker
 def check_shared(arg):
 	# grpc request to SharedPw microservice
 	try:
@@ -20,9 +24,9 @@ def check_shared(arg):
 			response = stub.checkPassword(CheckSharedPasswordRequest(group_name=arg['group_name'], email=arg['email'], agency=arg['service'], password=arg['password']))
 			return response.isChecked
 	except:
-		return False
+		raise Exception
 
-
+@breaker
 def gen_double_code(arg):
 	try:
 		with grpc.insecure_channel('doubleauth-service:50059') as channel:
@@ -31,9 +35,9 @@ def gen_double_code(arg):
 				GenCodeRequest(email=arg['email'], service=arg['service']))
 			return response.message
 	except:
-		return False
+		raise Exception
 
-
+@breaker
 def check_double_code(arg):
 	#print('Check Double Code - ' + str(arg['email']) + str(arg['service']) + str(arg['code']))
 	logging.warning('Check Double Code - ' + str(arg['email']) + str(arg['service']) + str(arg['code']))
@@ -47,9 +51,9 @@ def check_double_code(arg):
 	except:
 		logging.warning('Check Double Code - Except')
 		#print('Check Double Code - Except')
-		return False
+		raise Exception
 
-
+@breaker
 def reg_user_double(arg):
 	try:
 		with grpc.insecure_channel('doubleauth-service:50059') as channel:
@@ -58,7 +62,7 @@ def reg_user_double(arg):
 				RegistrationRequest(email=arg['email'], service=arg['service']))
 			return response.message
 	except:
-		return False
+		raise Exception
 
 
 class SharedPw(Resource):
@@ -69,7 +73,7 @@ class SharedPw(Resource):
 		else:
 			return {"Answer": "DECLINE"}
 
-		
+
 class DoubleAuth(Resource):
 
 	def post(self):
