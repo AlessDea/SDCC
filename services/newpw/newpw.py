@@ -46,9 +46,6 @@ def generate_num_code(l, sy):
         else:
             code += random.choice(alphabetDigits)
 
-    with open('state.dat', 'wb') as f:
-        pickle.dump(random.getstate(), f)
-
     return code
 
 
@@ -64,9 +61,6 @@ def generate_lower_code(l, sy):
 
         else:
             code += random.choice(alphabetLower + alphabetDigits)
-
-    with open('state.dat', 'wb') as f:
-        pickle.dump(random.getstate(), f)
 
     return code
 
@@ -84,9 +78,6 @@ def generate_upper_code(l, sy):
         else:
             code += random.choice(alphabetUpper + alphabetDigits)
 
-    with open('state.dat', 'wb') as f:
-        pickle.dump(random.getstate(), f)
-
     return code
 
 
@@ -102,23 +93,7 @@ def generate_alphanumeric_code(l, sy):
         else:
             code += random.choice(alphabetUpper + alphabetLower + alphabetDigits)
 
-    with open('state.dat', 'wb') as f:
-        pickle.dump(random.getstate(), f)
-
     return code
-
-
-def checkRandomStatus():
-    if os.path.exists('state.dat'):
-        # Restore the previously saved state
-        #print('Found state.dat, initializing random module')
-        with open('state.dat', 'rb') as f:
-            state = pickle.load(f)
-        random.setstate(state)
-    else:
-        # Use a well-known start state
-        #print('No state.dat, seeding')
-        random.seed(12345)
 
 @breaker
 def savePassword(email, password, service):
@@ -181,7 +156,8 @@ def serve():
     server.start()
     server.wait_for_termination()
 
+
 if __name__ == '__main__':
-    checkRandomStatus()
+    random.seed(None) # Initialize the seed with the current system time
     logging.basicConfig()
     serve()

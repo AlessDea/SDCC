@@ -166,8 +166,8 @@ def publishEmailsList(group_name, email_applicant, email_list, service):
             body = json.dumps(message)
 
             channel = connection.channel()
-            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
-            channel.basic_publish(exchange='routing', routing_key='sharedpassword', body=body)
+            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct, durable=True)
+            channel.basic_publish(exchange='routing', routing_key='sharedpassword', body=body, properties=pika.BasicProperties(delivery_mode=2,))
             connection.close()
             logging.warning('Rabbitmq group manager publish')
             return True
@@ -247,9 +247,9 @@ def consumingRequestQueue():
         try:
             channel = connection.channel()
             logging.warning('Rabbitmq connection 1')
-            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
+            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct, durable=True)
             logging.warning('Rabbitmq connection: 2')
-            channel.queue_declare(queue='request_queue')
+            channel.queue_declare(queue='request_queue', durable=True)
             logging.warning('Rabbitmq connection: 3')
             channel.queue_bind(exchange='routing', queue='request_queue', routing_key='groupmanager')
             logging.warning('Rabbitmq connection: 4')

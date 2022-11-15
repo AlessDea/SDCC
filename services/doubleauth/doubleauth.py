@@ -123,8 +123,8 @@ def sendMessage(email, agency, code):
     if connection != False:
         try:
             channel = connection.channel()
-            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
-            channel.basic_publish(exchange='routing', routing_key='notification', body=packet)
+            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct, durable=True)
+            channel.basic_publish(exchange='routing', routing_key='notification', body=packet, properties=pika.BasicProperties(delivery_mode=2,))
             connection.close()
             logging.warning('Rabbitmq Ok')
             return True

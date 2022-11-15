@@ -12,6 +12,7 @@ RUN pip install -r requirements.txt
 RUN pip install grpcio
 RUN pip install google-api-python-client
 RUN pip install flask_restful
+RUN pip install pybreaker
 
 # copy every content from the local file to the image
 COPY . /app

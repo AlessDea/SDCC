@@ -204,18 +204,22 @@ def grouplist():
     if session.get('username', None) == None:
         return redirect(url_for('login'))
     if session.get('isAgency', None) != 'True':
-        try:
-            if request.method == 'POST':
+        if request.method == 'POST':
+            try:
                 email = session['username']
                 splitted = (request.form['submit']).split(',')
                 group_name = splitted[0]
                 service = splitted[1]
                 response, message = gateway_client.passwordRequest(group_name, email, service)
                 flash(message)
+            except:
+                flash('Sorry, an error occurred requiring the Shared Password! Please try again.')
+        try:
             lista = gateway_client.groupList(session.get('username', None))
             return render_template('groupList.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=lista)
         except:
             flash('Sorry, something went wrong! Please try again.')
+            return render_template('groupList.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
 
     return redirect(url_for('home'))
 
@@ -279,10 +283,10 @@ def notification():
     if session.get('username', None) == None:
         return redirect(url_for('login'))
     if session.get('isAgency', None) != 'True':
-    
-        lista = gateway_client.getRequestList(session.get('username', None))
-        logging.warning('Lista: ' + str(lista) + ' | ' + str(type(lista)))
-        if lista == None:
+        try:
+            lista = gateway_client.getRequestList(session.get('username', None))
+            logging.warning('Lista: ' + str(lista))
+        except:
             flash('An error occurred, try again!')
             return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
 
@@ -302,6 +306,7 @@ def notification():
                 accept_decline = False
 
             try:
+                response = False
                 response = gateway_client.acceptDecline(group_name,agency,applicant,session.get('username', None), token, accept_decline)
 
                 if response:
@@ -311,7 +316,11 @@ def notification():
                 logging.warning('Lista: ' + str(lista) + ' | ' + str(type(lista)))
 
             except:
-                flash('Sorry, something went wrong! Please try again.')
+                if response:
+                    flash('Response correctly sent but can\'t reload correctly the page.')
+                else:
+                    flash('Sorry, something went wrong! Please try again.')
+                return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
 
         return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=lista)
     

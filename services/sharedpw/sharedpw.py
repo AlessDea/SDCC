@@ -61,8 +61,8 @@ def publishForGroupManager(message):
         try:
             body = json.dumps(message)
             channel = connection.channel()
-            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
-            channel.basic_publish(exchange='routing', routing_key='groupmanager', body=body)
+            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct, durable=True)
+            channel.basic_publish(exchange='routing', routing_key='groupmanager', body=body, properties=pika.BasicProperties(delivery_mode=2,))
             connection.close()
             return True
         except:
@@ -77,8 +77,8 @@ def publishForNotification(message):
         try:
             body = json.dumps(message)
             channel = connection.channel()
-            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
-            channel.basic_publish(exchange='routing', routing_key='notification', body=body)
+            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct, durable=True)
+            channel.basic_publish(exchange='routing', routing_key='notification', body=body, properties=pika.BasicProperties(delivery_mode=2,))
             connection.close()
             return True
         except:
@@ -195,6 +195,7 @@ def passwordCreate():
             return response.password
     except:
         raise Exception
+
 
 def generateTokens(participants_number):
     tokens = []
@@ -462,9 +463,9 @@ def consumingInfoQueue():
         try:
             channel = connection.channel()
             logging.warning('Rabbitmq connection 1')
-            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct)
+            channel.exchange_declare(exchange='routing', exchange_type=ExchangeType.direct, durable=True)
             logging.warning('Rabbitmq connection: 2')
-            channel.queue_declare(queue='info_queue')
+            channel.queue_declare(queue='info_queue', durable=True)
             logging.warning('Rabbitmq connection: 3')
             channel.queue_bind(exchange='routing', queue='info_queue', routing_key='sharedpassword')
             logging.warning('Rabbitmq connection: 4')

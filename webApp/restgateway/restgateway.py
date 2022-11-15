@@ -7,11 +7,10 @@ from protos.doubleauth_pb2_grpc import *
 from protos.doubleauth_pb2 import *
 from protos.sharedpw_pb2_grpc import *
 from protos.sharedpw_pb2 import *
+from lib.breaker_listeners import *
 
 app = Flask(__name__)
 api = Api(app)
-
-from lib.breaker_listeners import *
 
 breaker = pybreaker.CircuitBreaker(fail_max=2, reset_timeout=5, listeners=[GreetingsListener(), LogListener()])
 
