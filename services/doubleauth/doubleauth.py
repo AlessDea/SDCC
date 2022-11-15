@@ -12,6 +12,9 @@ from protos.newpassword_pb2_grpc import *
 from protos.doubleauth_pb2_grpc import *
 from protos.doubleauth_pb2 import *
 
+from lib.breaker_listeners import *
+
+breaker = pybreaker.CircuitBreaker(fail_max=2, reset_timeout=5, listeners=[GreetingsListener(), LogListener()])
 
 def connect_rabbitmq():
     try:
@@ -102,7 +105,7 @@ def loginThirdPart(email, agency):
                         logging.warning('SendMessage False')
             return False # Errore generico o coppia agenzia-email non esistente
         except:
-            return False # Errore generico o coppia agenzia-email non esistente
+           raise Exception# Errore generico o coppia agenzia-email non esistente
         finally:
             if mycursor != None:
                 mycursor.close()
@@ -130,7 +133,7 @@ def sendMessage(email, agency, code):
             return False
     return False
 
-
+@breaker
 def generateCode(email):
     try:
         with grpc.insecure_channel('newpw-service:50051') as channel:
@@ -138,7 +141,7 @@ def generateCode(email):
             response = stub.GetNewNumericPassword(NewPasswordRequest(email=email, length=5, service=None, symbols=False, hasToSave=False))
             return response.password
     except:
-        return None
+        raise Exception
 
 
 def checkDoubleAuthCode(email, agency, code):

@@ -11,6 +11,9 @@ from protos.login_pb2 import *
 from protos.login_pb2_grpc import *
 from protos.groupmanager_pb2_grpc import *
 from protos.groupmanager_pb2 import *
+from lib.breaker_listeners import *
+
+breaker = pybreaker.CircuitBreaker(fail_max=2, reset_timeout=5, listeners=[GreetingsListener(), LogListener()])
 
 connection = None
 channel = None
@@ -137,7 +140,7 @@ def groupList(email):
     else:
         return dictionary
 
-
+@breaker
 def checkUserAgency(emails, agency):
 
     for email in emails:
@@ -149,7 +152,7 @@ def checkUserAgency(emails, agency):
                 if response.isEmployeeChecked != 0:
                     return response.isEmployeeChecked       # può ritornare -1, 1, 2
         except:
-            return -1
+            raise Exception
     return response.isEmployeeChecked                       # ritorna 0
 
 
@@ -216,10 +219,13 @@ class GroupManager(GroupManagerServicer):
 
         check = checkUserAgency(request.emails, request.agency)
 
-        if check == 0:
-            response = groupCreate(request.group_name, request.emails, request.agency)
-            return GroupCreateReply(isCreated=response)
-        return GroupCreateReply(isCreated=check)
+        try:
+            if check == 0:
+                response = groupCreate(request.group_name, request.emails, request.agency)
+                return GroupCreateReply(isCreated=response)
+            return GroupCreateReply(isCreated=check)
+        except:
+            raise Exception
 
     def groupList(self, request, context):
         response = groupList(request.email)

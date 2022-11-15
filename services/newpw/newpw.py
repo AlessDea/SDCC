@@ -12,11 +12,16 @@ import pickle
 from concurrent import futures
 import logging
 import grpc
+from flask import flash
 
 from protos.newpassword_pb2 import *
 from protos.newpassword_pb2_grpc import *
 from protos.managepassword_pb2 import *
 from protos.managepassword_pb2_grpc import *
+
+from lib.breaker_listeners import *
+
+breaker = pybreaker.CircuitBreaker(fail_max=2, reset_timeout=5, listeners=[GreetingsListener(), LogListener()])
 
 
 alphabetUpper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -115,7 +120,7 @@ def checkRandomStatus():
         #print('No state.dat, seeding')
         random.seed(12345)
 
-
+@breaker
 def savePassword(email, password, service):
     try:
         with grpc.insecure_channel('managepw-service:50054') as channel:
@@ -123,7 +128,7 @@ def savePassword(email, password, service):
             response = stub.SavePassword(SavePasswordRequest(email=email, password=password, service=service))
             return response.isStored
     except:
-        return False
+        raise Exception
 
 
 class Password(PasswordServicer):
@@ -132,28 +137,40 @@ class Password(PasswordServicer):
         npw = generate_num_code(request.length, request.symbols)
         isStored = False
         if request.hasToSave:
-            isStored = savePassword(request.email, npw, request.service)
+            try:
+                isStored = savePassword(request.email, npw, request.service)
+            except:
+                raise Exception
         return NewPasswordReply(password=npw, isSaved=isStored)
 
     def GetNewLowerPassword(self, request, context):
         npw = generate_lower_code(request.length, request.symbols)
         isStored = False
         if request.hasToSave:
-            isStored = savePassword(request.email, npw, request.service)
+            try:
+                isStored = savePassword(request.email, npw, request.service)
+            except:
+                raise Exception
         return NewPasswordReply(password=npw, isSaved=isStored)
 
     def GetNewUpperPassword(self, request, context):
         npw = generate_upper_code(request.length, request.symbols)
         isStored = False
         if request.hasToSave:
-            isStored = savePassword(request.email, npw, request.service)
+            try:
+                isStored = savePassword(request.email, npw, request.service)
+            except:
+                raise Exception
         return NewPasswordReply(password=npw, isSaved=isStored)
 
     def GetNewAlphaNumericPassword(self, request, context):
         npw = generate_alphanumeric_code(request.length, request.symbols)
         isStored = False
         if request.hasToSave:
-            isStored = savePassword(request.email, npw, request.service)
+            try:
+                isStored = savePassword(request.email, npw, request.service)
+            except:
+                raise Exception
         return NewPasswordReply(password=npw, isSaved=isStored)
 
 

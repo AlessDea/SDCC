@@ -194,8 +194,7 @@ def passwordCreate():
             response = stub.GetNewAlphaNumericPassword(NewPasswordRequest(email=None, service=None, length=8, symbols=True, hasToSave=False))
             return response.password
     except:
-        return None
-
+        raise Exception
 
 def generateTokens(participants_number):
     tokens = []
@@ -207,7 +206,7 @@ def generateTokens(participants_number):
                 tokens.append(response.password)
         return tokens
     except:
-        return None
+        raise Exception
 
 
 def saveRequests(group_name, email_applicant, service, participants, tokens):
@@ -345,14 +344,18 @@ class Shared(SharedServicer):
             # if has been accepted
             elif (total - status) == 0:
                 # send requesto to NewPassword
-                password = passwordCreate()
-                if password != None:
+                try:
+                    password = passwordCreate()
                     # save the password on Shared-DB
                     hasBeenStored = storePassword(request.group_name, request.email, request.service, password)
                     if hasBeenStored:
                         return SharedPasswordReply(exists=True, password=f"{request.group_name} - Your Shared Password for the service {request.service} is: {password}")
-                    return SharedPasswordReply(exists=False, password='An error occurred storing the password!')
-                return SharedPasswordReply(exists=False, password='An error occurred during the password creation!')
+                    else: #???
+                        #return SharedPasswordReply(exists=False, password='An error occurred storing the password!')
+                        raise Exception
+                except:
+                    raise Exception
+                #return SharedPasswordReply(exists=False, password='An error occurred during the password creation!')
 
             # if still needs to be accepted
             else:
@@ -393,13 +396,16 @@ class Shared(SharedServicer):
                     logging.warning('Accepted --> Publish on rabbitmq')
                     publishForNotification(message)
                     # send requesto to NewPassword
-                    password = passwordCreate()
-                    if password != None:
+                    try:
+                        password = passwordCreate()
                         # save the password on Shared-DB (non controlliamo errore, verrà generata quando cliccherà il pulsante get shared password in caso di errore)
                         storePassword(request.group_name, request.email_applicant, request.service, password)
-        
+                    except:
+                        raise Exception
+
         # returns if the accept/decline has been updated correctly
         return NotificationMessageReply(isOk=response)
+
 
     def getRequestList(self, request, context):
         response = getRequestList(request.email)
@@ -430,11 +436,12 @@ def on_message_received(channel, method, properties, body):
     logging.warning('on_message_received - Group: ' + str(group_name) + " Email_applicant: " + str(email_applicant) + " Service: " + str(service) + " list: " + str(participants))
     
     # Generazione token 
-    tokens = generateTokens(len(participants))
-    logging.warning('Tokens: ' + str(tokens))
-    if tokens == None:
-        return False
-    
+    try:
+        tokens = generateTokens(len(participants))
+        logging.warning('Tokens: ' + str(tokens))
+    except:
+        return False #non lancio eccezione in modo che il thread consumingInfoQueue non venga tirato giù
+
     # Salvataggio richieste nel db
     if saveRequests(group_name, email_applicant, service, participants, tokens):
         # Pubblica su Rabbitmq il messaggio per notification
