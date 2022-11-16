@@ -1,0 +1,20 @@
+Requirements:
+	- docker
+	- minikube (which includes Kubernetes)
+	- helm
+
+How to build and start the cluster:
+	1. buildimagen
+	2. loadimagen
+	3. inithelmn
+	4. kubectlapply
+
+After the cluster is up:
+	1. check the minikube ip with the command:
+		$ minikube ip
+	2. in a browser navigate to the minikube ip at the port 30000:
+		(http://minikube_ip:30000)
+
+Testing business services:
+	1. launch the application:
+		$ python3 ThirdApp/app.py minikube_ip
