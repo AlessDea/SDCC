@@ -1,13 +1,21 @@
 Requirements:
+Please install:
 	- docker
 	- minikube (which includes Kubernetes)
 	- helm
 
+Please check if your minikube version has metrics-server:
+	$ minikube addons list
+	
+Enable it if not already enabled:
+	$ minikube addons metrics-server enable
+	
+
 How to build and start the cluster:
-	1. buildimagen
-	2. loadimagen
-	3. inithelmn
-	4. kubectlapply
+	1. buildimage.sh
+	2. loadimage.sh
+	3. inithelm.sh
+	4. kubectlapply.sh
 
 After the cluster is up:
 	1. check the minikube ip with the command:
