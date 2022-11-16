@@ -84,6 +84,32 @@ def get_emails(group_name, service):
         return None
 
 
+def checkTeam(group_name, email, service):
+
+    query = "SELECT * FROM team WHERE group_name = %s AND service = %s AND email = %s"
+    val = (group_name, service, email)
+
+    mydb = connect_mysql_secondary()
+    mycursor = None
+    emails = []
+
+    if mydb != False:
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute(query, val)
+            myresult = mycursor.fetchall()
+            if mycursor.rowcount > 0:
+                return True
+            return False
+        except:
+            return False
+        finally:
+            if mycursor != False:
+                mycursor.close()
+    else:
+        return False
+
+
 def groupCreate(group_name, emails, agency):
 
     mydb = connect_mysql_primary()
@@ -230,6 +256,10 @@ class GroupManager(GroupManagerServicer):
     def groupList(self, request, context):
         response = groupList(request.email)
         return GroupListReply(list=response)
+
+    def checkGroup(self, request, context):
+        response = checkTeam(request.group_name, request.email, request.service)
+        return CheckGroupResponse(isChecked=response)
 
 
 def serve():

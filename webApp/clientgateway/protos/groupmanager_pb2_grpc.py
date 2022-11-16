@@ -24,6 +24,11 @@ class GroupManagerStub(object):
                 request_serializer=groupmanager__pb2.GroupListRequest.SerializeToString,
                 response_deserializer=groupmanager__pb2.GroupListReply.FromString,
                 )
+        self.checkGroup = channel.unary_unary(
+                '/groupmanager.GroupManager/checkGroup',
+                request_serializer=groupmanager__pb2.CheckGroupRequest.SerializeToString,
+                response_deserializer=groupmanager__pb2.CheckGroupResponse.FromString,
+                )
 
 
 class GroupManagerServicer(object):
@@ -41,6 +46,12 @@ class GroupManagerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def checkGroup(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_GroupManagerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -53,6 +64,11 @@ def add_GroupManagerServicer_to_server(servicer, server):
                     servicer.groupList,
                     request_deserializer=groupmanager__pb2.GroupListRequest.FromString,
                     response_serializer=groupmanager__pb2.GroupListReply.SerializeToString,
+            ),
+            'checkGroup': grpc.unary_unary_rpc_method_handler(
+                    servicer.checkGroup,
+                    request_deserializer=groupmanager__pb2.CheckGroupRequest.FromString,
+                    response_serializer=groupmanager__pb2.CheckGroupResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -95,5 +111,22 @@ class GroupManager(object):
         return grpc.experimental.unary_unary(request, target, '/groupmanager.GroupManager/groupList',
             groupmanager__pb2.GroupListRequest.SerializeToString,
             groupmanager__pb2.GroupListReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def checkGroup(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/groupmanager.GroupManager/checkGroup',
+            groupmanager__pb2.CheckGroupRequest.SerializeToString,
+            groupmanager__pb2.CheckGroupResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
