@@ -20,9 +20,9 @@ spec:
         imagePullPolicy: Never
         resources:
           limits:
-            cpu: 50m
+            cpu: 500m
           requests:
-            cpu: 20m
+            cpu: 200m
         ports:
         - containerPort: 5000
 ---
@@ -52,15 +52,15 @@ spec:
     name: webapp-deployment
   minReplicas: 1
   maxReplicas: 5
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 0
+    scaleUp:
+      stabilizationWindowSeconds: 0
   metrics:
-	- type: Object
-		object:
-		  metric:
-			name: requests-per-second
-		  describedObject:
-			apiVersion: networking.k8s.io/v1
-			kind: Ingress
-			name: main-route
-		  target:
-			type: Value
-			value: 10k    
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50   

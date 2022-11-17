@@ -219,7 +219,7 @@ def grouplist():
             return render_template('groupList.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=lista)
         except:
             flash('Sorry, something went wrong! Please try again.')
-            return render_template('groupList.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
+            return render_template('groupList.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista={})
 
     return redirect(url_for('home'))
 
@@ -288,7 +288,7 @@ def notification():
             logging.warning('Lista: ' + str(lista))
         except:
             flash('An error occurred, try again!')
-            return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
+            return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=[])
 
         if request.method == 'POST':
 
@@ -311,6 +311,8 @@ def notification():
 
                 if response:
                     flash('Response correctly sent!')
+                else:
+                    flash('Sorry, something went wrong! Please try again.')
 
                 lista = gateway_client.getRequestList(session.get('username', None))
                 logging.warning('Lista: ' + str(lista) + ' | ' + str(type(lista)))
@@ -320,7 +322,7 @@ def notification():
                     flash('Response correctly sent but can\'t reload correctly the page.')
                 else:
                     flash('Sorry, something went wrong! Please try again.')
-                return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
+                return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=[])
 
         return render_template('notification.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None), lista=lista)
     

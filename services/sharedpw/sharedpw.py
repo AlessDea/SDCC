@@ -407,7 +407,6 @@ class Shared(SharedServicer):
         # returns if the accept/decline has been updated correctly
         return NotificationMessageReply(isOk=response)
 
-
     def getRequestList(self, request, context):
         response = getRequestList(request.email)
         

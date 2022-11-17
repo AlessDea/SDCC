@@ -20,9 +20,9 @@ spec:
         imagePullPolicy: Never
         resources:
           limits:
-            cpu: 50m
+            cpu: 150m
           requests:
-            cpu: 20m
+            cpu: 100m
         ports:
         - containerPort: 50057
 ---
@@ -49,6 +49,11 @@ spec:
     name: groupmanager-deployment
   minReplicas: 1
   maxReplicas: 5
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 0
+    scaleUp:
+      stabilizationWindowSeconds: 0
   metrics:
     - type: Resource
       resource:
