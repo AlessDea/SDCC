@@ -1,5 +1,5 @@
 #!/bin/sh
-echo "Start installation of SecurePassword"
+echo "Start installation of SecurePassworld"
 echo ""
 sh ./buildimage.sh
 echo ""
