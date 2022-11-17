@@ -27,8 +27,8 @@ breaker = pybreaker.CircuitBreaker(fail_max=2, reset_timeout=5, listeners=[Greet
 alphabetUpper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 alphabetLower = 'abcdefghijklmnopqrstuvwxyz'
 alphabetDigits = '0123456789'
-alphabetPunctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
-alphabetComplete = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+alphabetPunctuation = '!$%&()*+,.:<=>?@[\\]^_{|}~'
+alphabetComplete = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!$%&()*+,.:<=>?@[\\]^_{|}~'
 
 perc = 0.3
 
