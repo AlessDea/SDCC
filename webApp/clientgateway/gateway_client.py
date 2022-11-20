@@ -14,9 +14,15 @@ from protos.sharedpw_pb2_grpc import *
 
 from lib.breaker_listeners import *
 
+# +-------------------------------------------------------------------------------------------------+
+# | Circuit Breaker configurato con numero massimo di tentativi pari a 2 e timeout pari a 5 secondi |
+# +-------------------------------------------------------------------------------------------------+
 breaker = pybreaker.CircuitBreaker(fail_max=2, reset_timeout=5, listeners=[GreetingsListener(), LogListener()])
 
 
+# +---------------------------------------------------------------+
+# | Invoca il microservizio Login per effettuare la registrazione |
+# +---------------------------------------------------------------+
 @breaker
 def registration(username, password, isAgency):
     try:
@@ -27,6 +33,10 @@ def registration(username, password, isAgency):
     except:
         raise Exception
 
+
+# +-------------------------------------------------------+
+# | Invoca il microservizio Login per effettuare il login |
+# +-------------------------------------------------------+
 @breaker
 def doLogin(username, password, isAgency):
     try:
@@ -37,6 +47,10 @@ def doLogin(username, password, isAgency):
     except:
         raise Exception
 
+
+# +------------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio Login per controllare che un certo utente sia dipendete di una certa agenzia |
+# +------------------------------------------------------------------------------------------------------+
 @breaker
 def checkEmployee(email, agency):
     try:
@@ -47,6 +61,10 @@ def checkEmployee(email, agency):
     except:
         raise Exception
 
+
+# +------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio Login per inserire un certo utente come dipendete di una certa agenzia |
+# +------------------------------------------------------------------------------------------------+
 @breaker
 def addEmployee(email, agency):
     try:
@@ -57,6 +75,10 @@ def addEmployee(email, agency):
     except:
         raise Exception
 
+
+# +----------------------------------------------------------------------------------------+
+# | Invoca il microservizio Login per se una certa agenzia è registarata sulla piattaforma |
+# +----------------------------------------------------------------------------------------+
 @breaker
 def checkAgency(agency):
     try:
@@ -67,6 +89,10 @@ def checkAgency(agency):
     except:
         raise Exception
 
+
+# +------------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio NewPassword per generare una nuova password numerica e salvarla se richiesto |
+# +------------------------------------------------------------------------------------------------------+
 @breaker
 def getNewNumericPassword(email, length, service, symbols, isSave):
     try:
@@ -77,6 +103,10 @@ def getNewNumericPassword(email, length, service, symbols, isSave):
     except:
         raise Exception
 
+
+# +----------------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio NewPassword per generare una nuova password alfanumerica e salvarla se richiesto |
+# +----------------------------------------------------------------------------------------------------------+
 @breaker
 def getNewAlphaNumericPassword(email, length, service, symbols, isSave):
     try:
@@ -87,6 +117,10 @@ def getNewAlphaNumericPassword(email, length, service, symbols, isSave):
     except:
         raise Exception
 
+
+# +--------------------------------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio NewPassword per generare una nuova password con solo caratteri maiuscoli e salvarla se richiesto |
+# +--------------------------------------------------------------------------------------------------------------------------+
 @breaker
 def getNewUpperPassword(email, length, service, symbols, isSave):
     try:
@@ -97,6 +131,10 @@ def getNewUpperPassword(email, length, service, symbols, isSave):
     except:
         raise Exception
 
+
+# +--------------------------------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio NewPassword per generare una nuova password con solo caratteri minuscoli e salvarla se richiesto |
+# +--------------------------------------------------------------------------------------------------------------------------+
 @breaker
 def getNewLowerPassword(email, length, service, symbols, isSave):
     try:
@@ -107,6 +145,10 @@ def getNewLowerPassword(email, length, service, symbols, isSave):
     except:
         raise Exception
 
+
+# +----------------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio PasswordManager per salvare una nuova password o sovrascrivere una già esistente |
+# +----------------------------------------------------------------------------------------------------------+
 @breaker
 def savePassword(email, password, service):
     try:
@@ -117,6 +159,10 @@ def savePassword(email, password, service):
     except:
         raise Exception
 
+
+# +---------------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio PasswordManager per ricevere la lista delle password salvate di un certo utente |
+# +---------------------------------------------------------------------------------------------------------+
 @breaker
 def doList(email):
     try:
@@ -127,6 +173,10 @@ def doList(email):
     except:
         raise Exception
 
+
+# +-----------------------------------------------------------------+
+# | Invoca il microservizio GroupManager per creare un buovo gruppo |
+# +-----------------------------------------------------------------+
 @breaker
 def groupCreate(group_name, emails, agency):
     try:
@@ -137,6 +187,10 @@ def groupCreate(group_name, emails, agency):
     except:
         raise Exception
 
+
+# +-------------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio GroupManager per ricevere la lista dei gruppi di cui un certo utente fa parte |
+# +-------------------------------------------------------------------------------------------------------+
 @breaker
 def groupList(email):
     try:
@@ -147,6 +201,10 @@ def groupList(email):
     except:
         raise Exception
 
+
+# +------------------------------------------------------------------------------+
+# | Invoca il microservizio SharedPassword per richiedere una password condivisa |
+# +------------------------------------------------------------------------------+
 @breaker
 def passwordRequest(group_name, email, service):
     try:
@@ -157,6 +215,10 @@ def passwordRequest(group_name, email, service):
     except Exception as e:
         raise e
 
+
+# +---------------------------------------------------------------------------------------------+
+# | Invoca il microservizio SharedPassword per verificare l'esistenza di una password condivisa |
+# +---------------------------------------------------------------------------------------------+
 @breaker
 def checkPassword(group_name, agency, email, password):
     try:
@@ -167,6 +229,10 @@ def checkPassword(group_name, agency, email, password):
     except:
         raise Exception
 
+
+# +------------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio SharedPassword per accettare o declinare una richiesta di password condivisa |
+# +------------------------------------------------------------------------------------------------------+
 @breaker
 def acceptDecline(group_name, service, email_applicant, email_member, token, accepted):
     try:
@@ -177,6 +243,10 @@ def acceptDecline(group_name, service, email_applicant, email_member, token, acc
     except:
         raise Exception
 
+
+# +------------------------------------------------------------------------------------------------------------------------------------+
+# | Invoca il microservizio SharedPassword per ricevere la lista delle richieste di password condivisa che un certo utente ha ricevuto |
+# +------------------------------------------------------------------------------------------------------------------------------------+
 @breaker
 def getRequestList(email):
     try:

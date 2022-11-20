@@ -10,11 +10,17 @@ app.config['SECRET_KEY'] = '52a645324b49268eb7335fe0d9fe5b675ab33b49053845b4' # 
 app.secret_key = "BAD_SECRET_KEY"
 
 
+# +-----------------+
+# | Default routing |
+# +-----------------+
 @app.route('/')
 def index():
     return redirect(url_for('homepage'))
 
 
+# +------------------------------------------------------------------+
+# | Routing verso homepage, se già loggato viene indirizzato in home |
+# +------------------------------------------------------------------+
 @app.route('/homepage', methods=['GET','POST'])
 def homepage():
     if session.get('username', None) != None:
@@ -22,6 +28,9 @@ def homepage():
     return render_template('homepage.html')
 
 
+# +-------------------------------------+
+# | Routing verso home, login richiesto |
+# +-------------------------------------+
 @app.route('/home', methods=['GET','POST'])
 def home():
     if session.get('username', None) == None:
@@ -29,6 +38,9 @@ def home():
     return render_template('home.html', agency=session.get('isAgency', None), hasAgency=session.get('hasAgency', None))
 
 
+# +------------------------------------------------------------------+
+# | Routing verso register, se già loggato viene indirizzato in home |
+# +------------------------------------------------------------------+
 @app.route('/register', methods=['GET','POST'])
 def register():
     if session.get('username', None) != None:
@@ -37,10 +49,12 @@ def register():
 
         try:
             if request.form['submit'] == 'user_register':
+                # se viene registrato un utente
                 email = request.form['email']
                 password = request.form['user_password']
                 registered = gateway_client.registration(email, password, False)
             else:
+                # se viene registrata un'agenzia
                 agency = request.form['agency_name']
                 password = request.form['agency_password']
                 registered = gateway_client.registration(agency, password, True)
@@ -56,6 +70,9 @@ def register():
     return render_template('register.html')
 
 
+# +---------------------------------------------------------------+
+# | Routing verso login, se già loggato viene indirizzato in home |
+# +---------------------------------------------------------------+
 @app.route('/login', methods=['GET','POST'])
 def login():
     if session.get('username', None) != None:
@@ -63,33 +80,41 @@ def login():
     if request.method == 'POST':
         try:
             if request.form['submit'] == 'user_login':
+                # se logga un utente
                 username = request.form['email']
                 password = request.form['user_password']
                 isAgency = False
                 isLogged = gateway_client.doLogin(username, password, isAgency)
             else:
+                # se logga un'agenzia
                 username = request.form['agency_name']
                 password = request.form['agency_password']
                 isAgency = True
                 isLogged = gateway_client.doLogin(username, password, isAgency)
 
-            if isLogged == 1:  # Credenziali corrette
+            if isLogged == 1:
+                # Credenziali corrette (se logga un utente) + setup sessione
                 session['username'] = username
                 session['isAgency'] = str(isAgency)
                 session['hasAgency'] = str(False)
                 return redirect(url_for('home'))
             elif isLogged == 2:
+                # Credenziali corrette (se logga un'agenzia) + setup sessione
                 session['username'] = username
                 session['isAgency'] = str(isAgency)
                 session['hasAgency'] = str(True)
                 return redirect(url_for('home'))
-            elif isLogged == 0:  # Credenziali errate
+            elif isLogged == 0:
+                # Credenziali errate
                 flash('Invalid credentials.')
         except:
             flash('Sorry, something went wrong! Please try again.')
     return render_template('login.html')
 
 
+# +-------------------------------------------------------------------------+
+# | Routing verso homepage dopo aver cancellato la session, login richiesto |
+# +-------------------------------------------------------------------------+
 @app.route("/logout")
 def logout():
     if session.get('username', None) == None:
@@ -100,6 +125,9 @@ def logout():
     return redirect(url_for('homepage'))
 
 
+# +--------------------------------------------+
+# | Routing verso newpassword, login richiesto |
+# +--------------------------------------------+
 @app.route('/newpassword', methods=['GET','POST'])
 def newpassword():
     if session.get('username', None) == None:
@@ -145,7 +173,6 @@ def newpassword():
                         if not service:
                             flash('Error: to save your password, you need to specify the liked Service!')
                             return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
-                        #potrebbe anche essere tolto ma non si sa mai
                         if not npw[1]:
                             flash('Error saving your password!')
                             return render_template('newPassword.html', agency=isAgency, hasAgency=session.get('hasAgency', None))
@@ -158,6 +185,9 @@ def newpassword():
     return redirect(url_for('home'))
 
 
+# +---------------------------------------------+
+# | Routing verso savepassword, login richiesto |
+# +---------------------------------------------+
 @app.route('/savepassword', methods=['GET','POST'])
 def savepassword():
     if session.get('username', None) == None:
@@ -180,6 +210,9 @@ def savepassword():
     return redirect(url_for('home'))
 
 
+# +---------------------------------------------+
+# | Routing verso listpassword, login richiesto |
+# +---------------------------------------------+
 @app.route('/listpasswords', methods=['GET','POST'])
 def listpasswords():
     if session.get('username', None) == None:
@@ -199,6 +232,9 @@ def listpasswords():
     return redirect(url_for('home'))
 
 
+# +------------------------------------------+
+# | Routing verso grouplist, login richiesto |
+# +------------------------------------------+
 @app.route('/grouplist', methods=('GET', 'POST'))
 def grouplist():
     if session.get('username', None) == None:
@@ -224,6 +260,9 @@ def grouplist():
     return redirect(url_for('home'))
 
 
+# +--------------------------------------------+
+# | Routing verso groupcreate, login richiesto |
+# +--------------------------------------------+
 @app.route('/groupcreate', methods=('GET', 'POST'))
 def groupcreate():
     if session.get('username', None) == None:
@@ -259,6 +298,9 @@ def groupcreate():
     return redirect(url_for('home'))
 
 
+# +--------------------------------------------+
+# | Routing verso addemployee, login richiesto |
+# +--------------------------------------------+
 @app.route('/addemployee', methods=('GET', 'POST'))
 def addemployee():
     if session.get('username', None) == None:
@@ -278,6 +320,9 @@ def addemployee():
     return redirect(url_for('home'))
 
 
+# +---------------------------------------------+
+# | Routing verso notification, login richiesto |
+# +---------------------------------------------+
 @app.route('/notification', methods=['GET','POST'])
 def notification():
     if session.get('username', None) == None:

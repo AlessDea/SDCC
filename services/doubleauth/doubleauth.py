@@ -67,15 +67,15 @@ def registerThirdPart(email, agency):
             mycursor.execute(query,val)
             mydb.commit()
             if mycursor.rowcount > 0:
-                return True # Registrazione andata a buon fine
-            return False # Registrazione fallita o utente già registrato
+                return True             # Registrazione andata a buon fine
+            return False                # Registrazione fallita o utente già registrato
         except:
-            return False # Registrazione fallita o utente già registrato
+            return False                # Registrazione fallita o utente già registrato
         finally:
             if mycursor != None:
                 mycursor.close()
     else:
-        return False # Registrazione fallita o utente già registrato
+        return False                    # Registrazione fallita o utente già registrato
 
 
 def loginThirdPart(email, agency):
@@ -92,25 +92,25 @@ def loginThirdPart(email, agency):
             mycursor = mydb.cursor()
             mycursor.execute(queryCheckLogin,val)
             mycursor.fetchall()
-            if mycursor.rowcount > 0: # Coppia agenzia-email esistente --> genera il token 
+            if mycursor.rowcount > 0:                               # Coppia agenzia-email esistente --> genera il token 
                 code = generateCode(email)
                 if code != None:
                     val = (code,email,agency)
                     mycursor.execute(queryUpdateCode,val)
                     mydb.commit()
                     if mycursor.rowcount > 0:
-                        if (sendMessage(email, agency, code)): # Tutto è andato bene, torna True per comunicare al sito di terze parti di indirizzare l'utente sulla pagina di doppia autenticazione
+                        if (sendMessage(email, agency, code)):      # Tutto è andato bene, torna True per comunicare al sito di terze parti di indirizzare l'utente sulla pagina di doppia autenticazione
                             logging.warning('SendMessage True')
                             return True
                         logging.warning('SendMessage False')
-            return False # Errore generico o coppia agenzia-email non esistente
+            return False                                            # Errore generico o coppia agenzia-email non esistente
         except:
-           raise Exception# Errore generico o coppia agenzia-email non esistente
+           raise Exception                                          # Errore generico o coppia agenzia-email non esistente
         finally:
             if mycursor != None:
                 mycursor.close()
     else:
-        return False # Errore generico o coppia agenzia-email non esistente
+        return False                                                # Errore generico o coppia agenzia-email non esistente
 
 
 def sendMessage(email, agency, code):
@@ -161,31 +161,43 @@ def checkDoubleAuthCode(email, agency, code):
             myresult = mycursor.fetchall()
             if mycursor.rowcount > 0 and myresult[0][0] == code:
                 logging.warning('DB and code tutto ok')
-                return True # Codice corretto
+                return True                                 # Codice corretto
             logging.warning('DB and code errato')
-            return False # Codice errato o errore generico
+            return False                                    # Codice errato o errore generico
         except:
             logging.warning('DB error')
-            return False # Codice errato o errore generico
+            return False                                    # Codice errato o errore generico
         finally:
             if mycursor != None:
                 mycursor.close()
     else:
-        return False # Codice errato o errore generico
+        return False                                        # Codice errato o errore generico
 
 
 class Doubleauth(DoubleauthServicer):
 
+    # +--------------------------------------------------------------------------------+
+    # | Registra un nuovo utente per i siti di terze parti                             |
+    # |  -> ritorna un booleano che indica se la richiesta è andata a buon fine o meno |
+    # +--------------------------------------------------------------------------------+
     def registrationThirdPart(self, request, context):
         response = registerThirdPart(request.email, request.service)
         return Reply(message=response)
 
+    # +--------------------------------------------------------------------------------------------------------------------------------------+
+    # | Effettua il login per i siti di terze parti, richiede la generazione del codice di doppia autenticazione e richede l'invio via email |
+    # |  -> ritorna un booleano che indica se la richiesta è andata a buon fine o meno                                                       |
+    # +--------------------------------------------------------------------------------------------------------------------------------------+
     def doLoginThirdPart(self, request, context):
         logging.warning('Login Third entered - ' + str(request.email) + str(request.service))
         response = loginThirdPart(request.email, request.service)
         logging.warning('Login Third return ' + str(response))
         return Reply(message=response)
 
+    # +--------------------------------------------------------------------------------+
+    # | Effettua il controllo del codice di doppia autenticazione                      |
+    # |  -> ritorna un booleano che indica se la richiesta è andata a buon fine o meno |
+    # +--------------------------------------------------------------------------------+
     def checkCode(self, request, context):
         logging.warning('Check Code entered')
         response = checkDoubleAuthCode(request.email, request.service, request.code)

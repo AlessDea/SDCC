@@ -175,22 +175,42 @@ def checkAgency(agency):
 
 class Login(LoginServicer):
 
+    # +-------------------------------------------------------------------------------+
+    # | Effettua la registrazione di un utente o di un'agenzia                        |
+    # |  -> ritorna un booleano che indica se la richesta è andata a buon fine o meno |
+    # +-------------------------------------------------------------------------------+
     def registration(self, request, context):
         response = register(request.username, request.password, request.isAgency)
         return RegistrationReply(isRegistered=response)
 
+    # +-------------------------------------------------------------------------------+
+    # | Effettua il login di un utente o di un'agenzia                                |
+    # |  -> ritorna un booleano che indica se la richesta è andata a buon fine o meno |
+    # +-------------------------------------------------------------------------------+
     def doLogin(self, request, context):
         response = login(request.username, request.password, request.isAgency)
         return LoginReply(isLogged=response)
 
+    # +----------------------------------------------------------------------+
+    # | Controlla se un utente è dipendete di un'agenzia                     |
+    # |  -> ritorna un booleano che indica se l'utente è un dipendete o meno |
+    # +----------------------------------------------------------------------+
     def checkEmployee(self, request, context):
         response = checkEmployee(request.email, request.agency)
         return CheckEmployeeReply(isEmployeeChecked=response)
 
+    # +-------------------------------------------------------------------------------+
+    # | Aggiunge un utente alla lista dei dipendeti per un'agenzia                    |
+    # |  -> ritorna un booleano che indica se la richesta è andata a buon fine o meno |
+    # +-------------------------------------------------------------------------------+
     def addEmployee(self, request, context):
         response = addEmployee(request.email, request.agency)
         return AddEmployeeReply(isEmployeeAdded=response)
 
+    # +---------------------------------------------------------------------+
+    # | Controlla se un'agenzia è registrata nella piattaforma              |
+    # |  -> ritorna un booleano che indica se l'agenzia è registrata o meno |
+    # +---------------------------------------------------------------------+
     def checkAgency(self, request, context):
         response = checkAgency(request.agency)
         return CheckAgencyReply(isAgencyChecked=response)

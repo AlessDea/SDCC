@@ -303,6 +303,10 @@ def getRequestList(email):
 
 class Shared(SharedServicer):
 
+    # +------------------------------------------------------------------------------------------------------------------------------------+
+    # | Gestisce la richesta di una password condivisa                                                                                     |
+    # |  -> ritorna un booleano che indica se già esiste la password e un messaggio che contiene la stessa oppure lo stato della richiesta |
+    # +------------------------------------------------------------------------------------------------------------------------------------+
     def passwordRequest(self, request, context):
         logging.warning('Entrato in PasswordRequest ' + str(request.group_name) + str(request.service) + str(request.email))
         # check if password already exists and isn't expired
@@ -351,12 +355,10 @@ class Shared(SharedServicer):
                     hasBeenStored = storePassword(request.group_name, request.email, request.service, password)
                     if hasBeenStored:
                         return SharedPasswordReply(exists=True, password=f"{request.group_name} - Your Shared Password for the service {request.service} is: {password}")
-                    else: #???
-                        #return SharedPasswordReply(exists=False, password='An error occurred storing the password!')
+                    else:
                         raise Exception
                 except:
                     raise Exception
-                #return SharedPasswordReply(exists=False, password='An error occurred during the password creation!')
 
             # if still needs to be accepted
             else:
@@ -366,6 +368,10 @@ class Shared(SharedServicer):
         logging.warning('Messaggio di reply: ' + str(password))
         return SharedPasswordReply(exists=False, password=password)
 
+    # +---------------------------------------------------------+
+    # | Controlla se la password inserita è corretta            |
+    # |  -> ritorna un booleano che indica se è corretta o meno |
+    # +---------------------------------------------------------+
     def checkPassword(self, request, context):
         response, password = checkIfPasswordExists(request.group_name, request.agency, request.email)
         if (response == 1) and (password == request.password):
@@ -373,33 +379,37 @@ class Shared(SharedServicer):
             return CheckSharedPasswordReply(isChecked=True)
         return CheckSharedPasswordReply(isChecked=False)
 
+    # +------------------------------------------------------------------------------+
+    # | Gestisce l'accettazione o il rifiuto della password condivisa                |
+    # |  -> ritorna un booleano che indica il responso è stato gestito correttamente |
+    # +------------------------------------------------------------------------------+
     def acceptDecline(self, request, context):
         # execute accept/decline update ...
         response = acceptDecline(request.group_name, request.service, request.email_applicant, request.email_member, request.token, request.accepted)
         # ... if the accept/decline has been updated correctly ...
         if response:
 
-            # Pubblica il messaggio su Rabbitmq per Notification
+            # Publish on Rabbitmq the message for Notification
             message = {'TAG':'AcceptDecline', 'accepted':str(request.accepted), 'group_name':request.group_name, 'email_applicant': request.email_applicant, 'service':request.service, 'email_member':request.email_member}
 
-            # ... and was a decline, send the 'Shared Password denied' email
+            # ... and if was a decline, send the 'Shared Password denied' email
             if request.accepted == False:
-                # Publish Rabbitmq invio email di risposta 
+                # Publish on Rabbitmq the response email
                 logging.warning('Declined --> Publish on rabbitmq')
                 publishForNotification(message)
 
-            # ... and was an accept
+            # ... and if was an accept
             else:
                 # check if everyone accepted and send the confirm email if so
                 status, total = checkRequestStatus(request.group_name, request.email_applicant, request.service)
                 if status == total:
-                    # Publish Rabbitmq invio email di risposta 
+                    # Publish on Rabbitmq the response email
                     logging.warning('Accepted --> Publish on rabbitmq')
                     publishForNotification(message)
                     # send requesto to NewPassword
                     try:
                         password = passwordCreate()
-                        # save the password on Shared-DB (non controlliamo errore, verrà generata quando cliccherà il pulsante get shared password in caso di errore)
+                        # save the password on Shared-DB (non controlliamo errore, se qualcosa non funziona verrà generata e salvata quando l'utente cliccherà il pulsante get shared password)
                         storePassword(request.group_name, request.email_applicant, request.service, password)
                     except:
                         raise Exception
@@ -407,6 +417,10 @@ class Shared(SharedServicer):
         # returns if the accept/decline has been updated correctly
         return NotificationMessageReply(isOk=response)
 
+    # +-----------------------------------------------------------------------------+
+    # | Esegue il fetch delle richieste di password condivisa ricevute da un utente |
+    # |  -> ritorna la lista delle richieste pendenti                               |
+    # +-----------------------------------------------------------------------------+
     def getRequestList(self, request, context):
         response = getRequestList(request.email)
         

@@ -69,6 +69,7 @@ def save(email, password, service):
     else:
         return False
 
+
 def listing(name):
     services   = []
     passwords  = []
@@ -100,13 +101,22 @@ def listing(name):
 
 class Saver(SaverServicer):
 
+    # +--------------------------------------------------------------------------+
+    # | Salva una nuova password o sovrascrive una già esistente                 |
+    # |  -> ritorna un booleano che indica se la password è stata salvata o meno |
+    # +--------------------------------------------------------------------------+
     def SavePassword(self, request, context):
         response = save(request.email, request.password, request.service)
         return SavePasswordReply(isStored=response)
 
+    # +---------------------------------------------------------------+
+    # | Esegue il fetch delle password salvate per un certo utente    |
+    # |  -> ritorna un dictionary con le coppie {servizio : password} |
+    # +---------------------------------------------------------------+
     def doList(self, request, context):
         response = listing(request.email)
         return ListPasswordReply(list=response)
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

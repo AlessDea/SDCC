@@ -166,6 +166,7 @@ def groupList(email):
     else:
         return dictionary
 
+
 @breaker
 def checkUserAgency(emails, agency):
 
@@ -241,6 +242,10 @@ def on_message_received(channel, method, properties, body):
 
 class GroupManager(GroupManagerServicer):
 
+    # +-----------------------------------------------------------------------------------------------------------------------------+
+    # | Esegue la creazione di un gruppo                                                                                            |
+    # |  -> ritorna un intero che indica se il gruppo è stato creato o meno, oppure non è stato possibile aggiungere qualche utente |
+    # +-----------------------------------------------------------------------------------------------------------------------------+
     def groupCreate(self, request, context):
 
         check = checkUserAgency(request.emails, request.agency)
@@ -253,10 +258,18 @@ class GroupManager(GroupManagerServicer):
         except:
             raise Exception
 
+    # +----------------------------------------------------------------+
+    # | Esegue il fetch dei gruppi di cui un utente fa parte           |
+    # |  -> ritorna un dictionary con le coppie {agenzia : group_name} |
+    # +----------------------------------------------------------------+
     def groupList(self, request, context):
         response = groupList(request.email)
         return GroupListReply(list=response)
 
+    # +------------------------------------------------------------+
+    # | Controlla se un gruppo esiste                              |
+    # |  -> ritorna un booleano che indica il gruppo esiste o meno |
+    # +------------------------------------------------------------+
     def checkGroup(self, request, context):
         response = checkTeam(request.group_name, request.email, request.service)
         return CheckGroupResponse(isChecked=response)

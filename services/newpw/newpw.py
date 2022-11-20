@@ -108,6 +108,10 @@ def savePassword(email, password, service):
 
 class Password(PasswordServicer):
 
+    # +-----------------------------------------------------------------------------------------------------------------------+
+    # | Genera una nuova password numerica e, se richiesto, la salva per un certo utente                                      |
+    # |  -> ritorna la nuova password e un booleano che, se era stato richiesto, indica se la password è stata salvata o meno |
+    # +-----------------------------------------------------------------------------------------------------------------------+
     def GetNewNumericPassword(self, request, context):
         npw = generate_num_code(request.length, request.symbols)
         isStored = False
@@ -118,6 +122,11 @@ class Password(PasswordServicer):
                 raise Exception
         return NewPasswordReply(password=npw, isSaved=isStored)
 
+
+    # +-----------------------------------------------------------------------------------------------------------------------+
+    # | Genera una nuova password di soli caratteri minuscoli e, se richiesto, la salva per un certo utente                   |
+    # |  -> ritorna la nuova password e un booleano che, se era stato richiesto, indica se la password è stata salvata o meno |
+    # +-----------------------------------------------------------------------------------------------------------------------+
     def GetNewLowerPassword(self, request, context):
         npw = generate_lower_code(request.length, request.symbols)
         isStored = False
@@ -128,6 +137,11 @@ class Password(PasswordServicer):
                 raise Exception
         return NewPasswordReply(password=npw, isSaved=isStored)
 
+
+    # +-----------------------------------------------------------------------------------------------------------------------+
+    # | Genera una nuova password di soli caratteri maiuscoli e, se richiesto, la salva per un certo utente                   |
+    # |  -> ritorna la nuova password e un booleano che, se era stato richiesto, indica se la password è stata salvata o meno |
+    # +-----------------------------------------------------------------------------------------------------------------------+
     def GetNewUpperPassword(self, request, context):
         npw = generate_upper_code(request.length, request.symbols)
         isStored = False
@@ -138,6 +152,11 @@ class Password(PasswordServicer):
                 raise Exception
         return NewPasswordReply(password=npw, isSaved=isStored)
 
+
+    # +-----------------------------------------------------------------------------------------------------------------------+
+    # | Genera una nuova password alfa-numerica e, se richiesto, la salva per un certo utente                                 |
+    # |  -> ritorna la nuova password e un booleano che, se era stato richiesto, indica se la password è stata salvata o meno |
+    # +-----------------------------------------------------------------------------------------------------------------------+
     def GetNewAlphaNumericPassword(self, request, context):
         npw = generate_alphanumeric_code(request.length, request.symbols)
         isStored = False
