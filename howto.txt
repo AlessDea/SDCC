@@ -10,12 +10,17 @@ Please check if your minikube version has metrics-server:
 Enable it if not already enabled:
 	$ minikube addons metrics-server enable
 	
-
-How to build and start the cluster:
-	1. buildimage.sh
-	2. loadimage.sh
-	3. inithelm.sh
-	4. kubectlapply.sh
+Move to init_scripts directory.
+You have two choice to run the cluster:
+	1. Autorun all components:
+		$ sh securepassworld.sh
+	
+	2. Run the following scripts in this order:
+		$ sh buildimage.sh
+		$ sh loadimage.sh
+		$ sh inithelm.sh
+		$ sh kubectlapply.sh
+	
 
 After the cluster is up:
 	1. check the minikube ip with the command:
