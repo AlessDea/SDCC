@@ -38,4 +38,4 @@ In particolare, la creazione della password è vincolata all'accettazione di tut
              > *Servizio utilizzabile da siti/applicazioni che scelgono di integrare il sistema come framework per l'accesso ad aree riservate.*
 
    6. **Notification**
-        -  Comunicando con gli altri microservizi in modo asincrono tramite *RabbitMQ*, permette di inviare notifiche agli utenti via email e gestisce lo stato delle richieste di *Shared Password*.
+        -  Comunicando con gli altri microservizi in modo asincrono tramite *RabbitMQ*, permette di inviare notifiche agli utenti via email.
